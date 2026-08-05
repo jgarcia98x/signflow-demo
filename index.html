@@ -1032,11 +1032,29 @@
   <div class="ai-sidebar">
     <div class="sidebar-header">
       <div class="sidebar-title">⚡ Smart Queue</div>
-      <div class="sidebar-subtitle">AI-ranked · tap to see why · ⚡ = runs parallel</div>
+      <div class="sidebar-subtitle">AI-ranked work order for today</div>
     </div>
 
     <div class="queue-list">
 
+      <!-- PARALLEL CALLOUT -->
+      <div style="background:rgba(249,168,37,0.08);border:1px solid rgba(249,168,37,0.25);border-radius:10px;padding:11px 12px;margin-bottom:4px;">
+        <div style="font-size:11px;font-weight:800;color:#F9A825;margin-bottom:7px;letter-spacing:0.3px;">⚡ 4 JOBS CAN RUN AT THE SAME TIME</div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);"><span style="color:#F9A825;font-weight:700;">⚡</span> La Paloma <span style="color:rgba(255,255,255,0.35);">— runs with Kohl's install (2nd crew)</span></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);"><span style="color:#F9A825;font-weight:700;">⚡</span> Village Tap <span style="color:rgba(255,255,255,0.35);">— runs with Heritage fab</span></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);"><span style="color:#F9A825;font-weight:700;">⚡</span> Northside wrap <span style="color:rgba(255,255,255,0.35);">— overnight print, no crew conflict</span></div>
+        </div>
+        <div style="margin-top:8px;padding-top:7px;border-top:1px solid rgba(249,168,37,0.15);font-size:10px;color:rgba(255,255,255,0.3);">Est. <strong style="color:#F9A825;">2.3 days saved</strong> vs. running jobs back-to-back</div>
+      </div>
+
+      <!-- MOVE UP CALLOUT -->
+      <div style="background:rgba(102,187,106,0.07);border:1px solid rgba(102,187,106,0.2);border-radius:10px;padding:9px 12px;margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:800;color:#66BB6A;margin-bottom:3px;">↑ 1 JOB CAN START EARLIER</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);">Riverside Auto — send the quote today, it approves in &lt;24h and enters fab <strong style="color:rgba(255,255,255,0.8);">2 days ahead of schedule</strong>.</div>
+      </div>
+
+      <!-- JOB 1 -->
       <div class="queue-item">
         <div class="qi-row">
           <div class="qi-num">1</div>
@@ -1045,11 +1063,28 @@
           <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
         </div>
         <div class="qi-explain">
-          <div class="qi-explain-inner">Install crew staged for Aug 4 — must go first. Any slip pushes to Aug 6, conflicting with La Paloma's install slot. National account with zero flex.</div>
+          <div class="qi-explain-inner">Install crew staged for Aug 4 — must go first. Any slip conflicts with La Paloma's install slot. National account, zero flex.</div>
         </div>
       </div>
 
-      <div class="queue-item">
+      <!-- PARALLEL: La Paloma runs WITH #1 -->
+      <div class="queue-item" style="border-left:2px solid #F9A825;margin-left:12px;">
+        <div class="qi-row">
+          <div class="qi-num" style="color:#F9A825;">⚡</div>
+          <div class="qi-info">
+            <div class="qi-name">La Paloma — Exterior</div>
+            <div style="font-size:9px;color:#F9A825;font-weight:700;">Runs at the same time as #1</div>
+          </div>
+          <div class="qi-badge-wrap"><span class="qi-parallel">⚡ NOW</span></div>
+          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
+        </div>
+        <div class="qi-explain">
+          <div class="qi-explain-inner">Second crew, separate install slot Aug 5. Permit approved, materials staged. Dispatching now costs nothing — and it's $34k sitting ready to move.</div>
+        </div>
+      </div>
+
+      <!-- JOB 2 -->
+      <div class="queue-item" style="margin-top:6px;">
         <div class="qi-row">
           <div class="qi-num">2</div>
           <div class="qi-info"><div class="qi-name">Heritage Bank — Branch Refresh</div></div>
@@ -1057,108 +1092,87 @@
           <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
         </div>
         <div class="qi-explain">
-          <div class="qi-explain-inner">Largest active job ($58k). Fab lead time is 8 days — starting now hits Aug 8. Any slip risks a costly change order.</div>
+          <div class="qi-explain-inner">Largest active job ($58k). Fab lead time 8 days — starting now hits Aug 8. Any slip risks a costly change order.</div>
         </div>
       </div>
 
-      <div class="queue-item">
+      <!-- PARALLEL: Village Tap runs WITH #2 -->
+      <div class="queue-item" style="border-left:2px solid #F9A825;margin-left:12px;">
         <div class="qi-row">
-          <div class="qi-num">3</div>
-          <div class="qi-info"><div class="qi-name">Village Tap — Blade Sign</div></div>
-          <div class="qi-badge-wrap"><span class="qi-parallel">⚡ PARALLEL</span></div>
+          <div class="qi-num" style="color:#F9A825;">⚡</div>
+          <div class="qi-info">
+            <div class="qi-name">Village Tap — Blade Sign</div>
+            <div style="font-size:9px;color:#F9A825;font-weight:700;">Runs at the same time as #2</div>
+          </div>
+          <div class="qi-badge-wrap"><span class="qi-parallel">⚡ NOW</span></div>
           <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
         </div>
         <div class="qi-explain">
-          <div class="qi-explain-inner">Client approval pending since Jul 30 — follow-up critical today. Blade fab has a 5-day lead; 1-day slip now risks the install window.</div>
+          <div class="qi-explain-inner">Blade fab doesn't touch Heritage's crew. Client approval pending since Jul 30 — one follow-up text unlocks a job that can move forward right now without touching anything else.</div>
         </div>
       </div>
 
-      <div class="queue-item">
+      <!-- JOB 3 -->
+      <div class="queue-item" style="margin-top:6px;">
         <div class="qi-row">
-          <div class="qi-num">4</div>
+          <div class="qi-num">3</div>
           <div class="qi-info"><div class="qi-name">Summit Tech Park — Monument</div></div>
           <div class="qi-badge-wrap"><span class="qi-seq">—</span></div>
           <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
         </div>
         <div class="qi-explain">
-          <div class="qi-explain-inner">Fabrication mid-run, Aug 8 deadline. Install crew Tue–Wed only — slot must be confirmed today or client reschedules to late August.</div>
+          <div class="qi-explain-inner">Fab mid-run, Aug 8 deadline. Install crew Tue–Wed only — confirm slot today or client reschedules to late August.</div>
         </div>
       </div>
 
-      <div class="queue-item">
+      <!-- PARALLEL: Northside wrap runs alongside anything -->
+      <div class="queue-item" style="border-left:2px solid #F9A825;margin-left:12px;">
         <div class="qi-row">
-          <div class="qi-num">5</div>
-          <div class="qi-info"><div class="qi-name">La Paloma — Exterior</div></div>
-          <div class="qi-badge-wrap"><span class="qi-parallel">⚡ PARALLEL</span></div>
+          <div class="qi-num" style="color:#F9A825;">⚡</div>
+          <div class="qi-info">
+            <div class="qi-name">Northside Gym — Vehicle Wrap</div>
+            <div style="font-size:9px;color:#F9A825;font-weight:700;">Runs alongside any job</div>
+          </div>
+          <div class="qi-badge-wrap"><span class="qi-parallel">⚡ NOW</span></div>
           <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
         </div>
         <div class="qi-explain">
-          <div class="qi-explain-inner">Install Aug 5 via second crew — runs cleanly parallel with Kohl's. Permit approved, materials staged. Just needs crew dispatch confirmed.</div>
+          <div class="qi-explain-inner">Wrap production is overnight wide-format printing — zero crew overlap with any fabrication or install job. Start it whenever.</div>
         </div>
       </div>
 
-      <div class="queue-item">
+      <!-- JOB 4: Riverside — can move up -->
+      <div class="queue-item" style="margin-top:6px;border-left:2px solid #66BB6A;">
         <div class="qi-row">
-          <div class="qi-num">6</div>
-          <div class="qi-info"><div class="qi-name">Northside Gym — Vehicle Wrap</div></div>
-          <div class="qi-badge-wrap"><span class="qi-parallel">⚡ PARALLEL</span></div>
+          <div class="qi-num" style="color:#66BB6A;">↑</div>
+          <div class="qi-info">
+            <div class="qi-name">Riverside Auto — Pylon Sign</div>
+            <div style="font-size:9px;color:#66BB6A;font-weight:700;">Can start 2 days early</div>
+          </div>
+          <div class="qi-badge-wrap"><span style="font-size:9px;font-weight:700;color:#66BB6A;">↑ EARLY</span></div>
           <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
         </div>
         <div class="qi-explain">
-          <div class="qi-explain-inner">Wrap production runs overnight through wide-format printer — doesn't touch the fab shop. Overlaps any design-stage job without competing for resources.</div>
+          <div class="qi-explain-inner">Send the quote today — this client approves in under 24h. That moves fab start to Aug 5, two days ahead of the scheduled Aug 7 slot.</div>
         </div>
       </div>
 
-      <div class="queue-item">
-        <div class="qi-row">
-          <div class="qi-num">7</div>
-          <div class="qi-info"><div class="qi-name">Riverside Auto — Pylon Sign</div></div>
-          <div class="qi-badge-wrap"><span class="qi-seq">—</span></div>
-          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
-        </div>
-        <div class="qi-explain">
-          <div class="qi-explain-inner">Urgent Aug 5 deadline. Quote must go out today. This client typically approves in under 24h once quote lands.</div>
-        </div>
-      </div>
-
-      <div class="queue-item">
+      <!-- Cold quote -->
+      <div class="queue-item" style="margin-top:6px;">
         <div class="qi-row">
           <div class="qi-num">8</div>
           <div class="qi-info"><div class="qi-name">Bricktown Brewery ❄️</div></div>
-          <div class="qi-badge-wrap"><span style="font-size:9px;color:#4FC3F7;">COLD</span></div>
+          <div class="qi-badge-wrap"><span style="font-size:9px;color:#4FC3F7;font-weight:700;">COLD</span></div>
           <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
         </div>
         <div class="qi-explain">
-          <div class="qi-explain-inner">Quote gone cold at 22 days. A quick follow-up today could revive an $8.6k job before it's fully lost. Ranked here — low effort, high upside.</div>
-        </div>
-      </div>
-
-      <div class="queue-item">
-        <div class="qi-row">
-          <div class="qi-num">9</div>
-          <div class="qi-info"><div class="qi-name">Walgreens #4712 — Façade</div></div>
-          <div class="qi-badge-wrap"><span class="qi-seq">—</span></div>
-          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
-        </div>
-        <div class="qi-explain">
-          <div class="qi-explain-inner">Standard lead time — no crisis, but material delivery confirmation needed by Aug 9. Visible without bumping more time-critical jobs.</div>
-        </div>
-      </div>
-
-      <div class="queue-item">
-        <div class="qi-row">
-          <div class="qi-num">10</div>
-          <div class="qi-info"><div class="qi-name">Prairie Wind — Identity</div></div>
-          <div class="qi-badge-wrap"><span class="qi-seq">—</span></div>
-          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
-        </div>
-        <div class="qi-explain">
-          <div class="qi-explain-inner">Design phase, Aug 7 due. Client artwork review call should be scheduled early this week. Ranked below more time-critical jobs — design can flex a day.</div>
+          <div class="qi-explain-inner">Quote gone cold at 22 days. A quick follow-up today could revive an $8.6k job — low effort, high upside. See Smart Nudge on Customers screen.</div>
         </div>
       </div>
 
     </div>
   </div>
+
 
 </div><!-- /main-content -->
 

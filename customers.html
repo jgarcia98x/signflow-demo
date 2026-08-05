@@ -743,27 +743,67 @@
   <div class="ai-sidebar">
     <div class="sidebar-header">
       <div class="sidebar-title">🎯 Smart Nudge</div>
-      <div class="sidebar-subtitle">AI-suggested outreach this week</div>
+      <div class="sidebar-subtitle">Who to call today</div>
     </div>
 
     <div class="nudge-list">
 
-      <div style="font-size:11px; color: var(--text-muted); padding: 4px 0 8px; line-height:1.5;">
-        Based on follow-up dates and slow-period planning, reach out to these customers <strong style="color:var(--text);">this week</strong>:
+      <!-- ❄️ COLD QUOTES SECTION — FIRST -->
+      <div style="background:rgba(79,195,247,0.08);border:1px solid rgba(79,195,247,0.2);border-radius:10px;padding:10px 12px;margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:800;color:#4FC3F7;margin-bottom:6px;letter-spacing:0.3px;">❄️ COLD QUOTES — CALL TODAY</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:10px;">These quotes went quiet. One text or call now could bring them back.</div>
+
+        <!-- Cold: Bricktown -->
+        <div class="nudge-card">
+          <div class="nudge-top">
+            <div class="nudge-avatar" style="background:rgba(0,131,143,0.7);">BB</div>
+            <div class="nudge-info">
+              <div class="nudge-name">Bricktown Craft Brewing</div>
+              <div class="nudge-company">❄️ 22 days silent · $8,600 quote</div>
+            </div>
+          </div>
+          <div class="nudge-reason">
+            Quote sent Jul 12, no reply. A casual <em>"Did you have any questions?"</em> text has a high response rate with local businesses. 5 minutes, $8.6k upside.
+          </div>
+          <div class="nudge-actions">
+            <button class="nudge-btn">💬 Quick Text</button>
+            <button class="nudge-btn ghost">Mark Lost</button>
+          </div>
+        </div>
+
+        <!-- Cold: Metro Signage -->
+        <div class="nudge-card" style="margin-top:6px;">
+          <div class="nudge-top">
+            <div class="nudge-avatar" style="background:rgba(69,39,160,0.7);">MS</div>
+            <div class="nudge-info">
+              <div class="nudge-name">Metro Signs & Graphics</div>
+              <div class="nudge-company">❄️ 14 days silent · $4,200 quote</div>
+            </div>
+          </div>
+          <div class="nudge-reason">
+            Vehicle wrap quote, no response since Aug 1. Wraps are often price-shopped — a quick call to ask if they're comparing options can close this.
+          </div>
+          <div class="nudge-actions">
+            <button class="nudge-btn">📞 Call Now</button>
+            <button class="nudge-btn ghost">Snooze 3d</button>
+          </div>
+        </div>
       </div>
 
-      <!-- Nudge 1 — URGENT -->
+      <!-- FOLLOW-UPS SECTION -->
+      <div class="nudge-divider"></div>
+      <div class="nudge-section-label">⏰ Follow-Ups Due</div>
+
       <div class="nudge-card">
         <div class="nudge-top">
-          <div class="nudge-avatar" style="background: rgba(180,30,30,0.7);">KC</div>
+          <div class="nudge-avatar" style="background:rgba(180,30,30,0.7);">KC</div>
           <div class="nudge-info">
             <div class="nudge-name">Kohl's Corporation</div>
-            <div class="nudge-company">National Retail · Follow-up Due Aug 5</div>
+            <div class="nudge-company">National Retail · Install wrapping up</div>
           </div>
         </div>
         <div class="nudge-reason">
-          <strong>🔴 Urgent — invoice &amp; final walkthrough</strong>
-          Install wrapping up. Client expects completion call. Don't let this close without a check-in — national accounts watch response time.
+          <strong>Invoice &amp; final walkthrough</strong> — install completing today. Don't let a national account close without a check-in call. They track response time.
         </div>
         <div class="nudge-actions">
           <button class="nudge-btn">📞 Call Now</button>
@@ -771,56 +811,16 @@
         </div>
       </div>
 
-      <!-- Nudge 2 -->
       <div class="nudge-card">
         <div class="nudge-top">
-          <div class="nudge-avatar" style="background: rgba(46,125,50,0.7);">ST</div>
-          <div class="nudge-info">
-            <div class="nudge-name">Summit Tech Park LLC</div>
-            <div class="nudge-company">Commercial RE · Follow-up Due Aug 4</div>
-          </div>
-        </div>
-        <div class="nudge-reason">
-          <strong>Install crew slot confirmation needed</strong>
-          Tue–Wed install window must be confirmed today. If you miss this, client reschedules to late August and the slot goes to a competitor.
-        </div>
-        <div class="nudge-actions">
-          <button class="nudge-btn">✉️ Send Update</button>
-          <button class="nudge-btn ghost">Mark Done</button>
-        </div>
-      </div>
-
-      <!-- Nudge 3 — Cold revival -->
-      <div class="nudge-card">
-        <div class="nudge-top">
-          <div class="nudge-avatar" style="background: rgba(0,131,143,0.7);">BB</div>
-          <div class="nudge-info">
-            <div class="nudge-name">Bricktown Craft Brewing</div>
-            <div class="nudge-company">Brewery · ❄️ 22 days silent</div>
-          </div>
-        </div>
-        <div class="nudge-reason">
-          <strong>❄️ Cold — quick text could revive $8.6k</strong>
-          Quote gone cold. A casual "Did you have any questions?" text has a high open rate with local businesses. 5 minutes, high upside.
-        </div>
-        <div class="nudge-actions">
-          <button class="nudge-btn">💬 Quick Text</button>
-          <button class="nudge-btn ghost">Mark Lost</button>
-        </div>
-      </div>
-
-      <!-- Nudge 4 -->
-      <div class="nudge-card">
-        <div class="nudge-top">
-          <div class="nudge-avatar" style="background: rgba(69,39,160,0.7);">NF</div>
+          <div class="nudge-avatar" style="background:rgba(69,39,160,0.7);">NF</div>
           <div class="nudge-info">
             <div class="nudge-name">Northside Fitness</div>
-            <div class="nudge-company">Fitness · Approval pending</div>
+            <div class="nudge-company">Approval pending 7 days</div>
           </div>
         </div>
         <div class="nudge-reason">
-          <strong>Approval chase — vehicle wrap</strong>
-          Proof was sent Jul 28. No reply yet. Wrap production runs overnight so any day's delay = a day late on delivery.
+          Proof sent Jul 28, no reply. Wrap production runs overnight — every day of delay is a day late on delivery. Quick call or text.
         </div>
         <div class="nudge-actions">
           <button class="nudge-btn">📞 Follow Up</button>
@@ -828,20 +828,20 @@
         </div>
       </div>
 
+      <!-- SLOW SEASON SEEDS -->
       <div class="nudge-divider"></div>
-      <div class="nudge-section-label">📅 Upcoming — Slow Season Seeds</div>
+      <div class="nudge-section-label">📅 Slow Season — Reach Out When Work Slows</div>
 
-      <!-- Nudge 5 — Platinum Fitness, 1-mo nudge -->
       <div class="nudge-card">
         <div class="nudge-top">
-          <div class="nudge-avatar" style="background: rgba(55,71,79,0.8);">PF</div>
+          <div class="nudge-avatar" style="background:rgba(55,71,79,0.8);">PF</div>
           <div class="nudge-info">
             <div class="nudge-name">Platinum Fitness</div>
-            <div class="nudge-company">Schedule for Sep 1</div>
+            <div class="nudge-company">Remind Sep 1 · 1-month follow-up</div>
           </div>
         </div>
         <div class="nudge-reason">
-          Job closed Jul 30. Set a reminder to pitch the vehicle wrap package — slow month is the right time to upsell.
+          Job closed Jul 30. Good candidate for a vehicle wrap upsell. Slow month is the right time — they're not in the middle of a project.
         </div>
         <div class="nudge-actions">
           <button class="nudge-btn">📆 Set Reminder</button>
@@ -849,17 +849,16 @@
         </div>
       </div>
 
-      <!-- Nudge 6 — Valley Fresh, 6-mo -->
       <div class="nudge-card">
         <div class="nudge-top">
-          <div class="nudge-avatar" style="background: rgba(121,85,72,0.7);">VF</div>
+          <div class="nudge-avatar" style="background:rgba(121,85,72,0.7);">VF</div>
           <div class="nudge-info">
             <div class="nudge-name">Valley Fresh Foods</div>
-            <div class="nudge-company">Lost · 6-mo nudge → Feb 1</div>
+            <div class="nudge-company">Lost · 6-month reminder → Feb 1</div>
           </div>
         </div>
         <div class="nudge-reason">
-          Lost to competitor Jul 30. Reminder set for Feb 1 — often these clients return after a bad experience with the other shop.
+          Lost to competitor Jul 30. Reminder set for Feb 1 — these clients often come back after a bad experience with the other shop.
         </div>
         <div class="nudge-actions">
           <button class="nudge-btn ghost">Edit Reminder</button>
