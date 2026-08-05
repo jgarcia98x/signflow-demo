@@ -439,6 +439,97 @@
     }
     .stat-sep { width: 1px; height: 28px; background: rgba(255,255,255,0.08); }
     .stats-meta { margin-left: auto; font-size: 11px; color: var(--text-dim); }
+
+  /* ══ MOBILE RESPONSIVE ══════════════════════════════════════ */
+  @media (max-width: 768px) {
+
+    /* Header: stack logo + nav, hide secondary items */
+    header {
+      flex-wrap: wrap;
+      height: auto;
+      padding: 10px 14px 0;
+      gap: 8px;
+    }
+    .header-sep { display: none; }
+    .date-chip { display: none; }
+    .avatar { display: none; }
+    .btn-new {
+      font-size: 12px;
+      padding: 6px 12px;
+    }
+    .header-right { margin-left: auto; }
+
+    /* Nav: full-width scrollable tab row */
+    nav {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      gap: 0;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 0;
+      scrollbar-width: none;
+    }
+    nav::-webkit-scrollbar { display: none; }
+    nav a {
+      flex-shrink: 0;
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 0;
+      border-bottom: 2px solid transparent;
+    }
+    nav a.active {
+      border-bottom: 2px solid rgba(255,255,255,0.9);
+      padding-bottom: 8px;
+    }
+
+    /* Sub-bar: wrap, shrink */
+    .sub-bar {
+      flex-wrap: wrap;
+      padding: 8px 14px;
+      gap: 8px;
+    }
+    .filter-pills { flex-wrap: wrap; gap: 4px; margin-left: 0; }
+    .search-box { width: 100%; }
+
+    /* Main content: stack vertically */
+    .main-content { flex-direction: column; overflow: auto; }
+
+    /* Board: horizontal scroll, visible on mobile */
+    .board-wrap {
+      padding: 12px 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      flex: none;
+      max-height: 55vh;
+    }
+    .board { min-width: max-content; }
+
+    /* AI Sidebar: full width strip at bottom */
+    .ai-sidebar {
+      width: 100%;
+      border-left: none;
+      border-top: 1px solid var(--border);
+      max-height: 45vh;
+      overflow-y: auto;
+    }
+
+    /* Stats bar: scrollable */
+    .stats-bar {
+      overflow-x: auto;
+      gap: 16px;
+      padding: 8px 14px;
+      flex-shrink: 0;
+    }
+    .stats-bar::-webkit-scrollbar { display: none; }
+
+    /* AI banner: smaller */
+    .ai-banner { font-size: 12px; padding: 8px 14px; }
+
+    /* Cards: slightly smaller */
+    .card { padding: 10px 10px 8px; }
+    .card-name { font-size: 13px; }
+  }
   </style>
 </head>
 <body>
