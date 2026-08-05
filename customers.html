@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SignFlow — Customers</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:          #D32F2F;
+      --red-dark:     #B71C1C;
+      --red-glow:     rgba(211,47,47,0.40);
+      --red-glow-sm:  rgba(211,47,47,0.22);
+      --amber:        #F9A825;
+      --amber-glow:   rgba(249,168,37,0.35);
+      --green:        #66BB6A;
+      --green-glow:   rgba(102,187,106,0.35);
+      --blue:         #4FC3F7;
+      --blue-glow:    rgba(79,195,247,0.28);
+      --purple:       #CE93D8;
+
+      /* Glass system */
+      --bg:           #0c0c14;
+      --surface:      rgba(255,255,255,0.06);
+      --surface-mid:  rgba(255,255,255,0.09);
+      --surface-hi:   rgba(255,255,255,0.13);
+      --border:       rgba(255,255,255,0.10);
+      --border-hi:    rgba(255,255,255,0.22);
+
+      /* Text */
+      --text:         rgba(255,255,255,0.93);
+      --text-muted:   rgba(255,255,255,0.55);
+      --text-dim:     rgba(255,255,255,0.30);
+
+      /* Shadows */
+      --shadow:       0 2px 16px rgba(0,0,0,0.50);
+      --shadow-md:    0 4px 28px rgba(0,0,0,0.60);
+      --shadow-card:  0 4px 20px rgba(0,0,0,0.45);
+    }
+
+    html, body { height: 100%; }
+    body {
+      background: radial-gradient(ellipse at 30% 0%, #1a1422 0%, var(--bg) 65%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    header {
+      background: rgba(180,30,30,0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+      z-index: 200;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .logo {
+      font-size: 20px; font-weight: 800; color: #fff;
+      letter-spacing: -0.5px; margin-right: 8px;
+      text-shadow: 0 0 20px rgba(255,255,255,0.3);
+    }
+    .header-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.20); }
+    nav a {
+      color: rgba(255,255,255,0.70);
+      text-decoration: none; font-size: 13px; font-weight: 500;
+      padding: 5px 11px; border-radius: 7px;
+      transition: color .15s, background .15s;
+    }
+    nav a:hover { color: #fff; background: rgba(255,255,255,0.12); }
+    nav a.active {
+      color: #fff;
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 0 12px rgba(255,255,255,0.08);
+    }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .date-chip { font-size: 12px; color: rgba(255,255,255,0.72); font-weight: 500; }
+    .btn-new {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff; border-radius: 7px; padding: 7px 16px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background .15s, box-shadow .15s;
+    }
+    .btn-new:hover { background: rgba(255,255,255,0.22); box-shadow: 0 0 16px rgba(255,255,255,0.12); }
+    .avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff; cursor: pointer;
+    }
+
+    /* ── SUB BAR ─────────────────────────────────────────────── */
+    .sub-bar {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 24px;
+      display: flex; align-items: center; gap: 12px;
+      flex-shrink: 0;
+    }
+    .sub-bar-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .cust-count {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 2px 9px;
+      font-size: 11px; color: var(--text-muted);
+    }
+    .search-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 7px; padding: 5px 12px;
+      font-size: 12px; color: var(--text); outline: none; width: 200px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .search-box::placeholder { color: var(--text-dim); }
+    .search-box:focus { border-color: rgba(211,47,47,0.5); box-shadow: 0 0 10px var(--red-glow-sm); }
+    .filter-pills { display: flex; gap: 5px; margin-left: auto; }
+    .filter-pill {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 3px 11px;
+      font-size: 11px; color: var(--text-muted);
+      cursor: pointer; transition: all .15s;
+    }
+    .filter-pill:hover { border-color: rgba(211,47,47,0.5); color: #ff6b6b; }
+    .filter-pill.active {
+      border-color: rgba(211,47,47,0.5); color: #ff6b6b;
+      background: rgba(211,47,47,0.12); font-weight: 600;
+      box-shadow: 0 0 10px var(--red-glow-sm);
+    }
+
+    /* ── MAIN LAYOUT ─────────────────────────────────────────── */
+    .main-content { flex: 1; display: flex; overflow: hidden; }
+
+    /* ── LEFT: CUSTOMER LIST + SLOW SEASON ─────────────────── */
+    .list-pane {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 16px 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── SECTION TITLE ── */
+    .section-label {
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.9px;
+      color: var(--text-dim); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--border);
+    }
+
+    /* ── CUSTOMER TABLE ── */
+    .cust-table {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .cust-table-head {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 1fr 1fr 1fr 90px;
+      padding: 9px 16px;
+      background: rgba(255,255,255,0.05);
+      border-bottom: 1px solid var(--border);
+    }
+    .th {
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.7px;
+      color: var(--text-dim);
+    }
+
+    .cust-row {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 1fr 1fr 1fr 90px;
+      padding: 11px 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+      cursor: pointer;
+    }
+    .cust-row:last-child { border-bottom: none; }
+    .cust-row:hover { background: var(--surface-mid); }
+    .cust-row.highlighted { background: rgba(249,168,37,0.06); }
+
+    /* customer name + company */
+    .cust-identity { display: flex; flex-direction: column; gap: 2px; }
+    .cust-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .cust-company { font-size: 11px; color: var(--text-muted); }
+
+    .cust-trade { font-size: 12px; color: var(--text-muted); }
+
+    .cust-date { font-size: 12px; color: var(--text-muted); }
+    .cust-date.overdue { color: #ef5350; font-weight: 600; }
+    .cust-date.soon { color: var(--amber); font-weight: 600; }
+
+    /* status badge */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      border-radius: 6px; padding: 3px 8px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+    .status-active    { background: rgba(102,187,106,0.15); border: 1px solid rgba(102,187,106,0.3); color: var(--green); }
+    .status-followup  { background: rgba(249,168,37,0.15); border: 1px solid rgba(249,168,37,0.3); color: var(--amber); }
+    .status-cold      { background: rgba(79,195,247,0.12); border: 1px solid rgba(79,195,247,0.3); color: var(--blue); }
+    .status-lost      { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: var(--text-dim); }
+
+    /* quick contact buttons */
+    .contact-btns { display: flex; gap: 5px; align-items: center; }
+    .contact-btn {
+      width: 26px; height: 26px;
+      border-radius: 6px;
+      background: var(--surface-mid);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; cursor: pointer;
+      transition: background .15s, box-shadow .15s, border-color .15s;
+      text-decoration: none;
+    }
+    .contact-btn:hover {
+      background: rgba(211,47,47,0.15);
+      border-color: rgba(211,47,47,0.3);
+      box-shadow: 0 0 8px var(--red-glow-sm);
+    }
+
+    /* ── SLOW SEASON PANEL ──────────────────────────────────── */
+    .slow-panel {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--amber);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card), 0 0 20px rgba(249,168,37,0.08);
+    }
+    .slow-panel-header {
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .slow-panel-title {
+      font-size: 14px; font-weight: 800; color: var(--amber);
+      text-shadow: 0 0 10px var(--amber-glow);
+    }
+    .slow-panel-sub {
+      font-size: 11px; color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    .slow-section { padding: 10px 16px 6px; }
+    .slow-section-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.7px; color: var(--text-dim); margin-bottom: 8px;
+    }
+    .slow-grid {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
+    }
+
+    .slow-card {
+      background: var(--surface-mid);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex; flex-direction: column; gap: 3px;
+      min-width: 170px; flex: 1;
+      transition: background .15s, box-shadow .15s;
+      cursor: pointer;
+    }
+    .slow-card:hover {
+      background: rgba(249,168,37,0.10);
+      border-color: rgba(249,168,37,0.3);
+      box-shadow: 0 0 12px rgba(249,168,37,0.15);
+    }
+    .slow-card-name { font-size: 12px; font-weight: 600; color: var(--text); }
+    .slow-card-detail { font-size: 11px; color: var(--text-muted); }
+    .slow-card-when {
+      font-size: 10px; font-weight: 700;
+      color: var(--amber); margin-top: 2px;
+    }
+
+    .slow-divider {
+      height: 1px; background: var(--border);
+      margin: 2px 16px 0;
+    }
+
+    /* ── RIGHT SIDEBAR: SMART NUDGE ─────────────────────────── */
+    .ai-sidebar {
+      width: 272px;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      display: flex; flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      border-top: 2px solid var(--red);
+      position: sticky; top: 0;
+      background: rgba(18,8,8,0.75);
+      backdrop-filter: blur(20px);
+      z-index: 10;
+      box-shadow: 0 0 20px rgba(211,47,47,0.12);
+    }
+    .sidebar-title {
+      font-size: 14px; font-weight: 800;
+      color: #ff6b6b;
+      text-shadow: 0 0 12px var(--red-glow-sm);
+    }
+    .sidebar-subtitle {
+      font-size: 10px; color: var(--text-dim);
+      margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .nudge-list {
+      padding: 10px 12px 20px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+
+    .nudge-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      overflow: hidden;
+      transition: background .15s, box-shadow .15s;
+    }
+    .nudge-card:hover {
+      background: var(--surface-mid);
+      box-shadow: 0 0 14px rgba(211,47,47,0.18);
+    }
+
+    .nudge-top {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 11px 7px;
+    }
+    .nudge-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff;
+      flex-shrink: 0; font-family: inherit;
+    }
+    .nudge-info { flex: 1; min-width: 0; }
+    .nudge-name {
+      font-size: 12px; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .nudge-company { font-size: 10px; color: var(--text-muted); }
+
+    .nudge-reason {
+      padding: 0 11px 9px;
+      font-size: 11px; color: var(--text-muted); line-height: 1.5;
+    }
+    .nudge-reason strong { color: var(--text); }
+
+    .nudge-actions {
+      display: flex; gap: 6px;
+      padding: 0 11px 10px;
+    }
+    .nudge-btn {
+      flex: 1;
+      background: rgba(211,47,47,0.15);
+      border: 1px solid rgba(211,47,47,0.3);
+      color: #ff8a80;
+      border-radius: 6px;
+      padding: 4px 0;
+      font-size: 11px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: all .15s; text-align: center;
+    }
+    .nudge-btn:hover {
+      background: rgba(211,47,47,0.28);
+      box-shadow: 0 0 8px var(--red-glow-sm);
+    }
+    .nudge-btn.ghost {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+    .nudge-btn.ghost:hover {
+      border-color: var(--border-hi);
+      color: var(--text);
+      box-shadow: none;
+    }
+
+    /* divider in sidebar */
+    .nudge-divider {
+      height: 1px; background: var(--border);
+      margin: 4px 0 8px;
+    }
+    .nudge-section-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.7px; color: var(--text-dim);
+      padding: 0 12px 6px;
+    }
+
+    /* ── STATS BAR ───────────────────────────────────────────── */
+    .stats-bar {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      padding: 8px 24px;
+      display: flex; align-items: center; gap: 28px;
+      flex-shrink: 0;
+    }
+    .stat { display: flex; flex-direction: column; gap: 1px; }
+    .stat-val { font-size: 18px; font-weight: 700; color: var(--text); }
+    .stat-val.red    { color: #ef5350; text-shadow: 0 0 10px rgba(239,83,80,0.5); }
+    .stat-val.amber  { color: var(--amber); text-shadow: 0 0 10px var(--amber-glow); }
+    .stat-val.green  { color: var(--green); text-shadow: 0 0 10px var(--green-glow); }
+    .stat-val.blue   { color: var(--blue); text-shadow: 0 0 10px var(--blue-glow); }
+    .stat-label {
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--text-dim);
+    }
+    .stat-sep { width: 1px; height: 28px; background: rgba(255,255,255,0.08); }
+    .stats-meta { margin-left: auto; font-size: 11px; color: var(--text-dim); }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ═══════════════════════════════════════════════════ -->
+<header>
+  <div class="logo">SignFlow</div>
+  <div class="header-sep"></div>
+  <nav>
+    <a href="mockup-1-pipeline.html">Pipeline</a>
+    <a href="mockup-2-schedule.html">Schedule</a>
+    <a href="#" class="active">Customers</a>
+    <a href="#">Jobs</a>
+    <a href="#">Reports</a>
+    <a href="#">Settings</a>
+  </nav>
+  <div class="header-right">
+    <div class="date-chip">📅 Sun, Aug 2, 2026</div>
+    <button class="btn-new">＋ Add Customer</button>
+    <div class="avatar">PG</div>
+  </div>
+</header>
+
+<!-- ══ SUB BAR ══════════════════════════════════════════════════ -->
+<div class="sub-bar">
+  <div class="sub-bar-title">Customers &amp; CRM</div>
+  <div class="cust-count">24 total · 3 follow-up due</div>
+  <input class="search-box" type="text" placeholder="🔍  Search customers…" />
+  <div class="filter-pills">
+    <div class="filter-pill active">All</div>
+    <div class="filter-pill">✅ Active</div>
+    <div class="filter-pill">⏰ Follow-up Due</div>
+    <div class="filter-pill">❄️ Cold</div>
+    <div class="filter-pill">✕ Lost</div>
+    <div class="filter-pill">🌙 Slow Season</div>
+  </div>
+</div>
+
+<!-- ══ MAIN CONTENT ══════════════════════════════════════════════ -->
+<div class="main-content">
+
+  <!-- ── LEFT PANE ── -->
+  <div class="list-pane">
+
+    <!-- ── CUSTOMER TABLE ── -->
+    <div>
+      <div class="section-label">All Customers</div>
+      <div class="cust-table">
+
+        <!-- Table Header -->
+        <div class="cust-table-head">
+          <div class="th">Customer</div>
+          <div class="th">Trade Type</div>
+          <div class="th">Last Contact</div>
+          <div class="th">Next Follow-Up</div>
+          <div class="th">Status</div>
+          <div class="th">Contact</div>
+        </div>
+
+        <!-- Row 1 — Active, follow-up due -->
+        <div class="cust-row highlighted">
+          <div class="cust-identity">
+            <div class="cust-name">Kohl's Corporation</div>
+            <div class="cust-company">National Retail</div>
+          </div>
+          <div class="cust-trade">Pylon / Façade</div>
+          <div class="cust-date">Aug 2, 2026</div>
+          <div class="cust-date soon">Aug 5 ⏰</div>
+          <div><span class="status-badge status-followup">⏰ Follow-up Due</span></div>
+          <div class="contact-btns">
+            <div class="contact-btn" title="Call">📞</div>
+            <div class="contact-btn" title="Text">💬</div>
+            <div class="contact-btn" title="Email">✉️</div>
+          </div>
+        </div>
+
+        <!-- Row 2 — Active -->
+        <div class="cust-row">
+          <div class="cust-identity">
+            <div class="cust-name">Heritage Community Bank</div>
+            <div class="cust-company">Financial Services</div>
+          </div>
+          <div class="cust-trade">Channel Letters / Branch</div>
+          <div class="cust-date">Aug 1, 2026</div>
+          <div class="cust-date">Aug 12</div>
+          <div><span class="status-badge status-active">✅ Active</span></div>
+          <div class="contact-btns">
+            <div class="contact-btn" title="Call">📞</div>
+            <div class="contact-btn" title="Text">💬</div>
+            <div class="contact-btn" title="Email">✉️</div>
+          </div>
+        </div>
+
+        <!-- Row 3 — Active, follow-up due -->
+        <div class="cust-row highlighted">
+          <div class="cust-identity">
+            <div class="cust-name">Summit Tech Park LLC</div>
+            <div class="cust-company">Commercial Real Estate</div>
+          </div>
+          <div class="cust-trade">Monument / Wayfinding</div>
+          <div class="cust-date">Aug 1, 2026</div>
+          <div class="cust-date soon">Aug 4 ⏰</div>
+          <div><span class="status-badge status-followup">⏰ Follow-up Due</span></div>
+          <div class="contact-btns">
+            <div class="contact-btn" title="Call">📞</div>
+            <div class="contact-btn" title="Text">💬</div>
+            <div class="contact-btn" title="Email">✉️</div>
+          </div>
+        </div>
+
+        <!-- Row 4 — Active -->
+        <div class="cust-row">
+          <div class="cust-identity">
+            <div class="cust-name">La Paloma Group</div>
+            <div class="cust-company">Restaurant Group</div>
+          </div>
+          <div class="cust-trade">Exterior / Channel Letters</div>
+          <div class="cust-date">Aug 1, 2026</div>
+          <div class="cust-date">Aug 10</div>
+          <div><span class="status-badge status-active">✅ Active</span></div>
+          <div class="contact-btns">
+            <div class="contact-btn" title="Call">📞</div>
+            <div class="contact-btn" title="Text">💬</div>
+            <div class="contact-btn" title="Email">✉️</div>
+          </div>
+        </div>
+
+        <!-- Row 5 — Active -->
+        <div class="cust-row">
+          <div class="cust-identity">
+            <div class="cust-name">Riverside Automotive</div>
+            <div class="cust-company">Auto Dealership</div>
+          </div>
+          <div class="cust-trade">Pylon / Vehicle Wrap</div>
+          <div class="cust-date">Aug 1, 2026</div>
+          <div class="cust-date">Aug 6</div>
+          <div><span class="status-badge status-active">✅ Active</span></div>
+          <div class="contact-btns">
+            <div class="contact-btn" title="Call">📞</div>
+            <div class="contact-btn" title="Text">💬</div>
+            <div class="contact-btn" title="Email">✉️</div>
+          </div>
+        </div>
+
+        <!-- Row 6 — Cold -->
+        <div class="cust-row">
+          <div class="cust-identity">
+            <div class="cust-name">Bricktown Craft Brewing</div>
+            <div class="cust-company">Hospitality / Brewery</div>
+          </div>
+          <div class="cust-trade">Outdoor / Blade Sign</div>
+          <div class="cust-date overdue">Jul 12, 2026</div>
+          <div class="cust-date overdue">Overdue!</div>
+          <div><span class="status-badge status-cold">❄️ Cold</span></div>
+          <div class="contact-btns">
+            <div class="contact-btn" title="Call">📞</div>
+            <div class="contact-btn" title="Text">💬</div>
+            <div class="contact-btn" title="Email">✉️</div>
+          </div>
+        </div>
+
+        <!-- Row 7 — Follow-up Due -->
+        <div class="cust-row highlighted">
+          <div class="cust-identity">
+            <div class="cust-name">Northside Fitness</div>
+            <div class="cust-company">Fitness / Wellness</div>
+          </div>
+          <div class="cust-trade">Vehicle Wrap / Wall Graphics</div>
+          <div class="cust-date">Jul 28, 2026</div>
+          <div class="cust-date soon">Aug 4 ⏰</div>
+          <div><span class="status-badge status-followup">⏰ Follow-up Due</span></div>
+          <div class="contact-btns">
+            <div class="contact-btn" title="Call">📞</div>
+            <div class="contact-btn" title="Text">💬</div>
+            <div class="contact-btn" title="Email">✉️</div>
+          </div>
+        </div>
+
+        <!-- Row 8 — Cold -->
+        <div class="cust-row">
+          <div class="cust-identity">
+            <div class="cust-name">Prairie Wind Self Storage</div>
+            <div class="cust-company">Self Storage / Property</div>
+          </div>
+          <div class="cust-trade">Exterior Identity / Wayfinding</div>
+          <div class="cust-date">Jul 31, 2026</div>
+          <div class="cust-date">Aug 15</div>
+          <div><span class="status-badge status-active">✅ Active</span></div>
+          <div class="contact-btns">
+            <div class="contact-btn" title="Call">📞</div>
+            <div class="contact-btn" title="Text">💬</div>
+            <div class="contact-btn" title="Email">✉️</div>
+          </div>
+        </div>
+
+        <!-- Row 9 — Lost -->
+        <div class="cust-row">
+          <div class="cust-identity">
+            <div class="cust-name">Valley Fresh Foods</div>
+            <div class="cust-company">Grocery / Retail</div>
+          </div>
+          <div class="cust-trade">Storefront / Illuminated</div>
+          <div class="cust-date">Jun 28, 2026</div>
+          <div class="cust-date">Sep 1 (6-mo)</div>
+          <div><span class="status-badge status-lost">✕ Lost</span></div>
+          <div class="contact-btns">
+            <div class="contact-btn" title="Call">📞</div>
+            <div class="contact-btn" title="Text">💬</div>
+            <div class="contact-btn" title="Email">✉️</div>
+          </div>
+        </div>
+
+        <!-- Row 10 — Active (National) -->
+        <div class="cust-row">
+          <div class="cust-identity">
+            <div class="cust-name">Walgreens (National)</div>
+            <div class="cust-company">Pharmacy / National Chain</div>
+          </div>
+          <div class="cust-trade">Façade / LED Retrofit</div>
+          <div class="cust-date">Jul 29, 2026</div>
+          <div class="cust-date">Aug 20</div>
+          <div><span class="status-badge status-active">✅ Active</span></div>
+          <div class="contact-btns">
+            <div class="contact-btn" title="Call">📞</div>
+            <div class="contact-btn" title="Text">💬</div>
+            <div class="contact-btn" title="Email">✉️</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── SLOW SEASON FOLLOW-UP PANEL ── -->
+    <div>
+      <div class="section-label">🌙 Slow Season Follow-Up Queue</div>
+      <div class="slow-panel">
+        <div class="slow-panel-header">
+          <div class="slow-panel-title">🌙 Slow Season Outreach</div>
+          <div class="slow-panel-sub">Stay top-of-mind during quiet months</div>
+        </div>
+
+        <!-- 1-Month Reminders -->
+        <div class="slow-section">
+          <div class="slow-section-label">📅 1-Month Reminders — Reach Out Soon</div>
+          <div class="slow-grid">
+
+            <div class="slow-card">
+              <div class="slow-card-name">Platinum Fitness</div>
+              <div class="slow-card-detail">Wall graphics job closed Jul 30. Great candidate for vehicle wrap package.</div>
+              <div class="slow-card-when">📆 Nudge: Sep 1</div>
+            </div>
+
+            <div class="slow-card">
+              <div class="slow-card-name">Joliet Park District</div>
+              <div class="slow-card-detail">Wayfinding phase 1 done. Phase 2 / ADA signage likely needed by fall.</div>
+              <div class="slow-card-when">📆 Nudge: Sep 5</div>
+            </div>
+
+            <div class="slow-card">
+              <div class="slow-card-name">The Village Tap Bar &amp; Grill</div>
+              <div class="slow-card-detail">Blade sign in approval. Good time to discuss interior menu boards.</div>
+              <div class="slow-card-when">📆 Nudge: Sep 10</div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="slow-divider"></div>
+
+        <!-- 6-Month Reminders -->
+        <div class="slow-section">
+          <div class="slow-section-label">⏳ 6-Month Reminders — Plant the Seed Early</div>
+          <div class="slow-grid">
+
+            <div class="slow-card">
+              <div class="slow-card-name">Valley Fresh Foods</div>
+              <div class="slow-card-detail">Lost to competitor Jul 30. Check back — they may re-evaluate after winter.</div>
+              <div class="slow-card-when">📆 Nudge: Feb 1</div>
+            </div>
+
+            <div class="slow-card">
+              <div class="slow-card-name">Speedway LLC</div>
+              <div class="slow-card-detail">LED retrofit done. Multi-location client — approach other Speedway sites for refresh.</div>
+              <div class="slow-card-when">📆 Nudge: Jan 15</div>
+            </div>
+
+            <div class="slow-card">
+              <div class="slow-card-name">Main St. Restaurant Group</div>
+              <div class="slow-card-detail">Channel letters in progress. Ask about second location signage in slow season.</div>
+              <div class="slow-card-when">📆 Nudge: Feb 10</div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /list-pane -->
+
+  <!-- ── RIGHT: SMART NUDGE SIDEBAR ── -->
+  <div class="ai-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">🎯 Smart Nudge</div>
+      <div class="sidebar-subtitle">AI-suggested outreach this week</div>
+    </div>
+
+    <div class="nudge-list">
+
+      <div style="font-size:11px; color: var(--text-muted); padding: 4px 0 8px; line-height:1.5;">
+        Based on follow-up dates and slow-period planning, reach out to these customers <strong style="color:var(--text);">this week</strong>:
+      </div>
+
+      <!-- Nudge 1 — URGENT -->
+      <div class="nudge-card">
+        <div class="nudge-top">
+          <div class="nudge-avatar" style="background: rgba(180,30,30,0.7);">KC</div>
+          <div class="nudge-info">
+            <div class="nudge-name">Kohl's Corporation</div>
+            <div class="nudge-company">National Retail · Follow-up Due Aug 5</div>
+          </div>
+        </div>
+        <div class="nudge-reason">
+          <strong>🔴 Urgent — invoice &amp; final walkthrough</strong>
+          Install wrapping up. Client expects completion call. Don't let this close without a check-in — national accounts watch response time.
+        </div>
+        <div class="nudge-actions">
+          <button class="nudge-btn">📞 Call Now</button>
+          <button class="nudge-btn ghost">Snooze 2d</button>
+        </div>
+      </div>
+
+      <!-- Nudge 2 -->
+      <div class="nudge-card">
+        <div class="nudge-top">
+          <div class="nudge-avatar" style="background: rgba(46,125,50,0.7);">ST</div>
+          <div class="nudge-info">
+            <div class="nudge-name">Summit Tech Park LLC</div>
+            <div class="nudge-company">Commercial RE · Follow-up Due Aug 4</div>
+          </div>
+        </div>
+        <div class="nudge-reason">
+          <strong>Install crew slot confirmation needed</strong>
+          Tue–Wed install window must be confirmed today. If you miss this, client reschedules to late August and the slot goes to a competitor.
+        </div>
+        <div class="nudge-actions">
+          <button class="nudge-btn">✉️ Send Update</button>
+          <button class="nudge-btn ghost">Mark Done</button>
+        </div>
+      </div>
+
+      <!-- Nudge 3 — Cold revival -->
+      <div class="nudge-card">
+        <div class="nudge-top">
+          <div class="nudge-avatar" style="background: rgba(0,131,143,0.7);">BB</div>
+          <div class="nudge-info">
+            <div class="nudge-name">Bricktown Craft Brewing</div>
+            <div class="nudge-company">Brewery · ❄️ 22 days silent</div>
+          </div>
+        </div>
+        <div class="nudge-reason">
+          <strong>❄️ Cold — quick text could revive $8.6k</strong>
+          Quote gone cold. A casual "Did you have any questions?" text has a high open rate with local businesses. 5 minutes, high upside.
+        </div>
+        <div class="nudge-actions">
+          <button class="nudge-btn">💬 Quick Text</button>
+          <button class="nudge-btn ghost">Mark Lost</button>
+        </div>
+      </div>
+
+      <!-- Nudge 4 -->
+      <div class="nudge-card">
+        <div class="nudge-top">
+          <div class="nudge-avatar" style="background: rgba(69,39,160,0.7);">NF</div>
+          <div class="nudge-info">
+            <div class="nudge-name">Northside Fitness</div>
+            <div class="nudge-company">Fitness · Approval pending</div>
+          </div>
+        </div>
+        <div class="nudge-reason">
+          <strong>Approval chase — vehicle wrap</strong>
+          Proof was sent Jul 28. No reply yet. Wrap production runs overnight so any day's delay = a day late on delivery.
+        </div>
+        <div class="nudge-actions">
+          <button class="nudge-btn">📞 Follow Up</button>
+          <button class="nudge-btn ghost">Snooze 1d</button>
+        </div>
+      </div>
+
+      <div class="nudge-divider"></div>
+      <div class="nudge-section-label">📅 Upcoming — Slow Season Seeds</div>
+
+      <!-- Nudge 5 — Platinum Fitness, 1-mo nudge -->
+      <div class="nudge-card">
+        <div class="nudge-top">
+          <div class="nudge-avatar" style="background: rgba(55,71,79,0.8);">PF</div>
+          <div class="nudge-info">
+            <div class="nudge-name">Platinum Fitness</div>
+            <div class="nudge-company">Schedule for Sep 1</div>
+          </div>
+        </div>
+        <div class="nudge-reason">
+          Job closed Jul 30. Set a reminder to pitch the vehicle wrap package — slow month is the right time to upsell.
+        </div>
+        <div class="nudge-actions">
+          <button class="nudge-btn">📆 Set Reminder</button>
+          <button class="nudge-btn ghost">Skip</button>
+        </div>
+      </div>
+
+      <!-- Nudge 6 — Valley Fresh, 6-mo -->
+      <div class="nudge-card">
+        <div class="nudge-top">
+          <div class="nudge-avatar" style="background: rgba(121,85,72,0.7);">VF</div>
+          <div class="nudge-info">
+            <div class="nudge-name">Valley Fresh Foods</div>
+            <div class="nudge-company">Lost · 6-mo nudge → Feb 1</div>
+          </div>
+        </div>
+        <div class="nudge-reason">
+          Lost to competitor Jul 30. Reminder set for Feb 1 — often these clients return after a bad experience with the other shop.
+        </div>
+        <div class="nudge-actions">
+          <button class="nudge-btn ghost">Edit Reminder</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /main-content -->
+
+<!-- ══ STATS BAR ══════════════════════════════════════════════════ -->
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-val">24</div>
+    <div class="stat-label">Total Customers</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat">
+    <div class="stat-val green">14</div>
+    <div class="stat-label">Active</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat">
+    <div class="stat-val amber">3</div>
+    <div class="stat-label">Follow-Up Due</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat">
+    <div class="stat-val blue">4</div>
+    <div class="stat-label">❄️ Cold</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat">
+    <div class="stat-val red">3</div>
+    <div class="stat-label">✕ Lost</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat">
+    <div class="stat-val amber">6</div>
+    <div class="stat-label">🌙 Slow Season Queue</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat">
+    <div class="stat-val green">$328,450</div>
+    <div class="stat-label">Active Pipeline</div>
+  </div>
+  <div class="stats-meta">Garcia Sign &amp; Electric, Joliet IL · Last updated: just now</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SignFlow — Job Pipeline</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:          #D32F2F;
+      --red-dark:     #B71C1C;
+      --red-glow:     rgba(211,47,47,0.4);
+      --red-glow-sm:  rgba(211,47,47,0.25);
+      --amber:        #F9A825;
+      --amber-glow:   rgba(249,168,37,0.35);
+      --green:        #66BB6A;
+      --green-glow:   rgba(102,187,106,0.35);
+      --blue-tone:    #7986CB;
+      --teal-tone:    #4DD0E1;
+
+      /* Glass system */
+      --bg:           #0c0c14;
+      --bg-mid:       #111118;
+      --surface:      rgba(255,255,255,0.06);
+      --surface-mid:  rgba(255,255,255,0.09);
+      --surface-hi:   rgba(255,255,255,0.13);
+      --border:       rgba(255,255,255,0.10);
+      --border-hi:    rgba(255,255,255,0.20);
+
+      /* Text */
+      --text:         rgba(255,255,255,0.93);
+      --text-muted:   rgba(255,255,255,0.55);
+      --text-dim:     rgba(255,255,255,0.32);
+
+      /* Shadows */
+      --shadow:       0 2px 16px rgba(0,0,0,0.5);
+      --shadow-md:    0 4px 28px rgba(0,0,0,0.6);
+      --shadow-card:  0 4px 20px rgba(0,0,0,0.45);
+
+      /* Column tones */
+      --tone-a:    #7986CB;
+      --tone-b:    #4DD0E1;
+      --tone-c:    #66BB6A;
+    }
+
+    html, body { height: 100%; }
+    body {
+      background: radial-gradient(ellipse at 30% 0%, #1a1422 0%, var(--bg) 65%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    header {
+      background: rgba(180,30,30,0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+      z-index: 200;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin-right: 8px;
+      text-shadow: 0 0 20px rgba(255,255,255,0.3);
+    }
+
+    .header-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.2); }
+
+    nav a {
+      color: rgba(255,255,255,0.70);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 11px;
+      border-radius: 7px;
+      transition: color .15s, background .15s;
+      letter-spacing: 0.1px;
+    }
+    nav a:hover { color: #fff; background: rgba(255,255,255,0.12); }
+    nav a.active {
+      color: #fff;
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 0 12px rgba(255,255,255,0.08);
+    }
+
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+    .date-chip {
+      font-size: 12px;
+      color: rgba(255,255,255,0.72);
+      font-weight: 500;
+    }
+
+    .btn-new {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      border-radius: 7px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background .15s, box-shadow .15s;
+      letter-spacing: 0.1px;
+    }
+    .btn-new:hover {
+      background: rgba(255,255,255,0.22);
+      box-shadow: 0 0 16px rgba(255,255,255,0.12);
+    }
+
+    .avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff;
+      cursor: pointer;
+    }
+
+    /* ── AI BANNER ──────────────────────────────────────────── */
+    .ai-banner {
+      background: rgba(249,168,37,0.10);
+      border-bottom: 1px solid rgba(249,168,37,0.25);
+      border-left: 3px solid var(--amber);
+      padding: 9px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      backdrop-filter: blur(12px);
+    }
+    .ai-banner em {
+      font-style: normal;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* ── SUB BAR ─────────────────────────────────────────────── */
+    .sub-bar {
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+      backdrop-filter: blur(12px);
+    }
+    .sub-bar-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .job-count {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2px 9px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .filter-pills { display: flex; gap: 5px; margin-left: auto; }
+    .filter-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 11px;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .filter-pill:hover { border-color: var(--red); color: #ff6b6b; }
+    .filter-pill.active {
+      border-color: rgba(211,47,47,0.5);
+      color: #ff6b6b;
+      background: rgba(211,47,47,0.12);
+      font-weight: 600;
+      box-shadow: 0 0 10px var(--red-glow-sm);
+    }
+
+    .search-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      width: 180px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .search-box::placeholder { color: var(--text-dim); }
+    .search-box:focus {
+      border-color: rgba(211,47,47,0.5);
+      box-shadow: 0 0 10px var(--red-glow-sm);
+    }
+
+    /* ── MAIN CONTENT ────────────────────────────────────────── */
+    .main-content { flex: 1; display: flex; overflow: hidden; }
+
+    /* ── BOARD ───────────────────────────────────────────────── */
+    .board-wrap {
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: auto;
+      padding: 18px 16px 28px 20px;
+    }
+
+    .board {
+      display: flex;
+      gap: 12px;
+      min-width: 980px;
+      height: fit-content;
+    }
+
+    /* ── COLUMN ──────────────────────────────────────────────── */
+    .col {
+      flex: 1;
+      min-width: 178px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .col-header {
+      background: var(--surface-mid);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--col-tone);
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: var(--shadow-card);
+    }
+    .col-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: var(--text-muted);
+      flex: 1;
+    }
+    .col-badge {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1px 7px;
+      font-size: 10px;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .qb-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(102,187,106,0.15);
+      border: 1px solid rgba(102,187,106,0.3);
+      border-radius: 10px;
+      padding: 1px 7px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    /* ── CARD ────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--card-accent);
+      border-radius: 10px;
+      padding: 12px 12px 10px;
+      cursor: grab;
+      box-shadow: var(--shadow-card);
+      transition: box-shadow .2s, transform .15s, background .15s;
+    }
+    .card:hover {
+      background: var(--surface-mid);
+      box-shadow: var(--shadow-md), 0 0 20px var(--card-glow, var(--red-glow-sm));
+      transform: translateY(-2px);
+    }
+    .card:active { cursor: grabbing; }
+
+    /* card accent + glow colors */
+    .card.urgent  { --card-accent: #ef5350; --card-glow: rgba(239,83,80,0.35); }
+    .card.high    { --card-accent: var(--amber); --card-glow: rgba(249,168,37,0.3); }
+    .card.normal  { --card-accent: rgba(255,255,255,0.2); --card-glow: rgba(255,255,255,0.1); }
+    .card.done    { --card-accent: var(--green); --card-glow: rgba(102,187,106,0.3); }
+    .card.cold    { --card-accent: #4FC3F7; --card-glow: rgba(79,195,247,0.25); opacity: 0.80; }
+    .card.lost    { --card-accent: rgba(255,255,255,0.15); --card-glow: rgba(255,255,255,0.08); opacity: 0.65; }
+
+    /* ── STATUS BADGE (Cold / Lost) ─────────────────────────── */
+    .card-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+    .cold-badge {
+      background: rgba(79,195,247,0.15);
+      border: 1px solid rgba(79,195,247,0.3);
+      color: #4FC3F7;
+    }
+    .lost-badge {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.5);
+    }
+
+    .card-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+    .card.cold .card-name,
+    .card.lost .card-name { color: var(--text-muted); }
+
+    .card-client {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .card-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .priority-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .priority-label.urgent { color: #ef5350; }
+    .priority-label.high   { color: var(--amber); }
+    .priority-label.normal { color: var(--text-dim); }
+
+    .card-due {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .card-due.overdue { color: #ef5350; font-weight: 600; }
+    .card-due.soon    { color: var(--amber); }
+
+    .card-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      text-align: right;
+    }
+    .card-value.muted { color: var(--text-muted); }
+
+    .parallel-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(249,168,37,0.15);
+      border: 1px solid rgba(249,168,37,0.3);
+      border-radius: 10px;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--amber);
+    }
+
+    .card-notified {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .qb-synced {
+      font-size: 10px;
+      color: var(--green);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* ── INLINE NEXT-STEP CHECKLIST ─────────────────────────── */
+    .card-steps {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 2px 0;
+      transition: color .15s;
+      user-select: none;
+      line-height: 1.3;
+    }
+    .step-item:hover { color: var(--text); }
+    .step-item input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 13px; height: 13px;
+      border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.06);
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+      transition: background .15s, border-color .15s, box-shadow .15s;
+    }
+    .step-item input[type="checkbox"]:hover {
+      border-color: rgba(211,47,47,0.6);
+      box-shadow: 0 0 6px var(--red-glow-sm);
+    }
+    .step-item input[type="checkbox"]:checked {
+      background: var(--red);
+      border-color: var(--red);
+      box-shadow: 0 0 8px var(--red-glow-sm);
+    }
+    .step-item input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 5px; height: 3px;
+      border: 1.5px solid #fff;
+      border-top: none;
+      border-right: none;
+      transform: rotate(-45deg);
+    }
+    .step-item.done-step {
+      color: var(--text-dim);
+      text-decoration: line-through;
+    }
+
+    /* ── AI SIDEBAR ──────────────────────────────────────────── */
+    .ai-sidebar {
+      width: 258px;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      border-top: 2px solid var(--red);
+      position: sticky;
+      top: 0;
+      background: rgba(20,10,10,0.7);
+      backdrop-filter: blur(20px);
+      z-index: 10;
+      box-shadow: 0 0 20px rgba(211,47,47,0.15);
+    }
+    .sidebar-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #ff6b6b;
+      text-shadow: 0 0 12px var(--red-glow-sm);
+    }
+    .sidebar-subtitle {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .queue-list {
+      padding: 10px 12px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .queue-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: background .15s, box-shadow .15s;
+      overflow: hidden;
+    }
+    .queue-item:hover {
+      background: var(--surface-mid);
+      box-shadow: 0 0 12px rgba(211,47,47,0.2);
+    }
+
+    .qi-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 11px;
+    }
+
+    .qi-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(211,47,47,0.8);
+      border: 1px solid rgba(211,47,47,0.5);
+      box-shadow: 0 0 8px var(--red-glow-sm);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .qi-info { flex: 1; min-width: 0; }
+    .qi-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .qi-badge-wrap { flex-shrink: 0; }
+    .qi-parallel {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: rgba(249,168,37,0.15);
+      border: 1px solid rgba(249,168,37,0.3);
+      border-radius: 8px;
+      padding: 2px 6px;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--amber);
+    }
+    .qi-seq {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* ── WHY? BUTTON ── */
+    .qi-why {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 10px;
+      color: var(--amber);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      padding: 2px 0;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      white-space: nowrap;
+      transition: color .15s;
+    }
+    .qi-why:hover { color: #fff; }
+    .qi-why .chevron { display: inline-block; transition: transform .2s; font-style: normal; }
+    .qi-why[data-open] .chevron { transform: rotate(180deg); }
+
+    /* ── EXPLAIN PANEL ── */
+    .qi-explain {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.28s ease;
+    }
+    .qi-explain[data-open] { max-height: 200px; }
+    .qi-explain-inner {
+      background: rgba(249,168,37,0.08);
+      border-left: 2px solid rgba(249,168,37,0.5);
+      border-top: 1px solid rgba(249,168,37,0.2);
+      padding: 8px 11px 9px;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* ── STATS BAR ───────────────────────────────────────────── */
+    .stats-bar {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex-shrink: 0;
+    }
+    .stat { display: flex; flex-direction: column; gap: 1px; }
+    .stat-val { font-size: 18px; font-weight: 700; color: var(--text); }
+    .stat-val.red    { color: #ef5350; text-shadow: 0 0 10px rgba(239,83,80,0.5); }
+    .stat-val.amber  { color: var(--amber); text-shadow: 0 0 10px var(--amber-glow); }
+    .stat-val.green  { color: var(--green); text-shadow: 0 0 10px var(--green-glow); }
+    .stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+    }
+    .stat-sep { width: 1px; height: 28px; background: rgba(255,255,255,0.08); }
+    .stats-meta {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ═══════════════════════════════════════════════════ -->
+<header>
+  <div class="logo">SignFlow</div>
+  <div class="header-sep"></div>
+  <nav>
+    <a href="#" class="active">Pipeline</a>
+    <a href="mockup-2-schedule.html">Schedule</a>
+    <a href="mockup-3-customers.html">Customers</a>
+    <a href="#">Jobs</a>
+    <a href="#">Reports</a>
+    <a href="#">Settings</a>
+  </nav>
+  <div class="header-right">
+    <div class="date-chip">📅 Sun, Aug 2, 2026</div>
+    <button class="btn-new">＋ New Job</button>
+    <div class="avatar">PG</div>
+  </div>
+</header>
+
+<!-- ══ AI BANNER ════════════════════════════════════════════════ -->
+<div class="ai-banner">
+  <span>⚡</span>
+  <strong>⚡ Smart Queue</strong> — 4 jobs can run in parallel today &nbsp;·&nbsp; 1 job can start earlier than scheduled
+  <em>&nbsp;·&nbsp; Est. 2.3 days saved this week</em>
+</div>
+
+<!-- ══ SUB BAR ══════════════════════════════════════════════════ -->
+<div class="sub-bar">
+  <div class="sub-bar-title">Job Pipeline</div>
+  <div class="job-count">2 new · 11 active · 2 cold · 1 lost</div>
+  <input class="search-box" type="text" placeholder="🔍  Search jobs…" />
+  <div class="filter-pills">
+    <div class="filter-pill active">All</div>
+    <div class="filter-pill">My Jobs</div>
+    <div class="filter-pill">⚡ Parallel</div>
+    <div class="filter-pill">This Week</div>
+    <div class="filter-pill">❄️ Cold / Lost</div>
+  </div>
+</div>
+
+<!-- ══ MAIN CONTENT ══════════════════════════════════════════════ -->
+<div class="main-content">
+
+  <!-- ── KANBAN BOARD ── -->
+  <div class="board-wrap">
+  <div class="board">
+
+    <!-- ── QUOTE ── -->
+    <div class="col" style="--col-tone: var(--tone-a);">
+      <div class="col-header">
+        <div class="col-title">Quote</div>
+        <div class="col-badge">4</div>
+      </div>
+
+      <!-- Urgent -->
+      <div class="card urgent">
+        <div class="card-name">Riverside Auto — Pylon Sign</div>
+        <div class="card-client">Riverside Automotive</div>
+        <div class="card-row">
+          <span class="priority-label urgent">🔴 Urgent</span>
+          <span class="card-due soon">Due Aug 5</span>
+        </div>
+        <div class="card-row">
+          <div></div>
+          <div class="card-value">$18,400</div>
+        </div>
+        <div class="card-notified">📨 Client notified Aug 1</div>
+        <div class="card-steps">
+          <label class="step-item"><input type="checkbox"> Send finalized quote PDF</label>
+          <label class="step-item"><input type="checkbox"> Confirm site measurement date</label>
+        </div>
+      </div>
+
+      <!-- High — Parallel -->
+      <div class="card high">
+        <div class="card-name">Downtown Diner — Channel Letters</div>
+        <div class="card-client">Main St. Restaurant Group</div>
+        <div class="card-row">
+          <span class="priority-label high">🟡 High</span>
+          <span class="card-due">Due Aug 10</span>
+        </div>
+        <div class="card-row">
+          <span class="parallel-badge">⚡ PARALLEL</span>
+          <div class="card-value">$7,200</div>
+        </div>
+        <div class="card-notified">📨 Client notified Aug 2</div>
+        <div class="card-steps">
+          <label class="step-item"><input type="checkbox"> Add illumination option to quote</label>
+          <label class="step-item"><input type="checkbox"> Email quote by EOD Aug 4</label>
+        </div>
+      </div>
+
+      <!-- ❄️ Cold -->
+      <div class="card cold">
+        <div class="card-status-badge cold-badge">❄️ Cold — 22 days silent</div>
+        <div class="card-name">Bricktown Brewery — Outdoor Sign</div>
+        <div class="card-client">Bricktown Craft Brewing</div>
+        <div class="card-row">
+          <span class="priority-label normal">⚪ Normal</span>
+          <span class="card-due">Quote Jul 12</span>
+        </div>
+        <div class="card-row">
+          <div></div>
+          <div class="card-value muted">$8,600</div>
+        </div>
+        <div class="card-notified">📨 Last contact 22 days ago — no reply</div>
+        <div class="card-steps">
+          <label class="step-item"><input type="checkbox"> Follow-up call / text today</label>
+          <label class="step-item"><input type="checkbox"> Re-send quote with expiry note</label>
+        </div>
+      </div>
+
+      <!-- ✕ Lost -->
+      <div class="card lost">
+        <div class="card-status-badge lost-badge">✕ Lost — Client withdrew</div>
+        <div class="card-name">Valley Fresh Grocery — Storefront</div>
+        <div class="card-client">Valley Fresh Foods</div>
+        <div class="card-row">
+          <span class="priority-label normal">⚪ Normal</span>
+          <span class="card-due">Quote Jun 28</span>
+        </div>
+        <div class="card-row">
+          <div></div>
+          <div class="card-value muted">$14,300</div>
+        </div>
+        <div class="card-notified">❌ Client selected another vendor Jul 30</div>
+        <div class="card-steps">
+          <label class="step-item"><input type="checkbox"> Send thank-you + stay-in-touch note</label>
+          <label class="step-item"><input type="checkbox"> Add to 6-month follow-up list</label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── DESIGN ── -->
+    <div class="col" style="--col-tone: var(--tone-a);">
+      <div class="col-header">
+        <div class="col-title">Design</div>
+        <div class="col-badge">2</div>
+      </div>
+
+      <!-- Normal -->
+      <div class="card normal">
+        <div class="card-name">Prairie Wind Storage — Exterior Identity</div>
+        <div class="card-client">Prairie Wind Self Storage</div>
+        <div class="card-row">
+          <span class="priority-label normal">⚪ Normal</span>
+          <span class="card-due soon">Due Aug 7</span>
+        </div>
+        <div class="card-row">
+          <div></div>
+          <div class="card-value">$22,100</div>
+        </div>
+        <div class="card-notified">📨 Client notified Jul 31</div>
+        <div class="card-steps">
+          <label class="step-item"><input type="checkbox" checked> Initial concept sketches</label>
+          <label class="step-item"><input type="checkbox"> Send artwork proof for review</label>
+        </div>
+      </div>
+
+      <!-- Urgent -->
+      <div class="card urgent">
+        <div class="card-name">Heritage Bank — Branch Refresh</div>
+        <div class="card-client">Heritage Community Bank</div>
+        <div class="card-row">
+          <span class="priority-label urgent">🔴 Urgent</span>
+          <span class="card-due soon">Due Aug 8</span>
+        </div>
+        <div class="card-row">
+          <div></div>
+          <div class="card-value">$58,000</div>
+        </div>
+        <div class="card-notified">📨 Client notified Aug 1</div>
+        <div class="card-steps">
+          <label class="step-item"><input type="checkbox" checked> Brand standards confirmed</label>
+          <label class="step-item"><input type="checkbox"> Submit design for client review</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── APPROVAL ── -->
+    <div class="col" style="--col-tone: var(--tone-a);">
+      <div class="col-header">
+        <div class="col-title">Approval</div>
+        <div class="col-badge">2</div>
+      </div>
+
+      <!-- Urgent + Parallel -->
+      <div class="card urgent">
+        <div class="card-name">Village Tap — Blade Sign</div>
+        <div class="card-client">The Village Tap Bar &amp; Grill</div>
+        <div class="card-row">
+          <span class="priority-label urgent">🔴 Urgent</span>
+          <span class="card-due overdue">Overdue Aug 1</span>
+        </div>
+        <div class="card-row">
+          <span class="parallel-badge">⚡ PARALLEL</span>
+          <div class="card-value">$9,200</div>
+        </div>
+        <div class="card-notified">📨 Client notified Jul 30</div>
+        <div class="card-steps">
+          <label class="step-item"><input type="checkbox"> Call client — approval is overdue</label>
+          <label class="step-item"><input type="checkbox"> Get signed approval form</label>
+        </div>
+      </div>
+
+      <!-- High + Parallel -->
+      <div class="card high">
+        <div class="card-name">Northside Gym — Vehicle Wrap</div>
+        <div class="card-client">Northside Fitness</div>
+        <div class="card-row">
+          <span class="priority-label high">🟡 High</span>
+          <span class="card-due soon">Due Aug 6</span>
+        </div>
+        <div class="card-row">
+          <span class="parallel-badge">⚡ PARALLEL</span>
+          <div class="card-value">$6,400</div>
+        </div>
+        <div class="card-notified">📨 Client notified Aug 2</div>
+        <div class="card-steps">
+          <label class="step-item"><input type="checkbox" checked> Proof sent to client</label>
+          <label class="step-item"><input type="checkbox"> Confirm approval &amp; start print</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FABRICATION ── -->
+    <div class="col" style="--col-tone: var(--tone-b);">
+      <div class="col-header">
+        <div class="col-title">Fabrication</div>
+        <div class="col-badge">2</div>
+      </div>
+
+      <!-- Urgent -->
+      <div class="card urgent">
+        <div class="card-name">Summit Tech Park — Monument Sign</div>
+        <div class="card-client">Summit Tech Park LLC</div>
+        <div class="card-row">
+          <span class="priority-label urgent">🔴 Urgent</span>
+          <span class="card-due soon">Due Aug 8</span>
+        </div>
+        <div class="card-row">
+          <div></div>
+          <div class="card-value">$41,000</div>
+        </div>
+        <div class="card-notified">📨 Client notified Aug 1</div>
+        <div class="card-steps">
+          <label class="step-item"><input type="checkbox" checked> Steel frame welded</label>
+          <label class="step-item"><input type="checkbox"> LED module installation</label>
+        </div>
+      </div>
+
+      <!-- Normal -->
+      <div class="card normal">
+        <div class="card-name">Walgreens #4712 — Façade Replacement</div>
+        <div class="card-client">Walgreens (National)</div>
+        <div class="card-row">
+          <span class="priority-label normal">⚪ Normal</span>
+          <span class="card-due">Due Aug 12</span>
+        </div>
+        <div class="card-row">
+          <div></div>
+          <div class="card-value">$24,800</div>
+        </div>
+        <div class="card-notified">📨 Client notified Jul 29</div>
+        <div class="card-steps">
+          <label class="step-item"><input type="checkbox"> Confirm material delivery Aug 9</label>
+          <label class="step-item"><input type="checkbox"> Schedule substrate cutting</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── INSTALL ── -->
+    <div class="col" style="--col-tone: var(--tone-b);">
+      <div class="col-header">
+        <div class="col-title">Install</div>
+        <div class="col-badge">2</div>
+      </div>
+
+      <!-- Urgent -->
+      <div class="card urgent">
+        <div class="card-name">Kohl's #0394 — Pylon Reface</div>
+        <div class="card-client">Kohl's Corporation</div>
+        <div class="card-row">
+          <span class="priority-label urgent">🔴 Urgent</span>
+          <span class="card-due soon">Install Aug 4</span>
+        </div>
+        <div class="card-row">
+          <div></div>
+          <div class="card-value">$19,500</div>
+        </div>
+        <div class="card-notified">📨 Client notified Aug 2</div>
+        <div class="card-steps">
+          <label class="step-item"><input type="checkbox" checked> Lift scheduled &amp; staged</label>
+          <label class="step-item"><input type="checkbox"> Dispatch crew 6:30 AM Aug 4</label>
+        </div>
+      </div>
+
+      <!-- High + Parallel -->
+      <div class="card high">
+        <div class="card-name">La Paloma Restaurant — Exterior</div>
+        <div class="card-client">La Paloma Group</div>
+        <div class="card-row">
+          <span class="priority-label high">🟡 High</span>
+          <span class="card-due soon">Install Aug 5</span>
+        </div>
+        <div class="card-row">
+          <span class="parallel-badge">⚡ PARALLEL</span>
+          <div class="card-value">$11,200</div>
+        </div>
+        <div class="card-notified">📨 Client notified Aug 1</div>
+        <div class="card-steps">
+          <label class="step-item"><input type="checkbox" checked> Permit approved</label>
+          <label class="step-item"><input type="checkbox"> Confirm crew dispatch Aug 5</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── COMPLETE ── -->
+    <div class="col" style="--col-tone: var(--tone-c);">
+      <div class="col-header">
+        <div class="col-title">Complete</div>
+        <span class="qb-badge">✓ QB Sync</span>
+        <div class="col-badge">1</div>
+      </div>
+
+      <div class="card done" style="opacity: 0.82;">
+        <div class="card-name">Speedway #1188 — LED Retrofit</div>
+        <div class="card-client">Speedway LLC</div>
+        <div class="card-row">
+          <span style="font-size:11px; color: var(--green);">✓ Done</span>
+          <span class="card-due">Closed Jul 30</span>
+        </div>
+        <div class="card-row">
+          <div></div>
+          <div class="card-value">$34,100</div>
+        </div>
+        <div class="qb-synced">✓ Synced to QuickBooks</div>
+        <div class="card-notified">📨 Client notified Jul 30</div>
+        <div class="card-steps">
+          <label class="step-item done-step"><input type="checkbox" checked> Invoice sent</label>
+          <label class="step-item done-step"><input type="checkbox" checked> Final photos delivered</label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+
+  <!-- ── AI PRIORITY QUEUE SIDEBAR ── -->
+  <div class="ai-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">⚡ Smart Queue</div>
+      <div class="sidebar-subtitle">AI-ranked · tap to see why · ⚡ = runs parallel</div>
+    </div>
+
+    <div class="queue-list">
+
+      <div class="queue-item">
+        <div class="qi-row">
+          <div class="qi-num">1</div>
+          <div class="qi-info"><div class="qi-name">Kohl's #0394 — Pylon Reface</div></div>
+          <div class="qi-badge-wrap"><span class="qi-seq">—</span></div>
+          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
+        </div>
+        <div class="qi-explain">
+          <div class="qi-explain-inner">Install crew staged for Aug 4 — must go first. Any slip pushes to Aug 6, conflicting with La Paloma's install slot. National account with zero flex.</div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="qi-row">
+          <div class="qi-num">2</div>
+          <div class="qi-info"><div class="qi-name">Heritage Bank — Branch Refresh</div></div>
+          <div class="qi-badge-wrap"><span class="qi-seq">—</span></div>
+          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
+        </div>
+        <div class="qi-explain">
+          <div class="qi-explain-inner">Largest active job ($58k). Fab lead time is 8 days — starting now hits Aug 8. Any slip risks a costly change order.</div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="qi-row">
+          <div class="qi-num">3</div>
+          <div class="qi-info"><div class="qi-name">Village Tap — Blade Sign</div></div>
+          <div class="qi-badge-wrap"><span class="qi-parallel">⚡ PARALLEL</span></div>
+          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
+        </div>
+        <div class="qi-explain">
+          <div class="qi-explain-inner">Client approval pending since Jul 30 — follow-up critical today. Blade fab has a 5-day lead; 1-day slip now risks the install window.</div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="qi-row">
+          <div class="qi-num">4</div>
+          <div class="qi-info"><div class="qi-name">Summit Tech Park — Monument</div></div>
+          <div class="qi-badge-wrap"><span class="qi-seq">—</span></div>
+          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
+        </div>
+        <div class="qi-explain">
+          <div class="qi-explain-inner">Fabrication mid-run, Aug 8 deadline. Install crew Tue–Wed only — slot must be confirmed today or client reschedules to late August.</div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="qi-row">
+          <div class="qi-num">5</div>
+          <div class="qi-info"><div class="qi-name">La Paloma — Exterior</div></div>
+          <div class="qi-badge-wrap"><span class="qi-parallel">⚡ PARALLEL</span></div>
+          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
+        </div>
+        <div class="qi-explain">
+          <div class="qi-explain-inner">Install Aug 5 via second crew — runs cleanly parallel with Kohl's. Permit approved, materials staged. Just needs crew dispatch confirmed.</div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="qi-row">
+          <div class="qi-num">6</div>
+          <div class="qi-info"><div class="qi-name">Northside Gym — Vehicle Wrap</div></div>
+          <div class="qi-badge-wrap"><span class="qi-parallel">⚡ PARALLEL</span></div>
+          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
+        </div>
+        <div class="qi-explain">
+          <div class="qi-explain-inner">Wrap production runs overnight through wide-format printer — doesn't touch the fab shop. Overlaps any design-stage job without competing for resources.</div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="qi-row">
+          <div class="qi-num">7</div>
+          <div class="qi-info"><div class="qi-name">Riverside Auto — Pylon Sign</div></div>
+          <div class="qi-badge-wrap"><span class="qi-seq">—</span></div>
+          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
+        </div>
+        <div class="qi-explain">
+          <div class="qi-explain-inner">Urgent Aug 5 deadline. Quote must go out today. This client typically approves in under 24h once quote lands.</div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="qi-row">
+          <div class="qi-num">8</div>
+          <div class="qi-info"><div class="qi-name">Bricktown Brewery ❄️</div></div>
+          <div class="qi-badge-wrap"><span style="font-size:9px;color:#4FC3F7;">COLD</span></div>
+          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
+        </div>
+        <div class="qi-explain">
+          <div class="qi-explain-inner">Quote gone cold at 22 days. A quick follow-up today could revive an $8.6k job before it's fully lost. Ranked here — low effort, high upside.</div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="qi-row">
+          <div class="qi-num">9</div>
+          <div class="qi-info"><div class="qi-name">Walgreens #4712 — Façade</div></div>
+          <div class="qi-badge-wrap"><span class="qi-seq">—</span></div>
+          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
+        </div>
+        <div class="qi-explain">
+          <div class="qi-explain-inner">Standard lead time — no crisis, but material delivery confirmation needed by Aug 9. Visible without bumping more time-critical jobs.</div>
+        </div>
+      </div>
+
+      <div class="queue-item">
+        <div class="qi-row">
+          <div class="qi-num">10</div>
+          <div class="qi-info"><div class="qi-name">Prairie Wind — Identity</div></div>
+          <div class="qi-badge-wrap"><span class="qi-seq">—</span></div>
+          <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
+        </div>
+        <div class="qi-explain">
+          <div class="qi-explain-inner">Design phase, Aug 7 due. Client artwork review call should be scheduled early this week. Ranked below more time-critical jobs — design can flex a day.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /main-content -->
+
+<!-- ══ STATS BAR ══════════════════════════════════════════════════ -->
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-val">11</div>
+    <div class="stat-label">Active Jobs</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat">
+    <div class="stat-val">$328,450</div>
+    <div class="stat-label">Pipeline Value</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat">
+    <div class="stat-val red">2</div>
+    <div class="stat-label">Overdue</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat">
+    <div class="stat-val amber">5</div>
+    <div class="stat-label">Due This Week</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat">
+    <div class="stat-val red">4</div>
+    <div class="stat-label">⚡ Parallel Today</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat">
+    <div class="stat-val amber">2</div>
+    <div class="stat-label">❄️ Cold Quotes</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat">
+    <div class="stat-val green">$106,900</div>
+    <div class="stat-label">Closed This Month</div>
+  </div>
+  <div class="stats-meta">Last synced: 1 min ago · Garcia Sign &amp; Electric, Joliet IL</div>
+</div>
+
+<script>
+(function () {
+  var openExplain = null;
+  var openBtn = null;
+
+  document.querySelectorAll('.qi-why').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var item = btn.closest('.queue-item');
+      var explain = item.querySelector('.qi-explain');
+      var isOpen = explain.hasAttribute('data-open');
+
+      if (openExplain && openExplain !== explain) {
+        openExplain.removeAttribute('data-open');
+        if (openBtn) {
+          openBtn.removeAttribute('data-open');
+          openBtn.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      if (isOpen) {
+        explain.removeAttribute('data-open');
+        btn.removeAttribute('data-open');
+        btn.setAttribute('aria-expanded', 'false');
+        openExplain = null;
+        openBtn = null;
+      } else {
+        explain.setAttribute('data-open', '');
+        btn.setAttribute('data-open', '');
+        btn.setAttribute('aria-expanded', 'true');
+        openExplain = explain;
+        openBtn = btn;
+      }
+    });
+  });
+
+  // Checkbox visual feedback
+  document.querySelectorAll('.step-item input[type="checkbox"]').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      var label = cb.closest('.step-item');
+      if (cb.checked) {
+        label.classList.add('done-step');
+      } else {
+        label.classList.remove('done-step');
+      }
+    });
+    // Init state
+    if (cb.checked) cb.closest('.step-item').classList.add('done-step');
+  });
+})();
+</script>
+
+</body>
+</html>
