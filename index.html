@@ -293,6 +293,119 @@
       margin-top: 1px;
       text-align: right;
     }
+
+    /* ── BOTTLENECK warning — column overloaded ──────────────── */
+    .col-header.col-overloaded {
+      border-color: rgba(239,83,80,0.75) !important;
+      box-shadow:
+        0 0 0 1px rgba(239,83,80,0.18),
+        0 0 18px rgba(239,83,80,0.55),
+        0 4px 18px rgba(0,0,0,0.5),
+        inset 0 0 24px rgba(239,83,80,0.08) !important;
+    }
+    .col-header.col-overloaded .col-title {
+      color: #ef5350 !important;
+      text-shadow: 0 0 10px rgba(239,83,80,0.6) !important;
+    }
+    .col-header.col-overloaded .col-badge {
+      background: rgba(239,83,80,0.18);
+      border-color: rgba(239,83,80,0.50);
+      color: #ef5350;
+    }
+
+    /* ── DAYS-IN-STAGE badge ─────────────────────────────────── */
+    .days-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.42);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 5px;
+      padding: 1px 6px;
+      margin: 2px 0 5px;
+      letter-spacing: 0.3px;
+    }
+    .days-badge.days-stale {
+      color: rgba(249,168,37,0.90);
+      background: rgba(249,168,37,0.10);
+      border-color: rgba(249,168,37,0.30);
+    }
+    .days-badge.days-critical {
+      color: #ef5350;
+      background: rgba(239,83,80,0.10);
+      border-color: rgba(239,83,80,0.35);
+    }
+
+    /* ── HOTTEST JOB — extra glow ring on the #1 card ────────── */
+    .card.hottest {
+      outline: 1.5px solid rgba(255,140,0,0.55);
+      outline-offset: 3px;
+    }
+    .hot-name { font-weight: 800; color: #fff; }
+    .hot-action {
+      color: rgba(255,140,0,0.95);
+      font-weight: 700;
+    }
+
+    /* ── VALUE-WEIGHTED glow (set --vi via JS) ───────────────── */
+    .card.urgent {
+      box-shadow:
+        0 0 0 1px rgba(239,83,80,0.15),
+        0 0 calc(16px + 18px * var(--vi,0.5)) rgba(239,83,80,calc(0.35 + 0.25 * var(--vi,0.5))),
+        0 4px 20px rgba(0,0,0,0.5),
+        inset 0 0 40px rgba(239,83,80,0.05);
+    }
+    .card.urgent:hover {
+      box-shadow:
+        0 0 0 1px rgba(239,83,80,0.25),
+        0 0 calc(24px + 20px * var(--vi,0.5)) rgba(239,83,80,calc(0.55 + 0.2 * var(--vi,0.5))),
+        0 6px 28px rgba(0,0,0,0.55),
+        inset 0 0 40px rgba(239,83,80,0.08);
+    }
+    .card.parallel {
+      box-shadow:
+        0 0 0 1px rgba(249,168,37,0.12),
+        0 0 calc(12px + 12px * var(--vi,0.5)) rgba(249,168,37,calc(0.30 + 0.20 * var(--vi,0.5))),
+        0 4px 20px rgba(0,0,0,0.5),
+        inset 0 0 40px rgba(249,168,37,0.04);
+    }
+
+    /* ── PAYMENT-READY — gold pulse ──────────────────────────── */
+    @keyframes invoicePulse {
+      0%,100% {
+        box-shadow:
+          0 0 0 1px rgba(255,210,0,0.35),
+          0 0 16px rgba(255,210,0,0.40),
+          0 4px 20px rgba(0,0,0,0.5);
+      }
+      50% {
+        box-shadow:
+          0 0 0 2px rgba(255,210,0,0.55),
+          0 0 28px rgba(255,210,0,0.65),
+          0 4px 20px rgba(0,0,0,0.5);
+      }
+    }
+    .card.payment-ready {
+      border: 2px solid rgba(255,210,0,0.80) !important;
+      background: rgba(255,210,0,0.05) !important;
+      animation: invoicePulse 2.2s ease-in-out infinite;
+    }
+    .payment-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #FFD700;
+      background: rgba(255,215,0,0.12);
+      border: 1px solid rgba(255,215,0,0.40);
+      border-radius: 6px;
+      padding: 3px 9px;
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+      text-shadow: 0 0 10px rgba(255,215,0,0.5);
+    }
     .qb-badge {
       display: inline-flex;
       align-items: center;
@@ -1700,6 +1813,135 @@
     ['nj-name','nj-client','nj-value','nj-due'].forEach(function(id){ document.getElementById(id).value=''; });
     document.getElementById('nj-priority').value = 'normal';
     document.getElementById('nj-col').value = 'new';
+  });
+
+  /* ══════════════════════════════════════════════════════════
+     INTELLIGENCE LAYER
+     2. Bottleneck  3. Days-in-stage  4. Hottest Job
+     6. Value-weighted glow  +  Payment-ready
+  ══════════════════════════════════════════════════════════ */
+
+  var MONTHS = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+
+  function parseCardDate(str) {
+    var m = str.match(/([A-Z][a-z]{2})\s+(\d+)/);
+    if (!m || MONTHS[m[1]] === undefined) return null;
+    var d = new Date();
+    d.setMonth(MONTHS[m[1]]);
+    d.setDate(parseInt(m[2]));
+    d.setHours(0,0,0,0);
+    // Handle year-wrap (if parsed month is ahead of today, assume last year)
+    if (d > new Date()) d.setFullYear(d.getFullYear() - 1);
+    return d;
+  }
+
+  function daysAgo(date) {
+    if (!date) return 0;
+    var now = new Date(); now.setHours(0,0,0,0);
+    return Math.floor((now - date) / 86400000);
+  }
+
+  var MAX_VAL = 58000;
+
+  document.querySelectorAll('.board .card').forEach(function(card) {
+    /* ── 3. Days-in-stage badge ──────────────────────── */
+    var enteredText = '';
+    var notifiedEl = card.querySelector('.card-notified');
+    if (notifiedEl) enteredText = notifiedEl.textContent;
+    else {
+      var clientEl = card.querySelector('.card-client');
+      if (clientEl) enteredText = clientEl.textContent;
+    }
+    var enteredDate = enteredText ? parseCardDate(enteredText) : null;
+    var days = daysAgo(enteredDate);
+    if (days >= 1) {
+      var cls = days >= 14 ? 'days-badge days-critical'
+              : days >= 7  ? 'days-badge days-stale'
+              : 'days-badge';
+      var chip = document.createElement('div');
+      chip.className = cls;
+      chip.textContent = days + 'd in stage';
+      chip.title = 'In this stage for ' + days + ' days';
+      var nameEl = card.querySelector('.card-name');
+      if (nameEl) nameEl.insertAdjacentElement('afterend', chip);
+    }
+
+    /* ── 6. Value-weighted glow ──────────────────────── */
+    var valEl = card.querySelector('.card-value:not(.muted)');
+    if (valEl) {
+      var val = parseInt(valEl.textContent.replace(/[^0-9]/g,'')) || 0;
+      card.style.setProperty('--vi', (Math.min(val / MAX_VAL, 1)).toFixed(2));
+    }
+  });
+
+  /* ── 2. Bottleneck warning ─────────────────────────── */
+  document.querySelectorAll('.col').forEach(function(col) {
+    var cards = col.querySelectorAll('.card');
+    var header = col.querySelector('.col-header');
+    var badge  = col.querySelector('.col-badge');
+    if (!header || !badge) return;
+    if (cards.length >= 4) {
+      header.classList.add('col-overloaded');
+      badge.innerHTML = '⚠ ' + cards.length;
+      badge.title = 'Bottleneck: ' + cards.length + ' jobs stuck here';
+    }
+  });
+
+  /* ── 4. Hottest Job spotlight ──────────────────────── */
+  var hotCard = null, hotScore = -1;
+  document.querySelectorAll('.board .card').forEach(function(card) {
+    var score = 0;
+    if (card.classList.contains('urgent'))             score += 20;
+    if (card.classList.contains('high'))               score += 8;
+    if (card.querySelector('.card-due.soon'))          score += 12;
+    var valEl = card.querySelector('.card-value:not(.muted)');
+    if (valEl) score += (parseInt(valEl.textContent.replace(/[^0-9]/g,''))||0) / 4000;
+    var notEl = card.querySelector('.card-notified');
+    if (notEl) score += daysAgo(parseCardDate(notEl.textContent)) * 1.5;
+    if (score > hotScore) { hotScore = score; hotCard = card; }
+  });
+  if (hotCard) {
+    hotCard.classList.add('hottest');
+    var banner = document.querySelector('.ai-banner');
+    if (banner) {
+      var name  = (hotCard.querySelector('.card-name')  || {}).textContent || '';
+      var val   = (hotCard.querySelector('.card-value:not(.muted)') || {}).textContent || '';
+      var due   = (hotCard.querySelector('.card-due')   || {}).textContent || '';
+      var col   = hotCard.closest('.col');
+      var stage = col ? (col.querySelector('.col-title') || {}).textContent : '';
+      banner.innerHTML =
+        '<span>🔥</span> <strong>Focus Now:</strong> '
+        + '<span class="hot-name">' + name + '</span>'
+        + (val ? ' &nbsp;·&nbsp; ' + val : '')
+        + (due ? ' &nbsp;·&nbsp; <em>' + due + '</em>' : '')
+        + (stage ? ' &nbsp;·&nbsp; ' + stage + ' stage' : '')
+        + ' &nbsp;&nbsp;<span class="hot-action">↑ Highest-impact job right now</span>';
+    }
+  }
+
+  /* ── Payment-ready (Install + overdue date) ────────── */
+  document.querySelectorAll('.col').forEach(function(col) {
+    var titleEl = col.querySelector('.col-title');
+    if (!titleEl) return;
+    var stageName = titleEl.textContent.trim();
+    if (stageName !== 'Install' && stageName !== 'Complete') return;
+    col.querySelectorAll('.card').forEach(function(card) {
+      if (card.classList.contains('done')) return; // already invoiced
+      var dueEl = card.querySelector('.card-due');
+      var isOverdue = dueEl && dueEl.classList.contains('soon');
+      var isPastInstall = false;
+      if (dueEl) {
+        var d = parseCardDate(dueEl.textContent);
+        if (d && daysAgo(d) >= 0) isPastInstall = true;
+      }
+      if (isOverdue || isPastInstall || stageName === 'Install') {
+        card.classList.add('payment-ready');
+        var badge = document.createElement('div');
+        badge.className = 'payment-badge';
+        badge.innerHTML = '💰 Ready to Invoice';
+        card.insertBefore(badge, card.firstChild);
+      }
+    });
   });
 
 })();
