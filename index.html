@@ -1308,53 +1308,289 @@
 
 <script>
 (function () {
-  var openExplain = null;
-  var openBtn = null;
+  'use strict';
 
+  /* ── Dynamic Date ─────────────────────────────────── */
+  (function () {
+    var el = document.querySelector('.date-chip');
+    if (!el) return;
+    var d = new Date();
+    var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    el.textContent = '📅 ' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  })();
+
+  /* ── Smart Queue Accordion ────────────────────────── */
+  var openExplain = null, openBtn = null;
   document.querySelectorAll('.qi-why').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       e.stopPropagation();
       var item = btn.closest('.queue-item');
       var explain = item.querySelector('.qi-explain');
       var isOpen = explain.hasAttribute('data-open');
-
       if (openExplain && openExplain !== explain) {
         openExplain.removeAttribute('data-open');
-        if (openBtn) {
-          openBtn.removeAttribute('data-open');
-          openBtn.setAttribute('aria-expanded', 'false');
-        }
+        if (openBtn) { openBtn.removeAttribute('data-open'); openBtn.setAttribute('aria-expanded','false'); }
       }
-
       if (isOpen) {
-        explain.removeAttribute('data-open');
-        btn.removeAttribute('data-open');
-        btn.setAttribute('aria-expanded', 'false');
-        openExplain = null;
-        openBtn = null;
+        explain.removeAttribute('data-open'); btn.removeAttribute('data-open');
+        btn.setAttribute('aria-expanded','false'); openExplain = null; openBtn = null;
       } else {
-        explain.setAttribute('data-open', '');
-        btn.setAttribute('data-open', '');
-        btn.setAttribute('aria-expanded', 'true');
-        openExplain = explain;
-        openBtn = btn;
+        explain.setAttribute('data-open',''); btn.setAttribute('data-open','');
+        btn.setAttribute('aria-expanded','true'); openExplain = explain; openBtn = btn;
       }
     });
   });
 
-  // Checkbox visual feedback
-  document.querySelectorAll('.step-item input[type="checkbox"]').forEach(function(cb) {
-    cb.addEventListener('change', function() {
+  /* ── Checkbox Persistence ─────────────────────────── */
+  var CB_KEY = 'sf-checkboxes';
+  var savedCBs = {};
+  try { savedCBs = JSON.parse(localStorage.getItem(CB_KEY) || '{}'); } catch(e) {}
+
+  function saveCBState(id, checked) {
+    savedCBs[id] = checked;
+    try { localStorage.setItem(CB_KEY, JSON.stringify(savedCBs)); } catch(e) {}
+  }
+
+  function initCheckboxes(root) {
+    (root || document).querySelectorAll('.step-item input[type="checkbox"]').forEach(function(cb, i) {
+      var id = cb.dataset.cbId || ('cb-' + Date.now() + '-' + i);
+      cb.dataset.cbId = id;
+      if (savedCBs[id] !== undefined) cb.checked = savedCBs[id];
       var label = cb.closest('.step-item');
-      if (cb.checked) {
-        label.classList.add('done-step');
-      } else {
-        label.classList.remove('done-step');
+      if (cb.checked) label.classList.add('done-step');
+      cb.addEventListener('change', function() {
+        label.classList.toggle('done-step', cb.checked);
+        saveCBState(id, cb.checked);
+      });
+    });
+  }
+  initCheckboxes();
+
+  /* ── Helpers ──────────────────────────────────────── */
+  function escHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function priorityIcon(p) {
+    return p === 'urgent' ? '🔴' : p === 'high' ? '🟡' : '⚪';
+  }
+  function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+  /* ── Column Badge Updates ─────────────────────────── */
+  function updateColBadges() {
+    document.querySelectorAll('.col').forEach(function(col) {
+      var badge = col.querySelector('.col-badge');
+      if (badge) badge.textContent = col.querySelectorAll('.card').length;
+    });
+  }
+
+  /* ── Job Count in Sub-bar ─────────────────────────── */
+  function updateJobCount() {
+    var countEl = document.querySelector('.job-count');
+    if (!countEl) return;
+    var total = document.querySelectorAll('.card').length;
+    var newI  = (document.querySelectorAll('.col') [0] || {querySelectorAll:function(){return[];}}).querySelectorAll('.card').length;
+    countEl.textContent = newI + ' new · ' + (total - newI) + ' active';
+  }
+
+  /* ── Drag and Drop ────────────────────────────────── */
+  var dragCard = null;
+
+  function bindDrag(card) {
+    card.setAttribute('draggable','true');
+    card.addEventListener('dragstart', function(e) {
+      dragCard = card;
+      setTimeout(function(){ card.style.opacity = '0.45'; }, 0);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', function() {
+      card.style.opacity = '';
+      dragCard = null;
+      document.querySelectorAll('.col').forEach(function(c){ c.classList.remove('drag-over'); });
+      updateColBadges(); updateJobCount();
+    });
+  }
+
+  document.querySelectorAll('.card').forEach(bindDrag);
+
+  document.querySelectorAll('.col').forEach(function(col) {
+    col.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      col.classList.add('drag-over');
+    });
+    col.addEventListener('dragleave', function(e) {
+      if (!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
+    });
+    col.addEventListener('drop', function(e) {
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      if (dragCard && dragCard.closest('.col') !== col) {
+        col.appendChild(dragCard);
+        updateColBadges(); updateJobCount();
       }
     });
-    // Init state
-    if (cb.checked) cb.closest('.step-item').classList.add('done-step');
   });
+
+  /* ── Search ───────────────────────────────────────── */
+  var currentFilter = 'all', currentSearch = '';
+
+  function applyFilters() {
+    document.querySelectorAll('.card').forEach(function(card) {
+      var text = (card.textContent||'').toLowerCase();
+      var matchSearch = !currentSearch || text.includes(currentSearch);
+      var matchFilter = true;
+      if (currentFilter === 'parallel')  matchFilter = text.includes('parallel') || !!card.querySelector('[class*="parallel"]');
+      if (currentFilter === 'week')      matchFilter = !!card.querySelector('.card-due.soon');
+      if (currentFilter === 'cold')      matchFilter = card.classList.contains('cold') || card.classList.contains('lost');
+      card.style.display = (matchSearch && matchFilter) ? '' : 'none';
+    });
+  }
+
+  var searchBox = document.querySelector('.search-box');
+  if (searchBox) {
+    searchBox.addEventListener('input', function() {
+      currentSearch = searchBox.value.toLowerCase();
+      applyFilters();
+    });
+  }
+
+  document.querySelectorAll('.filter-pill').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      document.querySelectorAll('.filter-pill').forEach(function(p){ p.classList.remove('active'); });
+      pill.classList.add('active');
+      var t = pill.textContent.trim().toLowerCase();
+      if      (t.includes('parallel')) currentFilter = 'parallel';
+      else if (t.includes('week'))     currentFilter = 'week';
+      else if (t.includes('cold'))     currentFilter = 'cold';
+      else                             currentFilter = 'all';
+      applyFilters();
+    });
+  });
+
+  /* ── New Job Modal ────────────────────────────────── */
+  var JOBS_KEY = 'sf-custom-jobs';
+  var customJobs = [];
+  try { customJobs = JSON.parse(localStorage.getItem(JOBS_KEY) || '[]'); } catch(e) {}
+
+  var COLS = ['new','quote','approved','production','install','invoice'];
+
+  function getColEl(colKey) {
+    var idx = COLS.indexOf(colKey);
+    var cols = document.querySelectorAll('.col');
+    return cols[idx >= 0 ? idx : 0] || cols[0];
+  }
+
+  function createCardEl(job) {
+    var div = document.createElement('div');
+    div.className = 'card ' + (job.priority || 'normal');
+    div.innerHTML =
+      '<div class="card-name">' + escHtml(job.name) + '</div>' +
+      '<div class="card-client">' + escHtml(job.client || job.name) + '</div>' +
+      '<div class="card-row">' +
+        '<span class="priority-label ' + (job.priority||'normal') + '">' + priorityIcon(job.priority) + ' ' + capitalize(job.priority||'normal') + '</span>' +
+        '<span class="card-due">' + escHtml(job.due || 'TBD') + '</span>' +
+      '</div>' +
+      '<div class="card-row"><div></div>' +
+        '<div class="card-value' + (job.value ? '' : ' muted') + '">' +
+          (job.value ? '$' + Number(job.value).toLocaleString() : 'TBD') +
+        '</div>' +
+      '</div>' +
+      '<div class="card-steps">' +
+        '<label class="step-item"><input type="checkbox"> Initial site visit / scope</label>' +
+        '<label class="step-item"><input type="checkbox"> Send quote / proposal</label>' +
+      '</div>';
+    bindDrag(div);
+    initCheckboxes(div);
+    return div;
+  }
+
+  /* Restore custom jobs on load */
+  customJobs.forEach(function(job) {
+    var col = getColEl(job.column || 'new');
+    if (col) col.appendChild(createCardEl(job));
+  });
+  updateColBadges(); updateJobCount();
+
+  /* Inject drag-over + modal CSS */
+  var styleEl = document.createElement('style');
+  styleEl.textContent = [
+    '.col.drag-over{outline:2px dashed rgba(211,47,47,.65);outline-offset:-3px;background:rgba(211,47,47,.04);}',
+    '.col{min-height:120px;}',
+    '#sf-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);align-items:center;justify-content:center;}',
+    '#sf-modal.open{display:flex;}',
+    '#sf-modal-box{background:#16162a;border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:28px 32px;width:440px;max-width:94vw;box-shadow:0 12px 60px rgba(0,0,0,.8);}',
+    '#sf-modal input,#sf-modal select{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:10px 13px;color:#fff;font-size:13px;outline:none;font-family:inherit;}',
+    '#sf-modal input:focus,#sf-modal select:focus{border-color:rgba(211,47,47,.6);}',
+    '#sf-modal label.sf-lbl{font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px;}',
+    '#sf-modal-submit{width:100%;background:linear-gradient(135deg,#D32F2F,#B71C1C);border:none;border-radius:9px;color:#fff;font-size:14px;font-weight:700;padding:13px;cursor:pointer;margin-top:4px;transition:opacity .15s;}',
+    '#sf-modal-submit:hover{opacity:.85;}',
+    '.sf-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}',
+    '.sf-field{display:flex;flex-direction:column;gap:6px;}'
+  ].join('');
+  document.head.appendChild(styleEl);
+
+  /* Modal HTML */
+  var modal = document.createElement('div');
+  modal.id = 'sf-modal';
+  modal.innerHTML = [
+    '<div id="sf-modal-box">',
+    '  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">',
+    '    <div style="font-size:17px;font-weight:700;color:#fff;">＋ New Job</div>',
+    '    <button id="sf-modal-close" style="background:none;border:none;color:rgba(255,255,255,.45);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1;">✕</button>',
+    '  </div>',
+    '  <div style="display:flex;flex-direction:column;gap:14px;">',
+    '    <div class="sf-field"><label class="sf-lbl">Job / Customer Name *</label><input id="nj-name" type="text" placeholder="e.g. ABC Electric — Panel Upgrade"></div>',
+    '    <div class="sf-field"><label class="sf-lbl">Client / Company</label><input id="nj-client" type="text" placeholder="e.g. ABC Electric LLC"></div>',
+    '    <div class="sf-row-2">',
+    '      <div class="sf-field"><label class="sf-lbl">Priority</label>',
+    '        <select id="nj-priority"><option value="normal">⚪ Normal</option><option value="high">🟡 High</option><option value="urgent">🔴 Urgent</option></select></div>',
+    '      <div class="sf-field"><label class="sf-lbl">Stage</label>',
+    '        <select id="nj-col"><option value="new">New Inquiry</option><option value="quote">Quote</option><option value="approved">Approved</option><option value="production">Production</option><option value="install">Install</option><option value="invoice">Invoice</option></select></div>',
+    '    </div>',
+    '    <div class="sf-row-2">',
+    '      <div class="sf-field"><label class="sf-lbl">Job Value ($)</label><input id="nj-value" type="number" placeholder="e.g. 4800"></div>',
+    '      <div class="sf-field"><label class="sf-lbl">Due Date</label><input id="nj-due" type="text" placeholder="e.g. Aug 20"></div>',
+    '    </div>',
+    '    <button id="sf-modal-submit">Add Job →</button>',
+    '  </div>',
+    '</div>'
+  ].join('');
+  document.body.appendChild(modal);
+
+  function openModal()  { modal.classList.add('open'); setTimeout(function(){ document.getElementById('nj-name').focus(); }, 60); }
+  function closeModal() { modal.classList.remove('open'); }
+
+  document.querySelector('.btn-new').addEventListener('click', openModal);
+  document.getElementById('sf-modal-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+
+  document.getElementById('sf-modal-submit').addEventListener('click', function() {
+    var nameEl = document.getElementById('nj-name');
+    var name = nameEl.value.trim();
+    if (!name) { nameEl.style.borderColor = '#D32F2F'; nameEl.focus(); return; }
+    nameEl.style.borderColor = '';
+    var job = {
+      id: Date.now(),
+      name: name,
+      client: document.getElementById('nj-client').value.trim() || name,
+      priority: document.getElementById('nj-priority').value,
+      column: document.getElementById('nj-col').value,
+      value: document.getElementById('nj-value').value || '',
+      due: document.getElementById('nj-due').value.trim() || ''
+    };
+    customJobs.push(job);
+    try { localStorage.setItem(JOBS_KEY, JSON.stringify(customJobs)); } catch(e) {}
+    var col = getColEl(job.column);
+    col.appendChild(createCardEl(job));
+    updateColBadges(); updateJobCount();
+    closeModal();
+    ['nj-name','nj-client','nj-value','nj-due'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('nj-priority').value = 'normal';
+    document.getElementById('nj-col').value = 'new';
+  });
+
 })();
 </script>
 
