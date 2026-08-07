@@ -515,6 +515,61 @@
     .ss-sent { font-size:9px; font-weight:700; color:var(--green); }
     .ss-value { font-size:9px; color:var(--text-dim); margin-left:4px; }
 
+    /* ── VENDOR WAIT timer on card ────────────────────────── */
+    .vendor-wait-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 5px;
+      padding: 5px 8px;
+      background: rgba(206,147,216,0.08);
+      border: 1px solid rgba(206,147,216,0.22);
+      border-radius: 7px;
+      font-size: 10px;
+    }
+    .vendor-wait-label {
+      color: rgba(206,147,216,0.85);
+      font-weight: 700;
+      flex: 1;
+    }
+    .vendor-wait-days {
+      color: rgba(206,147,216,0.60);
+      font-size: 9px;
+      font-style: italic;
+    }
+
+    /* ── SMART QUEUE vendor-window callout ──────────────────── */
+    .qi-vendor-window {
+      background: rgba(206,147,216,0.07);
+      border: 1px solid rgba(206,147,216,0.25);
+      border-radius: 10px;
+      padding: 11px 12px;
+      margin-bottom: 10px;
+    }
+    .qi-vendor-window-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: rgba(206,147,216,0.9);
+      margin-bottom: 7px;
+      letter-spacing: 0.3px;
+    }
+    .qi-vendor-job {
+      font-size: 11px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 4px;
+    }
+    .qi-vendor-job strong {
+      color: rgba(206,147,216,0.85);
+      font-weight: 700;
+    }
+    .qi-vendor-window-note {
+      margin-top: 8px;
+      padding-top: 7px;
+      border-top: 1px solid rgba(206,147,216,0.15);
+      font-size: 10px;
+      color: rgba(255,255,255,0.3);
+    }
+
     /* ── OUTSOURCED vendor dependency ───────────────────────── */
     .outsourced-badge {
       display: inline-flex;
@@ -1121,7 +1176,7 @@
 <!-- ══ AI BANNER ════════════════════════════════════════════════ -->
 <div class="ai-banner">
   <span>⚡</span>
-  <strong>⚡ Smart Queue</strong> — 4 jobs can run in parallel today &nbsp;·&nbsp; 1 job can start earlier than scheduled
+  <strong>⚡ Smart Queue</strong> — 4 jobs can run in parallel today &nbsp;·&nbsp; 2 vendor windows open &nbsp;·&nbsp; 1 job can start earlier than scheduled
   <em>&nbsp;·&nbsp; Est. 2.3 days saved this week</em>
 </div>
 
@@ -1304,7 +1359,7 @@
       </div>
 
       <!-- Urgent -->
-      <div class="card urgent" data-job-type="indoor" data-outsourced="logo-vectoring">
+      <div class="card urgent" data-job-type="indoor" data-outsourced="logo-vectoring" data-vendor-sent="2026-08-05">
         <div class="card-name">Heritage Bank — Branch Refresh</div>
         <div class="card-client">Heritage Community Bank</div>
         <div class="card-row">
@@ -1316,6 +1371,10 @@
           <div class="card-value">$58,000</div>
         </div>
         <div class="card-notified">📨 Client notified Aug 1</div>
+        <div class="vendor-wait-row">
+          <span class="vendor-wait-label">🔗 At studio — 2 days waiting</span>
+          <span class="vendor-wait-days">~2 days remaining · advance other jobs now</span>
+        </div>
         <div class="card-steps">
           <label class="step-item"><input type="checkbox" checked> Brand standards confirmed</label>
           <label class="step-item"><input type="checkbox"> Submit design for client review</label>
@@ -1383,7 +1442,7 @@
       </div>
 
       <!-- Urgent -->
-      <div class="card urgent" data-job-type="outdoor" data-outsourced="neon-fabrication">
+      <div class="card urgent" data-job-type="outdoor" data-outsourced="neon-fabrication" data-vendor-sent="2026-07-30">
         <div class="card-name">Summit Tech Park — Monument Sign</div>
         <div class="card-client">Summit Tech Park LLC</div>
         <div class="card-row">
@@ -1395,6 +1454,10 @@
           <div class="card-value">$41,000</div>
         </div>
         <div class="card-notified">📨 Client notified Aug 1</div>
+        <div class="vendor-wait-row">
+          <span class="vendor-wait-label">🔗 At vendor — 8 days waiting</span>
+          <span class="vendor-wait-days">~9 days remaining · crew is free</span>
+        </div>
         <div class="card-steps">
           <label class="step-item"><input type="checkbox" checked> Steel frame welded</label>
           <label class="step-item"><input type="checkbox"> LED module installation</label>
@@ -1402,7 +1465,7 @@
       </div>
 
       <!-- Normal -->
-      <div class="card normal" data-job-type="outdoor" data-outsourced="neon-fabrication">
+      <div class="card normal" data-job-type="outdoor" data-outsourced="neon-fabrication" data-vendor-sent="2026-08-02">
         <div class="card-name">Walgreens #4712 — Façade Replacement</div>
         <div class="card-client">Walgreens (National)</div>
         <div class="card-row">
@@ -1414,6 +1477,10 @@
           <div class="card-value">$24,800</div>
         </div>
         <div class="card-notified">📨 Client notified Jul 29</div>
+        <div class="vendor-wait-row">
+          <span class="vendor-wait-label">🔗 At vendor — 5 days waiting</span>
+          <span class="vendor-wait-days">~7 days remaining · crew is free</span>
+        </div>
         <div class="card-steps">
           <label class="step-item"><input type="checkbox"> Confirm material delivery Aug 9</label>
           <label class="step-item"><input type="checkbox"> Schedule substrate cutting</label>
@@ -1521,6 +1588,14 @@
         <div style="margin-top:8px;padding-top:7px;border-top:1px solid rgba(249,168,37,0.15);font-size:10px;color:rgba(255,255,255,0.3);">Est. <strong style="color:#F9A825;">2.3 days saved</strong> vs. running jobs back-to-back</div>
       </div>
 
+      <!-- VENDOR WINDOW CALLOUT -->
+      <div class="qi-vendor-window">
+        <div class="qi-vendor-window-title">\u{1f517} 2 JOBS WAITING ON VENDORS — USE THE WINDOW</div>
+        <div class="qi-vendor-job"><strong>Summit Tech Park</strong> — neon fab at vendor <span style="color:rgba(255,255,255,0.35);">(≈ 9 days left)</span> — <span style="color:rgba(206,147,216,0.7);">crew is free</span></div>
+        <div class="qi-vendor-job"><strong>Heritage Bank</strong> — logo vectoring at studio <span style="color:rgba(255,255,255,0.35);">(≈ 2 days left)</span> — <span style="color:rgba(206,147,216,0.7);">advance other jobs now</span></div>
+        <div class="qi-vendor-window-note">While vendor work runs, your crew has capacity. Smart Queue has surfaced these parallel moves below.</div>
+      </div>
+
       <!-- MOVE UP CALLOUT -->
       <div style="background:rgba(102,187,106,0.07);border:1px solid rgba(102,187,106,0.2);border-radius:10px;padding:9px 12px;margin-bottom:10px;">
         <div style="font-size:11px;font-weight:800;color:#66BB6A;margin-bottom:3px;">↑ 1 JOB CAN START EARLIER</div>
@@ -1565,7 +1640,7 @@
           <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
         </div>
         <div class="qi-explain">
-          <div class="qi-explain-inner">Largest active job ($58k). Fab lead time 8 days — starting now hits Aug 8. Any slip risks a costly change order.</div>
+          <div class="qi-explain-inner">Largest active job ($58k). Logo vectoring is at the studio (~2 days) — your crew can’t advance fab yet, but you can move approvals and prep on other jobs during this window.</div>
         </div>
       </div>
 
@@ -1594,7 +1669,7 @@
           <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
         </div>
         <div class="qi-explain">
-          <div class="qi-explain-inner">Fab mid-run, Aug 8 deadline. Install crew Tue–Wed only — confirm slot today or client reschedules to late August.</div>
+          <div class="qi-explain-inner">Neon fab is at the vendor for ~9 more days. Your crew is free during this window — Smart Queue has pulled forward 2 jobs that can run in parallel right now.</div>
         </div>
       </div>
 
