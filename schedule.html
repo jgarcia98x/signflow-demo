@@ -1079,6 +1079,157 @@
 </div>
 
 <script>
+// ═══════════════════════════════════════════════════════════
+// SCHEDULE PAGE INTERACTIVITY
+// ═══════════════════════════════════════════════════════════
+
+// ── Toast helper ──────────────────────────────────────────
+function toast(msg) {
+  var el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(22,22,38,0.97);border:1px solid rgba(255,255,255,0.16);border-radius:10px;padding:10px 20px;font-size:12px;color:#fff;font-weight:600;box-shadow:0 4px 24px rgba(0,0,0,.55);white-space:nowrap;z-index:9999;animation:tIn .22s ease;pointer-events:none;';
+  el.textContent = msg;
+  if (!document.getElementById('sf-toast-style')) {
+    var s = document.createElement('style');
+    s.id = 'sf-toast-style';
+    s.textContent = '@keyframes tIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}';
+    document.head.appendChild(s);
+  }
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 2300);
+}
+
+// ── Week nav arrows ───────────────────────────────────────
+var weekNavBtns = document.querySelectorAll('.week-nav-btn');
+if (weekNavBtns[0]) weekNavBtns[0].addEventListener('click', function() { toast('◀ Previous week'); });
+if (weekNavBtns[1]) weekNavBtns[1].addEventListener('click', function() { toast('▶ Next week'); });
+
+// ── Today button ──────────────────────────────────────────
+var todayBtn = document.querySelector('.today-btn');
+if (todayBtn) todayBtn.addEventListener('click', function() { toast('Viewing current week'); });
+
+// ── Assign Job button ─────────────────────────────────────
+var assignBtn = document.querySelector('.btn-assign');
+if (assignBtn) assignBtn.addEventListener('click', function() { toast('Job assignment coming soon — use Pipeline to move jobs'); });
+
+// ── Avatar ────────────────────────────────────────────────
+var avatar = document.querySelector('.avatar');
+if (avatar) avatar.addEventListener('click', function() { toast('Peter Garcia — U.S. Electric, Joliet IL'); });
+
+// ── Conflict resolve buttons ──────────────────────────────
+document.querySelectorAll('.btn-resolve').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    toast('✓ Conflict flagged for review');
+    btn.textContent = 'Flagged ✓';
+    btn.style.background = 'rgba(102,187,106,0.75)';
+    btn.style.borderColor = 'rgba(102,187,106,0.5)';
+    btn.disabled = true;
+  });
+});
+
+// ── Conflict dismiss buttons ──────────────────────────────
+document.querySelectorAll('.btn-dismiss').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    toast('Dismissed');
+    var bar = btn.closest('.conflict-bar');
+    if (bar) {
+      bar.style.transition = 'opacity .4s, max-height .4s, padding .4s';
+      bar.style.overflow = 'hidden';
+      bar.style.opacity = '0';
+      bar.style.maxHeight = '0';
+      bar.style.padding = '0';
+      setTimeout(function() { bar.remove(); }, 450);
+    }
+  });
+});
+
+// ── Stats bar ─────────────────────────────────────────────
+var statToasts = {
+  'Crew Members':          '4 crew members scheduled this week',
+  'Job Days Scheduled':    '18 job days — view full schedule above',
+  'Active Conflict':       '1 active conflict — click Auto-Resolve to fix',
+  'AI Reassignments':      '2 AI-driven reassignments made this week',
+  'Avg. Utilization':      '85% avg utilization — see Reports for details',
+  'Installs This Week':    '6 installs this week — view on Pipeline',
+  'Client Updates Sent':   '8 client updates sent via SignFlow'
+};
+document.querySelectorAll('.stat').forEach(function(stat) {
+  stat.style.cursor = 'pointer';
+  stat.addEventListener('click', function() {
+    var label = stat.querySelector('.stat-label');
+    var key = label ? label.textContent.trim() : '';
+    var msg = statToasts[key] || key;
+    toast(msg);
+  });
+});
+
+// ── AI Insights panel items ───────────────────────────────
+var aiPanelToasts = [
+  'QuickBooks sync running — invoices auto-created on job completion',
+  'Conflict: Dave double-booked Tue Aug 5 — click Auto-Resolve to fix',
+  'Material delay risk: Prairie Wind — push install to Aug 18 to avoid rework',
+  'Mike fully booked at 100% — Install Crew A available as Tue PM backup'
+];
+document.querySelectorAll('.ai-panel-item').forEach(function(item, i) {
+  item.style.cursor = 'pointer';
+  item.style.transition = 'background .15s';
+  item.addEventListener('mouseenter', function() { item.style.background = 'rgba(255,255,255,0.04)'; });
+  item.addEventListener('mouseleave', function() { item.style.background = ''; });
+  item.addEventListener('click', function() {
+    toast(aiPanelToasts[i] || 'AI Insight');
+  });
+});
+
+// ── Day header cells ──────────────────────────────────────
+(function() {
+  var dayHeaders = document.querySelectorAll('.day-header');
+  var dayCells   = document.querySelectorAll('.day-cell');
+  var numCols    = dayHeaders.length; // 5
+  var numRows    = Math.floor(dayCells.length / numCols);
+  dayHeaders.forEach(function(header, colIdx) {
+    var count = 0;
+    for (var row = 0; row < numRows; row++) {
+      var cell = dayCells[row * numCols + colIdx];
+      if (cell) count += cell.querySelectorAll('.job-block').length;
+    }
+    var dateNum = header.querySelector('.day-date');
+    var dateText = dateNum ? dateNum.textContent.trim() : '';
+    header.style.cursor = 'pointer';
+    header.addEventListener('click', function() {
+      toast('Aug ' + dateText + ' — ' + count + ' job' + (count !== 1 ? 's' : '') + ' scheduled');
+    });
+  });
+})();
+
+// ── Filter pills — toggle active ──────────────────────────
+document.querySelectorAll('.filter-pill').forEach(function(pill) {
+  pill.addEventListener('click', function() {
+    document.querySelectorAll('.filter-pill').forEach(function(p) {
+      p.classList.remove('active');
+    });
+    pill.classList.add('active');
+    toast('Filter: ' + pill.textContent.trim());
+  });
+});
+
+// ── View toggle buttons ───────────────────────────────────
+document.querySelectorAll('.view-toggle button').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.view-toggle button').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    toast(btn.textContent.trim() + ' view — coming soon');
+  });
+});
+
+// ── Cell-empty "+ Assign" slots ───────────────────────────
+document.querySelectorAll('.cell-empty').forEach(function(slot) {
+  slot.addEventListener('click', function() {
+    toast('Job assignment coming soon — use Pipeline to move jobs');
+  });
+});
+
+</script>
+
+<script>
 // Dynamic date
 (function() {
   var el = document.querySelector('.date-chip');
