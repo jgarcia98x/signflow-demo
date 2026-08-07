@@ -6,200 +6,230 @@
   <title>SignFlow — Reports</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --red:         #D32F2F;
-      --red-glow-sm: rgba(211,47,47,0.25);
-      --amber:       #F9A825;
-      --green:       #66BB6A;
-      --bg:          #0c0c14;
-      --surface:     rgba(255,255,255,0.06);
-      --surface-mid: rgba(255,255,255,0.09);
-      --border:      rgba(255,255,255,0.10);
-      --text:        rgba(255,255,255,0.93);
-      --text-muted:  rgba(255,255,255,0.55);
-      --text-dim:    rgba(255,255,255,0.32);
+      --red:#D32F2F; --amber:#F9A825; --green:#66BB6A; --blue:#4B8BF5;
+      --bg:#0c0c14; --surface:rgba(255,255,255,0.06); --surface-mid:rgba(255,255,255,0.09);
+      --border:rgba(255,255,255,0.10); --border-hi:rgba(255,255,255,0.20);
+      --text:rgba(255,255,255,0.93); --text-muted:rgba(255,255,255,0.55); --text-dim:rgba(255,255,255,0.32);
+      --shadow:0 2px 16px rgba(0,0,0,0.5); --shadow-md:0 4px 28px rgba(0,0,0,0.6);
     }
+    html,body { height:100%; }
+    body { background:radial-gradient(ellipse at 30% 0%,#1a1422 0%,var(--bg) 65%);
+      color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;
+      font-size:13px; display:flex; flex-direction:column; height:100vh; overflow:hidden; }
 
-    html, body { height: 100%; }
-    body {
-      background: radial-gradient(ellipse at 30% 0%, #1a1422 0%, var(--bg) 65%);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
-      font-size: 13px;
-      display: flex; flex-direction: column; height: 100vh; overflow: hidden;
-    }
+    /* HEADER */
+    header { background:rgba(180,30,30,0.82); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid rgba(255,255,255,0.12); padding:0 24px; height:56px;
+      display:flex; align-items:center; gap:16px; flex-shrink:0; z-index:200;
+      box-shadow:0 2px 20px rgba(0,0,0,0.5); }
+    .logo { font-size:20px; font-weight:800; color:#fff; letter-spacing:-0.5px; margin-right:8px; }
+    .header-sep { width:1px; height:24px; background:rgba(255,255,255,0.2); }
+    nav a { color:rgba(255,255,255,0.70); text-decoration:none; font-size:13px; font-weight:500;
+      padding:5px 11px; border-radius:7px; transition:color .15s,background .15s; }
+    nav a:hover { color:#fff; background:rgba(255,255,255,0.12); }
+    nav a.active { color:#fff; background:rgba(255,255,255,0.15); }
+    .header-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+    .date-chip { font-size:12px; color:rgba(255,255,255,0.72); font-weight:500; }
+    .avatar { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.18);
+      border:1px solid rgba(255,255,255,0.35); display:flex; align-items:center; justify-content:center;
+      font-size:11px; font-weight:700; color:#fff; cursor:pointer; }
 
-    /* ── HEADER ── */
-    header {
-      background: rgba(180,30,30,0.82); backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255,255,255,0.12);
-      padding: 0 24px; height: 56px; display: flex; align-items: center;
-      gap: 16px; flex-shrink: 0; z-index: 200;
-      box-shadow: 0 2px 20px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06);
-    }
-    .logo { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin-right: 8px; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
-    .header-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.2); }
-    nav a { color: rgba(255,255,255,0.70); text-decoration: none; font-size: 13px; font-weight: 500; padding: 5px 11px; border-radius: 7px; transition: color .15s, background .15s; letter-spacing: 0.1px; }
-    nav a:hover { color: #fff; background: rgba(255,255,255,0.12); }
-    nav a.active { color: #fff; background: rgba(255,255,255,0.15); box-shadow: 0 0 12px rgba(255,255,255,0.08); }
-    .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-    .date-chip { font-size: 12px; color: rgba(255,255,255,0.72); font-weight: 500; }
-    .btn-new { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; border-radius: 7px; padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: pointer; backdrop-filter: blur(8px); transition: background .15s; }
-    .btn-new:hover { background: rgba(255,255,255,0.22); }
-    .avatar { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; cursor: pointer; }
+    /* SUB-BAR */
+    .sub-bar { background:rgba(0,0,0,0.25); border-bottom:1px solid rgba(255,255,255,0.07);
+      padding:0 24px; height:46px; display:flex; align-items:center; gap:16px; flex-shrink:0; }
+    .sub-bar-title { font-size:14px; font-weight:700; color:var(--text); }
+    .sub-bar-sub { font-size:11px; color:var(--text-dim); }
+    .time-tabs { display:flex; gap:4px; margin-left:auto; }
+    .time-tab { padding:5px 14px; border-radius:7px; font-size:11px; font-weight:700;
+      color:var(--text-muted); cursor:pointer; border:1px solid transparent;
+      transition:all .15s; text-transform:uppercase; letter-spacing:0.5px; }
+    .time-tab:hover { color:var(--text); background:rgba(255,255,255,0.07); }
+    .time-tab.active { color:#fff; background:rgba(255,255,255,0.12);
+      border-color:rgba(255,255,255,0.20); }
+    .export-btn { padding:5px 12px; border-radius:7px; font-size:11px; font-weight:700;
+      color:rgba(255,255,255,0.65); cursor:pointer; border:1px solid rgba(255,255,255,0.15);
+      background:rgba(255,255,255,0.05); transition:all .15s; }
+    .export-btn:hover { background:rgba(255,255,255,0.10); color:#fff; }
 
-    /* ── PAGE CONTENT ── */
-    .page-content {
-      flex: 1; overflow-y: auto; padding: 24px;
-      display: flex; flex-direction: column; gap: 20px;
-    }
+    /* CONTENT */
+    .page-content { flex:1; overflow-y:auto; padding:20px 24px 32px; display:flex; flex-direction:column; gap:16px; }
+    .page-content::-webkit-scrollbar { width:5px; }
+    .page-content::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.12); border-radius:3px; }
 
-    /* Page title bar */
-    .page-title-bar {
-      display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px;
-    }
-    .page-title { font-size: 20px; font-weight: 800; color: var(--text); }
-    .page-subtitle { font-size: 13px; color: var(--text-dim); }
+    /* KPI ROW */
+    .kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .kpi-card { background:var(--surface); border:1px solid var(--border); border-radius:12px;
+      padding:16px; cursor:pointer; transition:all .18s; position:relative; overflow:hidden; }
+    .kpi-card:hover { background:var(--surface-mid); border-color:var(--border-hi);
+      transform:translateY(-1px); box-shadow:0 6px 24px rgba(0,0,0,0.4); }
+    .kpi-card::after { content:'›'; position:absolute; right:12px; top:50%;
+      transform:translateY(-50%); font-size:16px; color:rgba(255,255,255,0.20); }
+    .kpi-label { font-size:9px; text-transform:uppercase; letter-spacing:0.8px;
+      color:var(--text-dim); font-weight:700; margin-bottom:6px; }
+    .kpi-val { font-size:26px; font-weight:800; line-height:1.1; margin-bottom:5px; }
+    .kpi-val.amber { color:var(--amber); text-shadow:0 0 20px rgba(249,168,37,0.35); }
+    .kpi-val.green { color:var(--green); text-shadow:0 0 20px rgba(102,187,106,0.35); }
+    .kpi-val.blue  { color:#7AADFF; }
+    .kpi-val.pink  { color:#FF85C2; }
+    .kpi-trend { font-size:11px; font-weight:700; display:flex; align-items:center; gap:5px; }
+    .trend-up   { color:#66BB6A; }
+    .trend-down { color:#ef5350; }
+    .trend-same { color:var(--text-dim); }
+    .kpi-sub { font-size:10px; color:var(--text-dim); margin-top:2px; }
 
-    /* ── HEADER STATS ROW ── */
-    .stats-row {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
-    }
-    .stat-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 12px; padding: 18px 20px;
-      backdrop-filter: blur(16px);
-      transition: background .15s;
-    }
-    .stat-card:hover { background: var(--surface-mid); }
-    .stat-card-val {
-      font-size: 26px; font-weight: 800; color: var(--text);
-      letter-spacing: -0.5px; line-height: 1;
-    }
-    .stat-card-val.green  { color: var(--green);  text-shadow: 0 0 16px rgba(102,187,106,0.4); }
-    .stat-card-val.amber  { color: var(--amber);  text-shadow: 0 0 16px rgba(249,168,37,0.4); }
-    .stat-card-val.red    { color: #ef5350;       text-shadow: 0 0 16px rgba(239,83,80,0.4); }
-    .stat-card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-dim); margin-top: 6px; font-weight: 700; }
-    .stat-card-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    /* GRID ROWS */
+    .two-col  { display:grid; grid-template-columns:3fr 2fr; gap:12px; }
+    .three-col{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
 
-    /* ── SECTION ── */
-    .section {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 14px; padding: 20px 22px;
-      backdrop-filter: blur(16px);
-    }
-    .section-title {
-      font-size: 13px; font-weight: 800; text-transform: uppercase;
-      letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 16px;
-    }
+    /* SECTIONS */
+    .section { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; }
+    .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .section-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-muted); }
+    .section-action { font-size:10px; color:rgba(255,255,255,0.35); cursor:pointer; padding:2px 6px;
+      border-radius:5px; border:1px solid transparent; transition:all .12s; }
+    .section-action:hover { color:var(--text); background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.12); }
 
-    /* ── CHARTS ROW ── */
-    .charts-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+    /* FUNNEL */
+    .funnel-item { display:flex; align-items:center; gap:10px; margin-bottom:9px; cursor:pointer; padding:4px 6px;
+      border-radius:7px; transition:background .15s; }
+    .funnel-item:hover { background:rgba(255,255,255,0.05); }
+    .funnel-label { width:90px; flex-shrink:0; font-size:11px; font-weight:600; color:var(--text-muted); }
+    .funnel-bar-wrap { flex:1; height:22px; background:rgba(255,255,255,0.05); border-radius:5px; overflow:hidden;
+      position:relative; }
+    .funnel-bar { height:100%; border-radius:5px; display:flex; align-items:center; padding-left:8px;
+      font-size:9px; font-weight:700; color:rgba(0,0,0,0.7); transition:width .4s ease; white-space:nowrap; }
+    .funnel-right { display:flex; flex-direction:column; align-items:flex-end; width:80px; flex-shrink:0; }
+    .funnel-count { font-size:12px; font-weight:700; color:var(--text); }
+    .funnel-val { font-size:9px; color:var(--text-dim); }
+    .funnel-convert { font-size:9px; color:var(--text-dim); text-align:right; }
+    .funnel-arrow { font-size:10px; color:rgba(255,255,255,0.20); text-align:right; }
 
-    /* ── FUNNEL ── */
-    .funnel-item { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-    .funnel-label {
-      width: 90px; flex-shrink: 0;
-      font-size: 12px; font-weight: 600; color: var(--text-muted);
-      text-align: right;
-    }
-    .funnel-bar-wrap {
-      flex: 1; background: rgba(255,255,255,0.06);
-      border-radius: 6px; height: 24px; overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.07);
-    }
-    .funnel-bar {
-      height: 100%; border-radius: 6px;
-      display: flex; align-items: center; padding-left: 10px;
-      font-size: 11px; font-weight: 700; color: rgba(0,0,0,0.7);
-      transition: width 0.6s ease;
-    }
-    .funnel-count { width: 28px; flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--text); text-align: right; }
+    /* VELOCITY */
+    .velocity-item { display:flex; align-items:center; gap:8px; margin-bottom:8px; cursor:pointer;
+      padding:4px 6px; border-radius:6px; transition:background .15s; }
+    .velocity-item:hover { background:rgba(255,255,255,0.05); }
+    .velocity-label { width:80px; flex-shrink:0; font-size:10px; color:var(--text-muted); font-weight:600; }
+    .velocity-bar-wrap { flex:1; height:14px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; }
+    .velocity-bar { height:100%; border-radius:4px; transition:width .4s ease; }
+    .velocity-days { width:32px; flex-shrink:0; font-size:10px; font-weight:700; color:var(--text); text-align:right; }
+    .velocity-flag { font-size:9px; }
 
-    /* ── WEEKLY BARS ── */
-    .weekly-bars { display: flex; gap: 14px; align-items: flex-end; height: 130px; margin-bottom: 8px; }
-    .week-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .week-bar-outer { width: 100%; display: flex; flex-direction: column; justify-content: flex-end; height: 100px; }
-    .week-bar {
-      width: 100%; border-radius: 6px 6px 0 0;
-      transition: height 0.6s ease;
-      position: relative;
-    }
-    .week-bar.projected { opacity: 0.55; border: 2px dashed rgba(255,255,255,0.3); background: rgba(249,168,37,0.4) !important; }
-    .week-val { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
-    .week-label { font-size: 10px; color: var(--text-dim); white-space: nowrap; }
-    .projected-badge {
-      font-size: 9px; background: rgba(249,168,37,0.15);
-      border: 1px solid rgba(249,168,37,0.35); color: var(--amber);
-      border-radius: 4px; padding: 1px 5px; font-weight: 700;
-    }
+    /* REVENUE CHART */
+    .rev-chart { display:flex; align-items:flex-end; gap:8px; height:120px; }
+    .rev-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; }
+    .rev-bar-wrap { flex:1; width:100%; display:flex; align-items:flex-end; }
+    .rev-bar { width:100%; border-radius:5px 5px 0 0; transition:height .4s ease, opacity .15s;
+      min-height:4px; }
+    .rev-col:hover .rev-bar { opacity:0.75; }
+    .rev-col.projected .rev-bar { opacity:0.45; border:1px dashed rgba(255,255,255,0.3); border-bottom:none; }
+    .rev-label { font-size:8px; color:var(--text-dim); white-space:nowrap; text-align:center; }
+    .rev-val { font-size:9px; font-weight:700; color:var(--text-muted); }
+    .rev-selected .rev-bar { opacity:1 !important; box-shadow:0 0 12px rgba(255,255,255,0.2); }
+    .rev-chart-detail { margin-top:10px; padding:10px; background:rgba(255,255,255,0.04);
+      border-radius:8px; border:1px solid rgba(255,255,255,0.08); display:none; }
+    .rev-chart-detail.open { display:block; }
+    .rcd-row { display:flex; justify-content:space-between; font-size:11px; padding:3px 0;
+      border-bottom:1px solid rgba(255,255,255,0.05); }
+    .rcd-row:last-child { border-bottom:none; }
 
-    /* ── JOB TYPE ROW ── */
-    .type-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .type-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 12px; padding: 20px 22px;
-      text-align: center; backdrop-filter: blur(16px);
-      transition: background .15s;
-    }
-    .type-card:hover { background: var(--surface-mid); }
-    .type-icon { font-size: 36px; margin-bottom: 8px; line-height: 1; }
-    .type-count { font-size: 32px; font-weight: 800; color: var(--text); }
-    .type-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
-    .type-val { font-size: 13px; font-weight: 700; color: var(--text-dim); margin-top: 6px; }
+    /* WIN/LOSS RING */
+    .rate-row { display:flex; gap:8px; justify-content:space-around; }
+    .rate-item { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer;
+      padding:8px 12px; border-radius:8px; transition:background .15s; }
+    .rate-item:hover { background:rgba(255,255,255,0.05); }
+    .rate-ring { width:52px; height:52px; border-radius:50%; display:flex; align-items:center;
+      justify-content:center; font-size:14px; font-weight:800; }
+    .rate-val-label { font-size:9px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-dim); }
 
-    /* ── BOTTOM ROW ── */
-    .bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    /* INVOICE TABLE */
+    .invoice-row { display:flex; justify-content:space-between; align-items:center;
+      padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.06); cursor:pointer;
+      transition:background .15s; padding:8px 6px; border-radius:6px; }
+    .invoice-row:hover { background:rgba(255,255,255,0.05); }
+    .invoice-name { font-size:11px; font-weight:600; color:var(--text); }
+    .invoice-meta { font-size:9px; color:var(--text-dim); margin-top:1px; }
+    .invoice-val { font-size:12px; font-weight:700; color:#FFD700; }
+    .invoice-age { font-size:9px; color:#ef5350; font-weight:600; }
+    .send-invoice-btn { font-size:9px; font-weight:700; color:var(--amber);
+      background:rgba(249,168,37,0.12); border:1px solid rgba(249,168,37,0.30);
+      border-radius:5px; padding:2px 7px; cursor:pointer; transition:all .15s; white-space:nowrap; }
+    .send-invoice-btn:hover { background:rgba(249,168,37,0.22); }
 
-    /* ── WARNING CARD ── */
-    .warning-card {
-      background: rgba(249,168,37,0.07); border: 1px solid rgba(249,168,37,0.28);
-      border-left: 3px solid var(--amber); border-radius: 12px; padding: 18px 20px;
-    }
-    .warning-title { font-size: 13px; font-weight: 800; color: var(--amber); margin-bottom: 10px; }
-    .warning-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
-    .warning-item:last-of-type { border-bottom: none; }
-    .warning-item-name { font-size: 12px; color: var(--text-muted); }
-    .warning-item-val { font-size: 12px; font-weight: 700; color: var(--amber); }
-    .warning-total { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(249,168,37,0.2); }
-    .warning-total-label { font-size: 13px; font-weight: 700; color: var(--text); }
-    .warning-total-val { font-size: 15px; font-weight: 800; color: var(--amber); text-shadow: 0 0 12px rgba(249,168,37,0.4); }
-    .warning-note { font-size: 11px; color: var(--text-dim); margin-top: 8px; line-height: 1.5; }
+    /* CLIENT LEADERBOARD */
+    .client-row { display:flex; align-items:center; gap:10px; padding:9px 6px;
+      border-bottom:1px solid rgba(255,255,255,0.06); cursor:pointer; border-radius:7px;
+      transition:background .15s; }
+    .client-row:hover { background:rgba(255,255,255,0.05); }
+    .client-rank { font-size:11px; font-weight:800; color:var(--text-dim); width:18px; flex-shrink:0; }
+    .client-name { flex:1; font-size:12px; font-weight:600; }
+    .client-sub  { font-size:9px; color:var(--text-dim); }
+    .client-stage-pip { display:flex; gap:3px; }
+    .client-dot { width:7px; height:7px; border-radius:50%; }
+    .client-val { font-size:13px; font-weight:800; color:var(--text); text-align:right; }
+    .client-trend { font-size:10px; font-weight:700; }
+    .client-bar-wrap { width:80px; height:5px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; }
+    .client-bar { height:100%; border-radius:3px; }
 
-    /* ── STAGE VALUE TABLE ── */
-    .stage-table { width: 100%; }
-    .stage-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .stage-row:last-child { border-bottom: none; }
-    .stage-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .stage-name { font-size: 12px; font-weight: 600; color: var(--text-muted); flex: 1; }
-    .stage-jobs { font-size: 11px; color: var(--text-dim); width: 50px; text-align: right; }
-    .stage-val  { font-size: 13px; font-weight: 700; color: var(--text); width: 80px; text-align: right; }
+    /* AI INSIGHTS */
+    .insights-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+    .insight-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09);
+      border-radius:10px; padding:12px; cursor:pointer; transition:all .15s; }
+    .insight-card:hover { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.15); transform:translateY(-1px); }
+    .insight-card.warn  { border-color:rgba(249,168,37,0.30); background:rgba(249,168,37,0.05); }
+    .insight-card.alert { border-color:rgba(239,83,80,0.30);  background:rgba(239,83,80,0.05);  }
+    .insight-card.good  { border-color:rgba(102,187,106,0.30); background:rgba(102,187,106,0.05); }
+    .insight-icon { font-size:18px; margin-bottom:6px; }
+    .insight-title { font-size:11px; font-weight:700; color:var(--text); margin-bottom:3px; }
+    .insight-body  { font-size:10px; color:var(--text-muted); line-height:1.4; }
+    .insight-action { font-size:9px; font-weight:700; margin-top:7px;
+      color:var(--text-dim); text-decoration:underline; cursor:pointer; }
 
-    /* ── MOBILE ── */
-    @media (max-width: 900px) {
-      .stats-row { grid-template-columns: repeat(2, 1fr); }
-      .charts-row { grid-template-columns: 1fr; }
-      .bottom-row { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 768px) {
-      header { flex-wrap: wrap; height: auto; padding: 10px 14px 0; gap: 8px; }
-      .header-sep { display: none; } .date-chip { display: none; } .avatar { display: none; }
-      .header-right { margin-left: auto; }
-      nav { width: 100%; overflow-x: auto; display: flex; gap: 0; border-top: 1px solid rgba(255,255,255,0.08); padding: 0; scrollbar-width: none; }
-      nav::-webkit-scrollbar { display: none; }
-      nav a { flex-shrink: 0; font-size: 13px; padding: 10px 14px; border-radius: 0; border-bottom: 2px solid transparent; }
-      nav a.active { border-bottom: 2px solid rgba(255,255,255,0.9); }
-      .page-content { padding: 14px; }
-      .stats-row { grid-template-columns: repeat(2, 1fr); }
-      .type-row { grid-template-columns: 1fr 1fr; }
-    }
+    /* COLD SECTION */
+    .cold-item { display:flex; justify-content:space-between; align-items:center;
+      padding:8px 6px; border-radius:7px; cursor:pointer; transition:background .15s;
+      border-bottom:1px solid rgba(255,255,255,0.06); }
+    .cold-item:hover { background:rgba(255,255,255,0.05); }
+    .cold-age { font-size:9px; font-weight:700; color:rgba(79,195,247,0.90);
+      background:rgba(79,195,247,0.12); border:1px solid rgba(79,195,247,0.25);
+      border-radius:4px; padding:1px 5px; }
+    .cold-val { font-size:11px; font-weight:700; color:var(--text-muted); }
+
+    /* PANEL + TOAST */
+    #rp-overlay { position:fixed;inset:0;z-index:4999;background:rgba(0,0,0,.45);
+      backdrop-filter:blur(3px);display:none; }
+    #rp-overlay.open { display:block; }
+    #rp-panel { position:fixed;top:0;right:0;width:340px;max-width:100vw;height:100%;
+      background:#12121f;border-left:1px solid rgba(255,255,255,0.12);z-index:5000;
+      transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);
+      overflow-y:auto;box-shadow:-8px 0 40px rgba(0,0,0,.65); }
+    #rp-panel.open { transform:translateX(0); }
+    #rp-panel-header { display:flex;align-items:center;justify-content:space-between;
+      padding:16px 18px;border-bottom:1px solid rgba(255,255,255,0.08); }
+    #rp-panel-title { font-size:14px;font-weight:800;color:#fff; }
+    #rp-panel-close { background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer; }
+    #rp-panel-close:hover { color:#fff; }
+    #rp-panel-body { padding:18px; }
+    .rp-item { padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.07);
+      display:flex; justify-content:space-between; align-items:center; }
+    .rp-item:last-child { border-bottom:none; }
+    .rp-item-name { font-size:12px; font-weight:600; color:var(--text); }
+    .rp-item-sub  { font-size:10px; color:var(--text-dim); }
+    .rp-item-val  { font-size:13px; font-weight:700; color:var(--text); }
+    #toast-r { position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;
+      pointer-events:none; }
+    .sf-toast { background:rgba(22,22,38,0.97);border:1px solid rgba(255,255,255,.16);
+      border-radius:10px;padding:10px 20px;font-size:12px;color:#fff;font-weight:600;
+      box-shadow:0 4px 24px rgba(0,0,0,.55);white-space:nowrap;margin-top:6px;
+      animation:tIn .22s ease,tOut .3s ease 1.9s forwards; }
+    @keyframes tIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes tOut{from{opacity:1}to{opacity:0}}
+
+    @media(max-width:900px){.two-col,.three-col,.kpi-row,.insights-grid{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
 
-<!-- ══ HEADER ═══════════════════════════════════════════════════ -->
 <header>
   <div class="logo">SignFlow</div>
   <div class="header-sep"></div>
@@ -212,238 +242,513 @@
     <a href="settings.html">Settings</a>
   </nav>
   <div class="header-right">
-    <div class="date-chip" id="date-chip">📅 Sun, Aug 2, 2026</div>
-    <button class="btn-new">＋ New Job</button>
+    <div class="date-chip" id="date-chip">📅 …</div>
     <div class="avatar">PG</div>
   </div>
 </header>
 
-<!-- ══ PAGE CONTENT ══════════════════════════════════════════════ -->
-<div class="page-content">
-
-  <div class="page-title-bar">
-    <div class="page-title">Revenue &amp; Pipeline</div>
-    <div class="page-subtitle">Aug 2026 · Garcia Sign &amp; Electric</div>
+<div class="sub-bar">
+  <div class="sub-bar-title">Revenue &amp; Pipeline</div>
+  <div class="sub-bar-sub" id="sub-context">Garcia Sign &amp; Electric · Aug 2026</div>
+  <div class="time-tabs">
+    <div class="time-tab" data-range="week">Week</div>
+    <div class="time-tab active" data-range="month">Month</div>
+    <div class="time-tab" data-range="quarter">Quarter</div>
   </div>
-
-  <!-- ── HEADER STATS ── -->
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-card-val amber">$244,800</div>
-      <div class="stat-card-label">Pipeline Value</div>
-      <div class="stat-card-sub">15 jobs tracked</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-card-val green">$106,900</div>
-      <div class="stat-card-label">Closed This Month</div>
-      <div class="stat-card-sub">↑ 18% vs July</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-card-val">$16,320</div>
-      <div class="stat-card-label">Avg Job Value</div>
-      <div class="stat-card-sub">excl. TBD inquiries</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-card-val red">11</div>
-      <div class="stat-card-label">Jobs This Month</div>
-      <div class="stat-card-sub">2 new inquiries</div>
-    </div>
-  </div>
-
-  <!-- ── FUNNEL + WEEKLY BARS ── -->
-  <div class="charts-row">
-
-    <!-- Pipeline Funnel -->
-    <div class="section">
-      <div class="section-title">Pipeline Funnel — Jobs by Stage</div>
-      <div class="funnel-item">
-        <div class="funnel-label">New Inquiry</div>
-        <div class="funnel-bar-wrap">
-          <div class="funnel-bar" style="width:20%;background:#B44FF5;">2 jobs</div>
-        </div>
-        <div class="funnel-count">2</div>
-      </div>
-      <div class="funnel-item">
-        <div class="funnel-label">Quote</div>
-        <div class="funnel-bar-wrap">
-          <div class="funnel-bar" style="width:40%;background:#F0529A;">4 jobs</div>
-        </div>
-        <div class="funnel-count">4</div>
-      </div>
-      <div class="funnel-item">
-        <div class="funnel-label">Design</div>
-        <div class="funnel-bar-wrap">
-          <div class="funnel-bar" style="width:20%;background:#00C8D4;">2 jobs</div>
-        </div>
-        <div class="funnel-count">2</div>
-      </div>
-      <div class="funnel-item">
-        <div class="funnel-label">Approval</div>
-        <div class="funnel-bar-wrap">
-          <div class="funnel-bar" style="width:20%;background:#F0C040;">2 jobs</div>
-        </div>
-        <div class="funnel-count">2</div>
-      </div>
-      <div class="funnel-item">
-        <div class="funnel-label">Fabrication</div>
-        <div class="funnel-bar-wrap">
-          <div class="funnel-bar" style="width:30%;background:#F07040;">3 jobs</div>
-        </div>
-        <div class="funnel-count">3</div>
-      </div>
-      <div class="funnel-item">
-        <div class="funnel-label">Install</div>
-        <div class="funnel-bar-wrap">
-          <div class="funnel-bar" style="width:20%;background:#50D880;">2 jobs</div>
-        </div>
-        <div class="funnel-count">2</div>
-      </div>
-      <div class="funnel-item">
-        <div class="funnel-label">Complete</div>
-        <div class="funnel-bar-wrap">
-          <div class="funnel-bar" style="width:10%;background:#76E040;">1 job</div>
-        </div>
-        <div class="funnel-count">1</div>
-      </div>
-    </div>
-
-    <!-- Revenue by Week -->
-    <div class="section">
-      <div class="section-title">Revenue by Week</div>
-      <div class="weekly-bars">
-        <div class="week-bar-wrap">
-          <div class="week-val">$34.1k</div>
-          <div class="week-bar-outer">
-            <div class="week-bar" style="height:58%;background:linear-gradient(180deg,#50D880,#3aaa60);"></div>
-          </div>
-          <div class="week-label">Jul 28</div>
-        </div>
-        <div class="week-bar-wrap">
-          <div class="week-val">$58k</div>
-          <div class="week-bar-outer">
-            <div class="week-bar" style="height:100%;background:linear-gradient(180deg,#F0529A,#c03075);"></div>
-          </div>
-          <div class="week-label">Aug 4</div>
-        </div>
-        <div class="week-bar-wrap">
-          <div class="week-val">$14.7k</div>
-          <div class="week-bar-outer">
-            <div class="week-bar projected" style="height:25%;"></div>
-          </div>
-          <div class="week-label">Aug 11</div>
-          <div class="projected-badge">Projected</div>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">
-        Projected week based on jobs currently in Fabrication &amp; Install stages.
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── JOB TYPE SPLIT + COLD PIPELINE ── -->
-  <div class="bottom-row">
-
-    <!-- Job Type Split -->
-    <div class="section">
-      <div class="section-title">Job Type Split</div>
-      <div class="type-row" style="gap:14px;">
-        <div class="type-card">
-          <div class="type-icon">🏠</div>
-          <div class="type-count">5</div>
-          <div class="type-label">Indoor Jobs</div>
-          <div class="type-val">$112,200</div>
-        </div>
-        <div class="type-card">
-          <div class="type-icon">☀️</div>
-          <div class="type-count">10</div>
-          <div class="type-label">Outdoor Jobs</div>
-          <div class="type-val">$168,900</div>
-        </div>
-      </div>
-      <div style="margin-top:16px;">
-        <div class="section-title" style="margin-bottom:10px;">Value by Stage</div>
-        <div class="stage-table">
-          <div class="stage-row"><div class="stage-dot" style="background:#B44FF5;"></div><div class="stage-name">New Inquiry</div><div class="stage-jobs">2 jobs</div><div class="stage-val">TBD</div></div>
-          <div class="stage-row"><div class="stage-dot" style="background:#F0529A;"></div><div class="stage-name">Quote</div><div class="stage-jobs">4 jobs</div><div class="stage-val">$48,500</div></div>
-          <div class="stage-row"><div class="stage-dot" style="background:#00C8D4;"></div><div class="stage-name">Design</div><div class="stage-jobs">2 jobs</div><div class="stage-val">$80,100</div></div>
-          <div class="stage-row"><div class="stage-dot" style="background:#F0C040;"></div><div class="stage-name">Approval</div><div class="stage-jobs">2 jobs</div><div class="stage-val">$31,300</div></div>
-          <div class="stage-row"><div class="stage-dot" style="background:#F07040;"></div><div class="stage-name">Fabrication</div><div class="stage-jobs">3 jobs</div><div class="stage-val">$72,200</div></div>
-          <div class="stage-row"><div class="stage-dot" style="background:#50D880;"></div><div class="stage-name">Install</div><div class="stage-jobs">2 jobs</div><div class="stage-val">$30,700</div></div>
-          <div class="stage-row"><div class="stage-dot" style="background:#76E040;"></div><div class="stage-name">Complete</div><div class="stage-jobs">1 job</div><div class="stage-val">$34,100</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Cold Pipeline Warning -->
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <div class="warning-card">
-        <div class="warning-title">⚠️ Cold Pipeline — Revenue at Risk</div>
-        <div class="warning-item">
-          <div class="warning-item-name">❄️ Bricktown Brewery — Outdoor Sign</div>
-          <div class="warning-item-val">$8,600</div>
-        </div>
-        <div class="warning-item">
-          <div class="warning-item-name">✕ Valley Fresh Grocery — Storefront</div>
-          <div class="warning-item-val" style="color:rgba(255,255,255,0.4);">$14,300</div>
-        </div>
-        <div class="warning-item">
-          <div class="warning-item-name">❄️ Downtown Diner (no response, 4d)</div>
-          <div class="warning-item-val">$7,200</div>
-        </div>
-        <div class="warning-item">
-          <div class="warning-item-name">❄️ Riverside Auto (pending 2d)</div>
-          <div class="warning-item-val">$18,400 <span style="font-size:10px;color:var(--text-dim);">at risk</span></div>
-        </div>
-        <div class="warning-total">
-          <div class="warning-total-label">Total at risk</div>
-          <div class="warning-total-val">$48,500</div>
-        </div>
-        <div class="warning-note">
-          Cold jobs go silent after 7+ days without contact. Send a follow-up today from the Pipeline view to recapture this revenue.
-        </div>
-      </div>
-
-      <div class="section" style="padding:18px 20px;">
-        <div class="section-title">Quick Win Opportunities</div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-            <div>
-              <div style="font-size:12px;font-weight:700;color:var(--text);">Riverside Auto — Pylon</div>
-              <div style="font-size:11px;color:var(--text-dim);">Quote ready · client usually responds in &lt;24h</div>
-            </div>
-            <div style="font-size:13px;font-weight:800;color:var(--green);">$18,400</div>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-            <div>
-              <div style="font-size:12px;font-weight:700;color:var(--text);">Village Tap — Blade Sign</div>
-              <div style="font-size:11px;color:var(--text-dim);">Approval overdue · one call closes this</div>
-            </div>
-            <div style="font-size:13px;font-weight:800;color:var(--amber);">$9,200</div>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;">
-            <div>
-              <div style="font-size:12px;font-weight:700;color:var(--text);">Bricktown Brewery</div>
-              <div style="font-size:11px;color:var(--text-dim);">22 days silent · re-engage before quote expires</div>
-            </div>
-            <div style="font-size:13px;font-weight:800;color:#4FC3F7;">$8,600</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
+  <button class="export-btn" onclick="toast('Report exported as PDF ✓','📄')">Export ↓</button>
 </div>
+
+<div class="page-content" id="page-content">
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi-card" data-panel="pipeline">
+      <div class="kpi-label">Pipeline Value</div>
+      <div class="kpi-val amber" id="kpi-pipeline">$244,800</div>
+      <div class="kpi-trend trend-up" id="kpi-pipeline-trend">↑ 12% vs last month</div>
+      <div class="kpi-sub" id="kpi-pipeline-sub">15 active jobs</div>
+    </div>
+    <div class="kpi-card" data-panel="closed">
+      <div class="kpi-label">Closed &amp; Invoiced</div>
+      <div class="kpi-val green" id="kpi-closed">$106,900</div>
+      <div class="kpi-trend trend-up" id="kpi-closed-trend">↑ 18% vs July</div>
+      <div class="kpi-sub" id="kpi-closed-sub">3 jobs completed</div>
+    </div>
+    <div class="kpi-card" data-panel="velocity">
+      <div class="kpi-label">Avg Close Time</div>
+      <div class="kpi-val blue" id="kpi-velocity">23 days</div>
+      <div class="kpi-trend trend-up" id="kpi-velocity-trend">↓ 3d faster than July</div>
+      <div class="kpi-sub" id="kpi-velocity-sub">Quote → Complete</div>
+    </div>
+    <div class="kpi-card" data-panel="winrate">
+      <div class="kpi-label">Win Rate</div>
+      <div class="kpi-val pink" id="kpi-winrate">68%</div>
+      <div class="kpi-trend trend-up" id="kpi-winrate-trend">↑ 5pts vs last month</div>
+      <div class="kpi-sub" id="kpi-winrate-sub">Quotes that become jobs</div>
+    </div>
+  </div>
+
+  <!-- FUNNEL + VELOCITY -->
+  <div class="two-col">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Pipeline Funnel</div>
+        <div class="section-action" onclick="toast('Funnel exported','📊')">Export</div>
+      </div>
+      <div id="funnel-list"></div>
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Stage Velocity (avg days)</div>
+        <div class="section-action" onclick="openPanel('velocity')">Detail →</div>
+      </div>
+      <div id="velocity-list"></div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);">
+        <div class="rate-row" id="rate-row"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVENUE CHART + CONVERSION -->
+  <div class="two-col">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Revenue by Week</div>
+        <div class="section-action" id="rev-detail-toggle" onclick="toggleRevDetail()">Show jobs ↓</div>
+      </div>
+      <div class="rev-chart" id="rev-chart"></div>
+      <div class="rev-chart-detail" id="rev-detail"></div>
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Job Type Split</div>
+        <div class="section-action" onclick="toast('Type breakdown opened','🏠')">Detail →</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:rgba(100,180,255,0.08);border:1px solid rgba(100,180,255,0.22);border-radius:9px;padding:14px;text-align:center;cursor:pointer;" onclick="openPanel('indoor')">
+          <div style="font-size:24px;margin-bottom:4px;">🏠</div>
+          <div style="font-size:20px;font-weight:800;color:rgba(100,180,255,0.95);">5</div>
+          <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;">Indoor jobs</div>
+          <div style="font-size:11px;font-weight:700;color:rgba(100,180,255,0.70);margin-top:4px;">$112,200</div>
+          <div style="font-size:9px;color:var(--text-dim);margin-top:2px;">Avg ~2–4d cycle</div>
+        </div>
+        <div style="background:rgba(255,190,80,0.08);border:1px solid rgba(255,190,80,0.22);border-radius:9px;padding:14px;text-align:center;cursor:pointer;" onclick="openPanel('outdoor')">
+          <div style="font-size:24px;margin-bottom:4px;">☀️</div>
+          <div style="font-size:20px;font-weight:800;color:rgba(255,190,80,0.95);">10</div>
+          <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;">Outdoor jobs</div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,190,80,0.70);margin-top:4px;">$132,600</div>
+          <div style="font-size:9px;color:var(--text-dim);margin-top:2px;">Avg ~5–10d cycle</div>
+        </div>
+      </div>
+      <div style="padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);font-weight:700;margin-bottom:8px;">Outsourced dependencies</div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;cursor:pointer;padding:4px 6px;border-radius:5px;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''" onclick="toast('2 jobs waiting on logo vectoring','🔗')">
+          <span style="color:rgba(206,147,216,0.90);">🔗 Logo Vectoring</span><span style="color:var(--text-dim);">2 jobs · ~2–3d</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;cursor:pointer;padding:4px 6px;border-radius:5px;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''" onclick="toast('2 jobs waiting on neon fab shop','🔗')">
+          <span style="color:rgba(206,147,216,0.90);">🔗 Neon Fabrication</span><span style="color:var(--text-dim);">2 jobs · ~7–14d</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVOICES + COLD -->
+  <div class="two-col">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">💰 Outstanding Invoices</div>
+        <div style="font-size:11px;font-weight:800;color:#FFD700;">$30,700 to collect</div>
+      </div>
+      <div id="invoices-list"></div>
+      <div style="margin-top:10px;">
+        <button style="width:100%;padding:9px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.30);border-radius:8px;color:#FFD700;font-size:11px;font-weight:700;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,215,0,0.20)'" onmouseout="this.style.background='rgba(255,215,0,0.12)'" onclick="toast('All invoices queued for send ✓','💰')">
+          📬 Send All Invoices Now
+        </button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">❄️ Cold Pipeline Risk</div>
+        <div style="font-size:11px;font-weight:800;color:rgba(79,195,247,0.90);" id="cold-total">$48,500 at risk</div>
+      </div>
+      <div id="cold-list"></div>
+      <div style="margin-top:10px;">
+        <button style="width:100%;padding:9px;background:rgba(79,195,247,0.10);border:1px solid rgba(79,195,247,0.28);border-radius:8px;color:rgba(79,195,247,0.90);font-size:11px;font-weight:700;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(79,195,247,0.18)'" onmouseout="this.style.background='rgba(79,195,247,0.10)'" onclick="toast('Follow-ups queued for all cold jobs ✓','📬')">
+          📬 Queue All Follow-ups
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENT LEADERBOARD -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Client Leaderboard — Pipeline Value</div>
+      <div class="section-action" onclick="openPanel('clients')">View all →</div>
+    </div>
+    <div id="client-list"></div>
+  </div>
+
+  <!-- AI INSIGHTS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">⚡ Smart Insights</div>
+      <div class="section-action" onclick="toast('Refreshing insights…','⚡')">Refresh</div>
+    </div>
+    <div class="insights-grid" id="insights-grid"></div>
+  </div>
+
+</div><!-- /page-content -->
+
+<!-- DETAIL PANEL -->
+<div id="rp-overlay"></div>
+<div id="rp-panel">
+  <div id="rp-panel-header">
+    <div id="rp-panel-title">Detail</div>
+    <button id="rp-panel-close">✕</button>
+  </div>
+  <div id="rp-panel-body"></div>
+</div>
+<div id="toast-r"></div>
 
 <script>
 (function(){
-  var el = document.getElementById('date-chip');
-  if (!el) return;
-  var d = new Date();
-  var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  el.textContent = '📅 ' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  'use strict';
+
+  /* ── Helpers ─────────────────────────────────────────────── */
+  function toast(msg, icon) {
+    var el = document.createElement('div');
+    el.className = 'sf-toast';
+    el.textContent = (icon ? icon + ' ' : '') + msg;
+    var c = document.getElementById('toast-r');
+    c.appendChild(el);
+    setTimeout(function(){ el.remove(); }, 2400);
+  }
+  window.toast = toast;
+
+  /* ── Date chip ───────────────────────────────────────────── */
+  (function(){
+    var d = new Date(), days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+        mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('date-chip').textContent = '📅 '+days[d.getDay()]+', '+mo[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+  })();
+
+  /* ── Data ────────────────────────────────────────────────── */
+  var DATA = {
+    week:    { pipeline:'$163,200', closed:'$34,100', velocity:'18 days', winrate:'72%',
+               pTrend:'↑ 6% vs last week', cTrend:'Speedway LED Retrofit', vTrend:'↓ 2d faster',
+               wTrend:'↑ 2pts', pSub:'9 active jobs', cSub:'1 job completed', ctx:'This Week · Aug 4–6' },
+    month:   { pipeline:'$244,800', closed:'$106,900', velocity:'23 days', winrate:'68%',
+               pTrend:'↑ 12% vs July', cTrend:'↑ 18% vs July', vTrend:'↓ 3d faster than July',
+               wTrend:'↑ 5pts vs last month', pSub:'15 active jobs', cSub:'3 jobs completed', ctx:'This Month · Aug 2026' },
+    quarter: { pipeline:'$244,800', closed:'$218,400', velocity:'25 days', winrate:'64%',
+               pTrend:'↑ 22% vs Q2', cTrend:'↑ 14% vs Q2', vTrend:'Same as Q2',
+               wTrend:'↓ 2pts vs Q2', pSub:'All tracked jobs', cSub:'12 jobs completed', ctx:'Q3 2026 (Jul–Sep)' },
+  };
+  var range = 'month';
+
+  function applyRange(r) {
+    range = r;
+    var d = DATA[r];
+    document.getElementById('kpi-pipeline').textContent  = d.pipeline;
+    document.getElementById('kpi-closed').textContent    = d.closed;
+    document.getElementById('kpi-velocity').textContent  = d.velocity;
+    document.getElementById('kpi-winrate').textContent   = d.winrate;
+    document.getElementById('kpi-pipeline-trend').textContent = d.pTrend;
+    document.getElementById('kpi-closed-trend').textContent   = d.cTrend;
+    document.getElementById('kpi-velocity-trend').textContent = d.vTrend;
+    document.getElementById('kpi-winrate-trend').textContent  = d.wTrend;
+    document.getElementById('kpi-pipeline-sub').textContent   = d.pSub;
+    document.getElementById('kpi-closed-sub').textContent     = d.cSub;
+    document.getElementById('sub-context').textContent = 'Garcia Sign & Electric · ' + d.ctx;
+  }
+
+  document.querySelectorAll('.time-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.time-tab').forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      applyRange(tab.dataset.range);
+    });
+  });
+
+  /* ── Funnel ──────────────────────────────────────────────── */
+  var STAGES = [
+    { name:'New Inquiry', color:'#B44FF5', jobs:2, val:'TBD',    conv:'85% → Quote'  },
+    { name:'Quote',       color:'#F0529A', jobs:4, val:'$48.5k', conv:'60% → Design' },
+    { name:'Design',      color:'#00C8D4', jobs:2, val:'$80.1k', conv:'90% → Approval'},
+    { name:'Approval',    color:'#F0C040', jobs:2, val:'$31.3k', conv:'95% → Fab'    },
+    { name:'Fabrication', color:'#F07040', jobs:3, val:'$90.2k', conv:'98% → Install'},
+    { name:'Install',     color:'#50D880', jobs:2, val:'$30.7k', conv:'100% → Done'  },
+    { name:'Complete',    color:'#76E040', jobs:1, val:'$34.1k', conv:'—'            },
+  ];
+  var maxJobs = 4;
+  var fl = document.getElementById('funnel-list');
+  STAGES.forEach(function(s){
+    var pct = Math.round((s.jobs / maxJobs) * 100);
+    var div = document.createElement('div');
+    div.className = 'funnel-item';
+    div.innerHTML =
+      '<div class="funnel-label">'+s.name+'</div>'
+      +'<div class="funnel-bar-wrap">'
+      +'  <div class="funnel-bar" style="width:'+pct+'%;background:'+s.color+';">'+s.jobs+' job'+(s.jobs!==1?'s':'')+'</div>'
+      +'</div>'
+      +'<div class="funnel-right">'
+      +'  <div class="funnel-count">'+s.jobs+'</div>'
+      +'  <div class="funnel-val">'+s.val+'</div>'
+      +'  <div class="funnel-convert" style="color:'+s.color+'cc;font-size:8px;">'+s.conv+'</div>'
+      +'</div>';
+    div.addEventListener('click', function(){ openPanelStage(s); });
+    fl.appendChild(div);
+  });
+
+  /* ── Stage Velocity ──────────────────────────────────────── */
+  var VELOCITY = [
+    { name:'New Inquiry', days:2,  color:'#B44FF5', flag:'' },
+    { name:'Quote',       days:8,  color:'#F0529A', flag:'' },
+    { name:'Design',      days:12, color:'#00C8D4', flag:'⚠' },
+    { name:'Approval',    days:3,  color:'#F0C040', flag:'' },
+    { name:'Fabrication', days:14, color:'#F07040', flag:'⚠' },
+    { name:'Install',     days:2,  color:'#50D880', flag:'' },
+  ];
+  var maxDays = 14;
+  var vl = document.getElementById('velocity-list');
+  VELOCITY.forEach(function(v){
+    var pct = Math.round((v.days/maxDays)*100);
+    var div = document.createElement('div');
+    div.className = 'velocity-item';
+    div.innerHTML =
+      '<div class="velocity-label">'+v.name+'</div>'
+      +'<div class="velocity-bar-wrap">'
+      +'  <div class="velocity-bar" style="width:'+pct+'%;background:'+v.color+';"></div>'
+      +'</div>'
+      +'<div class="velocity-days">'+v.days+'d</div>'
+      +'<div class="velocity-flag">'+v.flag+'</div>';
+    div.addEventListener('click', function(){ toast(v.name+': avg '+v.days+' days — '+(v.flag?'bottleneck detected':'on track'),'⏱'); });
+    vl.appendChild(div);
+  });
+
+  /* ── Win/Loss/Cold rates ─────────────────────────────────── */
+  var rr = document.getElementById('rate-row');
+  var RATES = [
+    { label:'Won',  val:'68%', color:'rgba(102,187,106,0.9)', bg:'rgba(102,187,106,0.15)', panel:'winrate' },
+    { label:'Lost', val:'18%', color:'rgba(239,83,80,0.9)',   bg:'rgba(239,83,80,0.12)',   panel:'lostrate'},
+    { label:'Cold', val:'14%', color:'rgba(79,195,247,0.9)',  bg:'rgba(79,195,247,0.12)',  panel:'cold'    },
+  ];
+  RATES.forEach(function(r){
+    var div = document.createElement('div');
+    div.className = 'rate-item';
+    div.innerHTML =
+      '<div class="rate-ring" style="background:'+r.bg+';color:'+r.color+';">'+r.val+'</div>'
+      +'<div class="rate-val-label">'+r.label+'</div>';
+    div.addEventListener('click', function(){ toast(r.label+' rate: '+r.val,'📊'); });
+    rr.appendChild(div);
+  });
+
+  /* ── Revenue Chart ───────────────────────────────────────── */
+  var REV_WEEKS = [
+    { label:'Jul 14', val:22400, jobs:['Speedway partial','Village Tap quote'],    projected:false },
+    { label:'Jul 21', val:18600, jobs:['Bricktown quote sent','Valley Fresh quote'], projected:false },
+    { label:'Jul 28', val:34100, jobs:['Speedway LED Retrofit ✓'],                projected:false },
+    { label:'Aug 4',  val:58000, jobs:['Heritage Bank fab started','Kohl\'s install'], projected:false },
+    { label:'Aug 11', val:71300, jobs:['Heritage Bank expected close','Summit Tech'], projected:true  },
+    { label:'Aug 18', val:45200, jobs:['La Paloma','Prairie Wind projected'],       projected:true  },
+  ];
+  var maxRev = 71300;
+  var rc = document.getElementById('rev-chart');
+  var selectedWeek = null;
+  REV_WEEKS.forEach(function(w, i){
+    var pct = Math.round((w.val/maxRev)*95)+5;
+    var color = w.projected ? 'rgba(255,255,255,0.20)' : 'linear-gradient(180deg,#F0529A,#c03075)';
+    var div = document.createElement('div');
+    div.className = 'rev-col' + (w.projected ? ' projected' : '');
+    div.innerHTML =
+      '<div class="rev-bar-wrap"><div class="rev-bar" style="height:'+pct+'%;background:'+color+';"></div></div>'
+      +'<div class="rev-val">'+(w.projected?'~':'$')+(w.val/1000).toFixed(0)+'k</div>'
+      +'<div class="rev-label">'+w.label+(w.projected?' est.':'')+'</div>';
+    div.addEventListener('click', function(){
+      document.querySelectorAll('.rev-col').forEach(function(c){ c.classList.remove('rev-selected'); });
+      div.classList.add('rev-selected');
+      var det = document.getElementById('rev-detail');
+      det.classList.add('open');
+      det.innerHTML = '<div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:6px;">'+w.label+(w.projected?' (projected)':'')+'</div>'
+        + w.jobs.map(function(j){ return '<div class="rcd-row"><span>'+j+'</span><span style="color:var(--text-dim);font-size:10px;">'+(w.projected?'est.':'closed')+'</span></div>'; }).join('');
+      document.getElementById('rev-detail-toggle').textContent = 'Hide ↑';
+    });
+    rc.appendChild(div);
+  });
+  window.toggleRevDetail = function(){
+    var det = document.getElementById('rev-detail');
+    det.classList.toggle('open');
+    document.getElementById('rev-detail-toggle').textContent = det.classList.contains('open') ? 'Hide ↑' : 'Show jobs ↓';
+  };
+
+  /* ── Outstanding Invoices ────────────────────────────────── */
+  var INVOICES = [
+    { name:"Kohl's #0394 — Pylon Reface", client:"Kohl's Corporation", val:'$19,500', age:'2d overdue', type:'outdoor' },
+    { name:'La Paloma Restaurant — Exterior', client:'La Paloma Group', val:'$11,200', age:'1d overdue', type:'outdoor' },
+  ];
+  var il = document.getElementById('invoices-list');
+  INVOICES.forEach(function(inv){
+    var div = document.createElement('div');
+    div.className = 'invoice-row';
+    div.innerHTML =
+      '<div><div class="invoice-name">'+inv.name+'</div>'
+      +'<div class="invoice-meta">'+inv.client+' · '+(inv.type==='outdoor'?'☀️':'🏠')+'</div></div>'
+      +'<div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;">'
+      +'<div class="invoice-val">'+inv.val+'</div>'
+      +'<div style="display:flex;gap:5px;align-items:center;">'
+      +'<span class="invoice-age">'+inv.age+'</span>'
+      +'<button class="send-invoice-btn" onclick="toast(\'Invoice sent to '+inv.client+' ✓\',\'📄\');this.textContent=\'✓ Sent\';this.style.color=\'var(--green)\';this.style.borderColor=\'rgba(102,187,106,0.3)\';">Send</button>'
+      +'</div></div>';
+    div.addEventListener('click', function(e){ if(!e.target.closest('button')) toast('Opening invoice: '+inv.name,'📄'); });
+    il.appendChild(div);
+  });
+
+  /* ── Cold Pipeline ───────────────────────────────────────── */
+  var COLD = [
+    { name:"Bricktown Brewery — Outdoor Sign",   val:'$8,600',  age:'22d', client:'Bricktown Craft Brewing' },
+    { name:"Valley Fresh Grocery — Storefront",  val:'$14,300', age:'39d', client:'Valley Fresh Foods' },
+    { name:"Riverside Auto — Pylon Sign",        val:'$18,400', age:'5d',  client:'Riverside Automotive' },
+    { name:"Downtown Diner — Channel Letters",   val:'$7,200',  age:'4d',  client:'Main St. Restaurant Group' },
+  ];
+  var cl = document.getElementById('cold-list');
+  COLD.forEach(function(c){
+    var div = document.createElement('div');
+    div.className = 'cold-item';
+    div.innerHTML =
+      '<div><div style="font-size:11px;font-weight:600;">'+c.name+'</div>'
+      +'<div style="font-size:9px;color:var(--text-dim);">'+c.client+'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:6px;">'
+      +'<span class="cold-val">'+c.val+'</span>'
+      +'<span class="cold-age">'+c.age+' silent</span></div>';
+    div.addEventListener('click', function(){ toast('Follow-up queued for '+c.client,'📬'); });
+    cl.appendChild(div);
+  });
+
+  /* ── Client Leaderboard ──────────────────────────────────── */
+  var CLIENTS = [
+    { name:'Heritage Community Bank', sub:'Branch Refresh · Fabrication', val:'$58,000', color:'#F07040', pct:100, trend:'+$58k new' },
+    { name:'Summit Tech Park LLC',    sub:'Monument Sign · Fabrication',   val:'$41,000', color:'#F07040', pct:71,  trend:'2nd job' },
+    { name:'Kohl\'s Corporation',     sub:'Pylon Reface · Install',        val:'$19,500', color:'#50D880', pct:34,  trend:'Ready to invoice' },
+    { name:'Walgreens (National)',    sub:'Façade Replacement · Fab',      val:'$24,800', color:'#F07040', pct:43,  trend:'Aug 12 deadline' },
+    { name:'Speedway LLC',            sub:'LED Retrofit · Complete ✓',     val:'$34,100', color:'#76E040', pct:59,  trend:'Paid & closed' },
+  ];
+  var cll = document.getElementById('client-list');
+  CLIENTS.forEach(function(c, i){
+    var div = document.createElement('div');
+    div.className = 'client-row';
+    div.innerHTML =
+      '<div class="client-rank">'+(i+1)+'</div>'
+      +'<div style="flex:1;">'
+      +'  <div class="client-name">'+c.name+'</div>'
+      +'  <div class="client-sub">'+c.sub+'</div>'
+      +'  <div class="client-bar-wrap" style="margin-top:5px;">'
+      +'    <div class="client-bar" style="width:'+c.pct+'%;background:'+c.color+';"></div>'
+      +'  </div>'
+      +'</div>'
+      +'<div style="text-align:right;padding-left:10px;">'
+      +'  <div class="client-val">'+c.val+'</div>'
+      +'  <div class="client-trend" style="color:rgba(255,255,255,0.35);font-size:9px;">'+c.trend+'</div>'
+      +'</div>';
+    div.addEventListener('click', function(){ toast('Opening client: '+c.name,'👤'); });
+    cll.appendChild(div);
+  });
+
+  /* ── Smart Insights ──────────────────────────────────────── */
+  var INSIGHTS = [
+    { type:'alert', icon:'🚨', title:'Fabrication Bottleneck',
+      body:'3 jobs averaging 14 days in Fabrication — your longest stage. Heritage Bank ($58k) is your highest-risk delay.',
+      action:'Review Heritage Bank now →',
+      fn: function(){ toast('Opening Heritage Bank job','🔧'); }},
+    { type:'good', icon:'⚡', title:'Quick Win: Riverside Auto',
+      body:'Quote is ready and client historically approves in <24h. Send today and move to Design 2 days ahead of schedule.',
+      action:'Send quote now →',
+      fn: function(){ toast('Quote sent to Riverside Automotive ✓','📄'); }},
+    { type:'warn', icon:'❄️', title:'$22.9k at Cold Risk',
+      body:'Bricktown Brewery (22d) and Valley Fresh (39d) haven\'t responded. A follow-up today could recover $22.9k.',
+      action:'Queue follow-ups →',
+      fn: function(){ toast('Follow-ups queued for cold jobs ✓','📬'); }},
+    { type:'good', icon:'💰', title:'$30.7k Ready to Collect',
+      body:'Kohl\'s and La Paloma installs are complete. Invoices have not been sent — send today to hit your cash flow target.',
+      action:'Send invoices now →',
+      fn: function(){ toast('Both invoices sent ✓','💰'); }},
+    { type:'warn', icon:'🔗', title:'Outsourced Delays Ahead',
+      body:'4 jobs depend on external vendors (logo vectoring + neon fab). Neon fab shops book out fast — order now for Aug installs.',
+      action:'Contact vendors →',
+      fn: function(){ toast('Vendor contact drafted ✓','🔗'); }},
+    { type:'good', icon:'📈', title:'Win Rate Trending Up',
+      body:'68% win rate this month vs 63% in July. Parallel job scheduling is shortening your quote-to-close cycle by 3 days.',
+      action:'See velocity detail →',
+      fn: function(){ openPanel('velocity'); }},
+  ];
+  var ig = document.getElementById('insights-grid');
+  INSIGHTS.forEach(function(ins){
+    var div = document.createElement('div');
+    div.className = 'insight-card ' + ins.type;
+    div.innerHTML =
+      '<div class="insight-icon">'+ins.icon+'</div>'
+      +'<div class="insight-title">'+ins.title+'</div>'
+      +'<div class="insight-body">'+ins.body+'</div>'
+      +'<div class="insight-action">'+ins.action+'</div>';
+    div.addEventListener('click', ins.fn);
+    ig.appendChild(div);
+  });
+
+  /* ── Detail Panel ────────────────────────────────────────── */
+  var panel = document.getElementById('rp-panel');
+  var overlay = document.getElementById('rp-overlay');
+  document.getElementById('rp-panel-close').addEventListener('click', function(){
+    panel.classList.remove('open'); overlay.classList.remove('open');
+  });
+  overlay.addEventListener('click', function(){
+    panel.classList.remove('open'); overlay.classList.remove('open');
+  });
+
+  function openPanelStage(s) {
+    document.getElementById('rp-panel-title').textContent = s.name + ' — ' + s.jobs + ' jobs';
+    var body = document.getElementById('rp-panel-body');
+    var STAGE_JOBS = {
+      'New Inquiry':  [{name:'Joliet Tire & Auto',val:'TBD',type:'☀️ Outdoor'},{name:'Westside Fitness',val:'TBD',type:'🏠 Indoor'}],
+      'Quote':        [{name:'Riverside Auto — Pylon Sign',val:'$18,400',type:'☀️'},{name:'Downtown Diner — Channel Letters',val:'$7,200',type:'🏠'},{name:'Bricktown Brewery ❄️',val:'$8,600',type:'☀️'},{name:'Valley Fresh ✕',val:'$14,300',type:'☀️'}],
+      'Design':       [{name:'Prairie Wind Storage — Exterior',val:'$22,100',type:'☀️ + 🔗'},{name:'Heritage Bank — Branch Refresh',val:'$58,000',type:'🏠 + 🔗'}],
+      'Approval':     [{name:'Village Tap — Blade Sign',val:'$9,200',type:'☀️ Overdue'},{name:'Prairie Wind Storage',val:'$22,100',type:'☀️'}],
+      'Fabrication':  [{name:'Summit Tech Park — Monument',val:'$41,000',type:'☀️ + 🔗'},{name:'Walgreens — Façade',val:'$24,800',type:'☀️'},{name:'Northside Gym — Wrap',val:'$6,400',type:'🏠'}],
+      'Install':      [{name:"Kohl's #0394 — Pylon Reface",val:'$19,500',type:'☀️ 💰'},{name:'La Paloma Restaurant',val:'$11,200',type:'☀️ 💰'}],
+      'Complete':     [{name:'Speedway #1188 — LED Retrofit',val:'$34,100',type:'🏠 ✓ Paid'}],
+    };
+    var jobs = STAGE_JOBS[s.name] || [];
+    body.innerHTML = '<div style="margin-bottom:12px;font-size:11px;color:var(--text-dim);">Avg '+(VELOCITY.find(function(v){return v.name===s.name;})||{days:'?'}).days+' days in this stage</div>'
+      + jobs.map(function(j){
+        return '<div class="rp-item"><div><div class="rp-item-name">'+j.name+'</div><div class="rp-item-sub">'+j.type+'</div></div><div class="rp-item-val">'+j.val+'</div></div>';
+      }).join('') + '<button style="width:100%;margin-top:14px;padding:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:8px;color:var(--text);font-size:11px;font-weight:700;cursor:pointer;" onclick="window.location.href=\'index.html\'">View on Pipeline →</button>';
+    panel.classList.add('open'); overlay.classList.add('open');
+  }
+
+  function openPanel(type) {
+    var titles = { pipeline:'Pipeline Breakdown', closed:'Closed Jobs', velocity:'Stage Velocity Detail',
+      winrate:'Win Rate Detail', lostrate:'Lost Jobs', cold:'Cold Pipeline',
+      clients:'All Clients', indoor:'Indoor Jobs', outdoor:'Outdoor Jobs' };
+    document.getElementById('rp-panel-title').textContent = titles[type] || type;
+    var body = document.getElementById('rp-panel-body');
+    var CONTENT = {
+      velocity: '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Time jobs spend in each stage on average. Longer stages are your biggest scheduling levers.</div>'
+        + VELOCITY.map(function(v){ return '<div class="rp-item"><div class="rp-item-name">'+v.name+'</div><div class="rp-item-val" style="color:'+(v.flag?'#ef5350':'var(--text)')+'">'+v.days+'d '+v.flag+'</div></div>'; }).join('')
+        + '<div class="rp-item"><div class="rp-item-name" style="font-weight:800;">Total pipeline time</div><div class="rp-item-val">41 days avg</div></div>',
+      indoor: '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">5 indoor jobs · $112,200 total · ~2–4d avg cycle</div>'
+        + ['Westside Fitness (TBD)','Downtown Diner ($7,200)','Heritage Bank ($58,000)','Northside Gym ($6,400)','Speedway — LED ($34,100)'].map(function(n){ return '<div class="rp-item"><div class="rp-item-name">'+n.split('(')[0]+'</div><div class="rp-item-val">'+((n.match(/\(([^)]+)\)/)||['',''])[1])+'</div></div>'; }).join(''),
+      outdoor:'<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">10 outdoor jobs · $132,600 total · ~5–10d avg cycle · weather dependent</div>'
+        + ['Joliet Tire (TBD)','Riverside Auto ($18,400)','Bricktown Brewery ($8,600)','Valley Fresh ($14,300)','Prairie Wind ($22,100)','Village Tap ($9,200)','Summit Tech ($41,000)','Walgreens ($24,800)',"Kohl's ($19,500)",'La Paloma ($11,200)'].map(function(n){ return '<div class="rp-item"><div class="rp-item-name">'+n.split('(')[0]+'</div><div class="rp-item-val">'+((n.match(/\(([^)]+)\)/)||['',''])[1])+'</div></div>'; }).join(''),
+    };
+    body.innerHTML = CONTENT[type] || '<div style="color:var(--text-muted);font-size:12px;padding:12px 0;">Detail view coming soon.</div>';
+    panel.classList.add('open'); overlay.classList.add('open');
+  }
+  window.openPanel = openPanel;
+
+  /* Bind KPI cards */
+  document.querySelectorAll('.kpi-card[data-panel]').forEach(function(card){
+    card.addEventListener('click', function(){ openPanel(card.dataset.panel); });
+  });
+
 })();
 </script>
 </body>
