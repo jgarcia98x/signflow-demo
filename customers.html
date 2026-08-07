@@ -834,6 +834,13 @@
           <div class="slow-panel-sub">Stay top-of-mind during quiet months</div>
         </div>
 
+        <!-- ── ACTIVE FOLLOW-UP QUEUE ── -->
+        <div class="slow-section" id="active-followup-section">
+          <div class="slow-section-label" style="color:rgba(249,168,37,0.90);border-color:rgba(249,168,37,0.20);">📬 NEEDS FOLLOW-UP NOW — Automated Outreach Queue</div>
+          <div id="active-followup-grid" class="slow-grid"></div>
+        </div>
+        <div class="slow-divider"></div>
+
         <!-- 1-Month Reminders -->
         <div class="slow-section">
           <div class="slow-section-label">📅 1-Month Reminders — Reach Out Soon</div>
@@ -1121,6 +1128,351 @@
       }
     }
   });
+})();
+</script>
+
+<!-- ══ FULL INTERACTIVITY LAYER ══════════════════════════════════ -->
+<div id="cp-overlay" style="position:fixed;inset:0;z-index:4999;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);display:none;"></div>
+<div id="cp-panel" style="position:fixed;top:0;right:0;width:360px;max-width:100vw;height:100%;background:#12121f;border-left:1px solid rgba(255,255,255,0.12);z-index:5000;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;box-shadow:-8px 0 40px rgba(0,0,0,.65);">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,0.08);">
+    <div id="cp-panel-title" style="font-size:15px;font-weight:800;color:#fff;"></div>
+    <button id="cp-panel-close" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;">✕</button>
+  </div>
+  <div id="cp-panel-body" style="padding:18px;"></div>
+</div>
+<div id="sf-toast-wrap" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:7px;"></div>
+
+<style>
+.sf-toast-el{background:rgba(22,22,38,0.97);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:10px 20px;font-size:12px;color:#fff;font-weight:600;box-shadow:0 4px 24px rgba(0,0,0,.55);white-space:nowrap;animation:sfTIn .22s ease,sfTOut .3s ease 1.9s forwards;}
+@keyframes sfTIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sfTOut{from{opacity:1}to{opacity:0}}
+.cp-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0;}
+.cp-meta-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:8px;padding:9px 11px;}
+.cp-meta-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.35);margin-bottom:3px;}
+.cp-meta-val{font-size:13px;font-weight:700;color:#fff;}
+.cp-action-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:16px;}
+.cp-action-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:10px 6px;cursor:pointer;text-align:center;font-size:10px;font-weight:600;color:rgba(255,255,255,.80);transition:background .15s;}
+.cp-action-btn:hover{background:rgba(255,255,255,.12);}
+.cp-action-btn .ca-icon{font-size:16px;display:block;margin-bottom:3px;}
+.cp-job-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer;transition:background .12s;border-radius:6px;padding:8px 6px;}
+.cp-job-row:hover{background:rgba(255,255,255,.05);}
+.cp-job-name{font-size:11px;font-weight:600;}
+.cp-job-meta{font-size:9px;color:rgba(255,255,255,.4);}
+.cp-job-val{font-size:12px;font-weight:700;}
+/* active follow-up cards */
+.afu-card{background:rgba(249,168,37,0.06);border:1px solid rgba(249,168,37,0.20);border-radius:9px;padding:12px;display:flex;flex-direction:column;gap:7px;cursor:pointer;transition:all .15s;}
+.afu-card:hover{background:rgba(249,168,37,0.10);border-color:rgba(249,168,37,0.35);}
+.afu-card.cold{background:rgba(79,195,247,0.06);border-color:rgba(79,195,247,0.20);}
+.afu-card.cold:hover{background:rgba(79,195,247,0.10);border-color:rgba(79,195,247,0.35);}
+.afu-card.lost{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.12);}
+.afu-card.new-inq{background:rgba(180,79,245,0.06);border-color:rgba(180,79,245,0.20);}
+.afu-card.design{background:rgba(0,200,212,0.06);border-color:rgba(0,200,212,0.20);}
+.afu-card.approval{background:rgba(239,83,80,0.06);border-color:rgba(239,83,80,0.20);}
+.afu-badge{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:1px 6px;border-radius:4px;display:inline-block;margin-bottom:2px;}
+.afu-name{font-size:12px;font-weight:700;color:#fff;}
+.afu-msg{font-size:10px;color:rgba(255,255,255,.55);line-height:1.4;font-style:italic;}
+.afu-actions{display:flex;gap:6px;}
+.afu-send{flex:1;font-size:9px;font-weight:700;padding:5px;border-radius:6px;cursor:pointer;border:1px solid;transition:background .15s;}
+.afu-snooze{font-size:9px;font-weight:600;padding:5px 8px;border-radius:6px;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);color:rgba(255,255,255,.45);}
+.afu-sent{font-size:9px;font-weight:700;color:var(--green,#66BB6A);}
+</style>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ── Toast ─────────────────────────────────────────────── */
+  function toast(msg, icon) {
+    var el = document.createElement('div');
+    el.className = 'sf-toast-el';
+    el.textContent = (icon ? icon + ' ' : '') + msg;
+    var w = document.getElementById('sf-toast-wrap');
+    if (w) { w.appendChild(el); setTimeout(function(){ el.remove(); }, 2400); }
+  }
+
+  /* ── Dynamic date ──────────────────────────────────────── */
+  var dc = document.querySelector('.date-chip');
+  if (dc) {
+    var d = new Date(), days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+        mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    dc.textContent = '📅 ' + days[d.getDay()] + ', ' + mo[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  }
+
+  /* ── Customer data ─────────────────────────────────────── */
+  var CUSTOMERS = {
+    "Kohl's Corporation":        { company:"National Retail", trade:"Pylon / Façade", lastContact:"Aug 2", nextFollowup:"Aug 5", status:"active", jobs:[{name:"Kohl's #0394 — Pylon Reface",val:"$19,500",stage:"Install 💰"}] },
+    "Heritage Community Bank":   { company:"Financial Services", trade:"Channel Letters / Branch", lastContact:"Aug 1", nextFollowup:"Aug 12", status:"active", jobs:[{name:"Heritage Bank — Branch Refresh",val:"$58,000",stage:"Design 🔗"}] },
+    "Summit Tech Park LLC":      { company:"Commercial RE", trade:"Monument / Wayfinding", lastContact:"Aug 1", nextFollowup:"Aug 4", status:"active", jobs:[{name:"Summit Tech Park — Monument Sign",val:"$41,000",stage:"Fabrication 🔗"}] },
+    "La Paloma Group":           { company:"Restaurant Group", trade:"Exterior / Channel Letters", lastContact:"Aug 1", nextFollowup:"Aug 10", status:"active", jobs:[{name:"La Paloma Restaurant — Exterior",val:"$11,200",stage:"Install 💰"}] },
+    "Riverside Automotive":      { company:"Auto Dealership", trade:"Pylon Sign", lastContact:"Jul 31", nextFollowup:"Aug 5", status:"active", jobs:[{name:"Riverside Auto — Pylon Sign",val:"$18,400",stage:"Quote 📋"}] },
+    "Village Tap Bar & Grill":   { company:"Bar & Restaurant", trade:"Blade Sign / Interior", lastContact:"Jul 30", nextFollowup:"Aug 1 ⚠", status:"active", jobs:[{name:"Village Tap — Blade Sign",val:"$9,200",stage:"Approval ⚠ Overdue"}] },
+    "Northside Fitness":         { company:"Fitness Center", trade:"Vehicle Wrap", lastContact:"Jul 28", nextFollowup:"Aug 6", status:"active", jobs:[{name:"Northside Gym — Vehicle Wrap",val:"$6,400",stage:"Approval"}] },
+    "Walgreens (National)":      { company:"Pharmacy / National", trade:"Façade / LED", lastContact:"Jul 29", nextFollowup:"Aug 20", status:"active", jobs:[{name:"Walgreens #4712 — Façade",val:"$24,800",stage:"Fabrication"}] },
+    "Bricktown Craft Brewing":   { company:"Brewery", trade:"Outdoor Sign", lastContact:"Jul 12", nextFollowup:"Aug 4", status:"cold", jobs:[{name:"Bricktown Brewery — Outdoor Sign",val:"$8,600",stage:"Quote ❄️ 22d silent"}] },
+    "Valley Fresh Foods":        { company:"Grocery / Retail", trade:"Storefront / Illuminated", lastContact:"Jun 28", nextFollowup:"Sep 1 (6-mo)", status:"lost", jobs:[{name:"Valley Fresh Grocery — Storefront",val:"$14,300",stage:"Quote ✕ Lost"}] },
+    "Prairie Wind Self Storage": { company:"Self Storage", trade:"Exterior Identity", lastContact:"Jul 31", nextFollowup:"Aug 7", status:"active", jobs:[{name:"Prairie Wind Storage — Exterior",val:"$22,100",stage:"Design 🎨"}] },
+    "Main St. Restaurant Group": { company:"Restaurant Group", trade:"Channel Letters", lastContact:"Aug 2", nextFollowup:"Aug 10", status:"active", jobs:[{name:"Downtown Diner — Channel Letters",val:"$7,200",stage:"Quote"}] },
+    "Joliet Tire & Auto":        { company:"Auto Service", trade:"Exterior Signage", lastContact:"Aug 4 (walk-in)", nextFollowup:"Today", status:"new", jobs:[{name:"Joliet Tire & Auto — Signage",val:"TBD",stage:"New Inquiry 📞"}] },
+    "Westside Fitness":          { company:"Fitness Studio", trade:"Interior / Exterior", lastContact:"Aug 3 (referral)", nextFollowup:"Today", status:"new", jobs:[{name:"Westside Fitness — Signage",val:"TBD",stage:"New Inquiry 📞"}] },
+    "Speedway LLC":              { company:"Fuel / Convenience", trade:"LED Retrofit", lastContact:"Jul 30", nextFollowup:"Jan 15 (6-mo)", status:"closed", jobs:[{name:"Speedway #1188 — LED Retrofit",val:"$34,100",stage:"Complete ✓"}] },
+  };
+
+  /* ── Customer detail panel ─────────────────────────────── */
+  var panel  = document.getElementById('cp-panel');
+  var overlay= document.getElementById('cp-overlay');
+  function closePanel(){ panel.style.transform='translateX(100%)'; overlay.style.display='none'; }
+  document.getElementById('cp-panel-close').addEventListener('click', closePanel);
+  overlay.addEventListener('click', closePanel);
+
+  function openCustomerPanel(name) {
+    var c = CUSTOMERS[name] || { company:'', trade:'', lastContact:'—', nextFollowup:'—', status:'active', jobs:[] };
+    document.getElementById('cp-panel-title').textContent = name;
+    var statusColors = { active:'rgba(102,187,106,.9)', cold:'rgba(79,195,247,.9)', lost:'rgba(255,255,255,.4)', new:'rgba(180,79,245,.9)', closed:'rgba(255,255,255,.3)' };
+    var sc = statusColors[c.status] || '#fff';
+    document.getElementById('cp-panel-body').innerHTML =
+      '<div style="font-size:11px;color:rgba(255,255,255,.55);margin-bottom:12px;">'+c.company+' · '+c.trade+'</div>'
+      +'<div class="cp-meta-grid">'
+      +'<div class="cp-meta-card"><div class="cp-meta-lbl">Last Contact</div><div class="cp-meta-val" style="font-size:11px;">'+c.lastContact+'</div></div>'
+      +'<div class="cp-meta-card"><div class="cp-meta-lbl">Next Follow-Up</div><div class="cp-meta-val" style="font-size:11px;color:'+sc+';">'+c.nextFollowup+'</div></div>'
+      +'</div>'
+      +'<div class="cp-action-grid">'
+      +'<div class="cp-action-btn" onclick="toast(\'Calling '+name+'…\',\'📞\')"><span class="ca-icon">📞</span>Call</div>'
+      +'<div class="cp-action-btn" onclick="toast(\'Message drafted for '+name+'\',\'💬\')"><span class="ca-icon">💬</span>Text</div>'
+      +'<div class="cp-action-btn" onclick="toast(\'Email drafted for '+name+'\',\'✉️\')"><span class="ca-icon">✉️</span>Email</div>'
+      +'<div class="cp-action-btn" onclick="toast(\'Note saved ✓\',\'📝\')"><span class="ca-icon">📝</span>Add Note</div>'
+      +'<div class="cp-action-btn" onclick="toast(\'Reminder set for '+name+'\',\'📅\')"><span class="ca-icon">📅</span>Reminder</div>'
+      +'<div class="cp-action-btn" onclick="toast(\'Invoice sent to '+name+' ✓\',\'📄\')"><span class="ca-icon">📄</span>Invoice</div>'
+      +'</div>'
+      +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.3);font-weight:700;margin-bottom:8px;">Active Jobs</div>'
+      + (c.jobs.length ? c.jobs.map(function(j){
+          return '<div class="cp-job-row" onclick="toast(\'Opening: '+j.name+'\',\'🔗\')"><div><div class="cp-job-name">'+j.name+'</div><div class="cp-job-meta">'+j.stage+'</div></div><div class="cp-job-val">'+j.val+'</div></div>';
+        }).join('') : '<div style="font-size:11px;color:rgba(255,255,255,.3);">No active jobs</div>')
+      +'<div style="margin-top:16px;"><button style="width:100%;padding:10px;background:rgba(211,47,47,.15);border:1px solid rgba(211,47,47,.3);border-radius:8px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;" onclick="toast(\'Opening '+name+' in Pipeline →\',\'🔗\');closePanel();">View in Pipeline →</button></div>';
+    overlay.style.display = 'block';
+    panel.style.transform = 'translateX(0)';
+  }
+  window.openCustomerPanel = openCustomerPanel;
+
+  /* ── Wire customer rows ────────────────────────────────── */
+  document.querySelectorAll('.cust-row').forEach(function(row) {
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', function(e) {
+      if (e.target.closest('.contact-btn,.followup-btn,.cust-days,.cust-type')) return;
+      var name = (row.querySelector('.cust-name') || {}).textContent || '';
+      if (name) openCustomerPanel(name.trim());
+    });
+  });
+
+  /* ── Contact buttons ───────────────────────────────────── */
+  document.querySelectorAll('.contact-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var row = btn.closest('.cust-row');
+      var name = row ? (row.querySelector('.cust-name')||{}).textContent||'client' : 'client';
+      var type = btn.title || btn.textContent;
+      var actions = { Call:'Calling', Text:'Texting', Email:'Emailing' };
+      var icons   = { Call:'📞', Text:'💬', Email:'✉️' };
+      var key = Object.keys(actions).find(function(k){ return type.includes(k); }) || 'Call';
+      toast(actions[key] + ' ' + name.trim() + '…', icons[key]);
+    });
+  });
+
+  /* ── Filter pills ──────────────────────────────────────── */
+  var FILTER_STATUS = { 'All':null, '✅ Active':'active', '⏰ Follow-up Due':'followup', '❄️ Cold':'cold', '✕ Lost':'lost', '🌙 Slow Season':'slow' };
+  document.querySelectorAll('.filter-pill').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      document.querySelectorAll('.filter-pill').forEach(function(p){ p.classList.remove('active'); });
+      pill.classList.add('active');
+      var filter = FILTER_STATUS[pill.textContent.trim()] || null;
+      document.querySelectorAll('.cust-row').forEach(function(row) {
+        if (!filter) { row.style.display = ''; return; }
+        var badge = row.querySelector('.status-badge');
+        var badgeText = badge ? badge.textContent.toLowerCase() : '';
+        var show = (filter === 'active' && badgeText.includes('active'))
+                || (filter === 'cold'   && badgeText.includes('cold'))
+                || (filter === 'lost'   && badgeText.includes('lost'))
+                || (filter === 'followup' && row.querySelector('.cust-date.soon'))
+                || filter === 'slow';
+        row.style.display = show ? '' : 'none';
+      });
+      if (filter === 'slow') toast('Showing slow season contacts','🌙');
+    });
+  });
+
+  /* ── Search ────────────────────────────────────────────── */
+  var sb = document.querySelector('.search-box');
+  if (sb) {
+    sb.addEventListener('input', function() {
+      var q = sb.value.toLowerCase();
+      document.querySelectorAll('.cust-row').forEach(function(row) {
+        var text = row.textContent.toLowerCase();
+        row.style.display = (!q || text.includes(q)) ? '' : 'none';
+      });
+    });
+  }
+
+  /* ── Add Customer button ───────────────────────────────── */
+  var addBtn = document.querySelector('.btn-new');
+  if (addBtn) addBtn.addEventListener('click', function(){ toast('New customer form coming soon','➕'); });
+
+  /* ── Avatar ────────────────────────────────────────────── */
+  var av = document.querySelector('.avatar');
+  if (av) av.addEventListener('click', function(){ toast('Peter Garcia — U.S. Electric, Joliet IL','👤'); });
+
+  /* ── Nudge card buttons ────────────────────────────────── */
+  document.querySelectorAll('.nudge-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var card = btn.closest('.nudge-card');
+      var name = card ? (card.querySelector('.nudge-name')||{}).textContent||'' : '';
+      var text = btn.textContent.trim();
+      if (text.includes('Call') || text.includes('Text') || text.includes('Follow')) {
+        toast('Contact queued for ' + name + ' ✓', '📬');
+      } else if (text.includes('Snooze') || text.includes('Skip')) {
+        toast('Snoozed', '⏰');
+      } else if (text.includes('Reminder') || text.includes('Set')) {
+        toast('Reminder set ✓', '📅');
+      } else if (text.includes('Lost')) {
+        toast(name + ' marked as lost', '✕');
+      } else {
+        toast(text + ' ✓', '✓');
+      }
+    });
+  });
+
+  /* ── Slow season cards ─────────────────────────────────── */
+  document.querySelectorAll('.slow-card').forEach(function(card) {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', function() {
+      var name = (card.querySelector('.slow-card-name')||{}).textContent||'contact';
+      var when = (card.querySelector('.slow-card-when')||{}).textContent||'';
+      toast('Reminder set: ' + name + ' — ' + when, '📅');
+    });
+  });
+
+  /* ── Active Follow-Up Queue ────────────────────────────── */
+  var FOLLOWUPS = [
+    { type:'new-inq', badge:'📞 New Inquiry', badgeColor:'rgba(180,79,245,.9)', badgeBg:'rgba(180,79,245,.15)',
+      name:'Joliet Tire & Auto', val:'TBD',
+      msg:'"Thanks for stopping in! Ready to get you a quote on your signage. When\'s a good time to discuss specs?"',
+      action:'Send Text', icon:'💬' },
+    { type:'new-inq', badge:'📞 New Inquiry', badgeColor:'rgba(180,79,245,.9)', badgeBg:'rgba(180,79,245,.15)',
+      name:'Westside Fitness', val:'TBD',
+      msg:'"Thanks for the referral! Ready to schedule a site visit and get you a quote. When works for you?"',
+      action:'Send Text', icon:'💬' },
+    { type:'cold', badge:'❄️ Cold — 22d', badgeColor:'rgba(79,195,247,.9)', badgeBg:'rgba(79,195,247,.15)',
+      name:'Bricktown Brewery', val:'$8,600',
+      msg:'"Circling back on your outdoor sign quote — it\'s been 22 days. Still interested or any questions?"',
+      action:'Send Follow-up', icon:'📬' },
+    { type:'approval', badge:'⚠ Approval Overdue', badgeColor:'rgba(239,83,80,.9)', badgeBg:'rgba(239,83,80,.15)',
+      name:'Village Tap — Blade Sign', val:'$9,200',
+      msg:'"Your blade sign approval was due Aug 1 — still need your sign-off to move to fabrication. Quick text works!"',
+      action:'Send Reminder', icon:'📋' },
+    { type:'design', badge:'🎨 Design Approval', badgeColor:'rgba(0,200,212,.9)', badgeBg:'rgba(0,200,212,.15)',
+      name:'Prairie Wind Storage', val:'$22,100',
+      msg:'"Your exterior identity designs are ready for review. Any feedback before we move to fabrication?"',
+      action:'Send Update', icon:'🎨' },
+    { type:'design', badge:'🎨 Design Approval', badgeColor:'rgba(0,200,212,.9)', badgeBg:'rgba(0,200,212,.15)',
+      name:'Heritage Bank — Branch Refresh', val:'$58,000',
+      msg:'"Branch refresh designs are ready — can we schedule a quick 10-min review call this week?"',
+      action:'Schedule Call', icon:'📞' },
+    { type:'approval', badge:'✅ Approval Needed', badgeColor:'rgba(240,192,64,.9)', badgeBg:'rgba(240,192,64,.15)',
+      name:'Northside Gym — Wrap', val:'$6,400',
+      msg:'"Proof sent Jul 28 — still waiting on your wrap approval to start production. Every day counts for delivery!"',
+      action:'Send Nudge', icon:'💬' },
+    { type:'', badge:'📋 Quote Ready', badgeColor:'rgba(240,82,154,.9)', badgeBg:'rgba(240,82,154,.15)',
+      name:'Riverside Auto — Pylon Sign', val:'$18,400',
+      msg:'"Your Pylon Sign quote is ready at $18,400. Want me to send it over today so we can lock in the Aug schedule?"',
+      action:'Send Quote', icon:'📄' },
+    { type:'lost', badge:'✕ Re-engage', badgeColor:'rgba(255,255,255,.4)', badgeBg:'rgba(255,255,255,.08)',
+      name:'Valley Fresh Grocery', val:'$14,300',
+      msg:'"No hard feelings on the storefront project — mind if we reconnect after the new year when budgets reset?"',
+      action:'Re-engage', icon:'🔄' },
+  ];
+
+  var SENT_KEY = 'sf-afu-sent';
+  var sent = {};
+  try { sent = JSON.parse(localStorage.getItem(SENT_KEY)||'{}'); } catch(e) {}
+
+  var grid = document.getElementById('active-followup-grid');
+  if (grid) {
+    FOLLOWUPS.forEach(function(f) {
+      var id = f.name.replace(/[^a-z0-9]/gi,'-').toLowerCase();
+      var card = document.createElement('div');
+      card.className = 'afu-card ' + f.type;
+      if (sent[id]) {
+        card.innerHTML =
+          '<div><span class="afu-badge" style="background:'+f.badgeBg+';color:'+f.badgeColor+';">'+f.badge+'</span></div>'
+          +'<div class="afu-name">'+f.name+'<span style="font-size:10px;color:rgba(255,255,255,.35);font-weight:400;margin-left:6px;">'+f.val+'</span></div>'
+          +'<div class="afu-sent">✓ Sent</div>';
+      } else {
+        card.innerHTML =
+          '<div><span class="afu-badge" style="background:'+f.badgeBg+';color:'+f.badgeColor+';">'+f.badge+'</span></div>'
+          +'<div class="afu-name">'+f.name+'<span style="font-size:10px;color:rgba(255,255,255,.35);font-weight:400;margin-left:6px;">'+f.val+'</span></div>'
+          +'<div class="afu-msg">'+f.msg+'</div>'
+          +'<div class="afu-actions">'
+          +'<button class="afu-send" style="background:'+f.badgeBg+';border-color:'+f.badgeColor+';color:'+f.badgeColor+';" data-id="'+id+'" data-label="'+f.name+'">'+f.icon+' '+f.action+'</button>'
+          +'<button class="afu-snooze" data-snooze="'+id+'">7d snooze</button>'
+          +'</div>';
+      }
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('button')) return;
+        var custName = f.name.split(' — ')[0];
+        if (CUSTOMERS[custName]) openCustomerPanel(custName);
+        else toast('Opening ' + f.name, '📋');
+      });
+      grid.appendChild(card);
+    });
+
+    grid.addEventListener('click', function(e) {
+      var sendBtn = e.target.closest('.afu-send');
+      if (sendBtn) {
+        var id = sendBtn.dataset.id, label = sendBtn.dataset.label;
+        sent[id] = Date.now();
+        try { localStorage.setItem(SENT_KEY, JSON.stringify(sent)); } catch(x){}
+        var card = sendBtn.closest('.afu-card');
+        var actionsEl = card.querySelector('.afu-actions'), msgEl = card.querySelector('.afu-msg');
+        if (actionsEl) actionsEl.innerHTML = '<div class="afu-sent">✓ Sent</div>';
+        if (msgEl) msgEl.remove();
+        toast('Follow-up sent to ' + label + ' ✓', '📬');
+      }
+      var snoozeBtn = e.target.closest('.afu-snooze');
+      if (snoozeBtn) {
+        var card2 = snoozeBtn.closest('.afu-card');
+        var actEl = card2.querySelector('.afu-actions'), msgEl2 = card2.querySelector('.afu-msg');
+        if (actEl) actEl.innerHTML = '<div class="afu-sent" style="color:rgba(100,180,255,.85);">⏰ Snoozed 7 days</div>';
+        if (msgEl2) msgEl2.remove();
+        toast('Snoozed 7 days', '⏰');
+      }
+    });
+  }
+
+  /* ── "Send All" at bottom of active section ───────────── */
+  var secEl = document.getElementById('active-followup-section');
+  if (secEl) {
+    var sendAll = document.createElement('button');
+    sendAll.style.cssText = 'width:100%;margin-top:10px;padding:9px;background:rgba(249,168,37,.12);border:1px solid rgba(249,168,37,.32);border-radius:8px;color:rgba(249,168,37,.95);font-size:11px;font-weight:700;cursor:pointer;transition:background .15s;';
+    sendAll.textContent = '📬 Queue All 9 Follow-ups';
+    sendAll.addEventListener('mouseenter', function(){ this.style.background='rgba(249,168,37,.22)'; });
+    sendAll.addEventListener('mouseleave', function(){ this.style.background='rgba(249,168,37,.12)'; });
+    sendAll.addEventListener('click', function() {
+      FOLLOWUPS.forEach(function(f) {
+        sent[f.name.replace(/[^a-z0-9]/gi,'-').toLowerCase()] = Date.now();
+      });
+      try { localStorage.setItem(SENT_KEY, JSON.stringify(sent)); } catch(x) {}
+      grid.querySelectorAll('.afu-actions,.afu-msg').forEach(function(el){ el.remove(); });
+      grid.querySelectorAll('.afu-card').forEach(function(card) {
+        if (!card.querySelector('.afu-sent')) {
+          var s = document.createElement('div'); s.className='afu-sent'; s.textContent='✓ Sent';
+          card.appendChild(s);
+        }
+      });
+      toast('All 9 follow-ups queued ✓', '📬');
+      sendAll.remove();
+    });
+    secEl.appendChild(sendAll);
+  }
+
 })();
 </script>
 
