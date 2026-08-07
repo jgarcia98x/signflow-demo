@@ -406,6 +406,39 @@
       letter-spacing: 0.3px;
       text-shadow: 0 0 10px rgba(255,215,0,0.5);
     }
+
+    /* ── INDOOR / OUTDOOR job type ───────────────────────────── */
+    .job-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      border-radius: 5px;
+      padding: 1px 6px;
+      margin-bottom: 5px;
+      letter-spacing: 0.2px;
+    }
+    .job-type-badge.indoor {
+      color: rgba(100,180,255,0.90);
+      background: rgba(100,180,255,0.10);
+      border: 1px solid rgba(100,180,255,0.25);
+    }
+    .job-type-badge.outdoor {
+      color: rgba(255,190,80,0.90);
+      background: rgba(255,190,80,0.10);
+      border: 1px solid rgba(255,190,80,0.25);
+    }
+    /* Turnaround estimate chip */
+    .turnaround-chip {
+      font-size: 9px;
+      color: rgba(255,255,255,0.38);
+      margin-left: 5px;
+      font-weight: 500;
+    }
+    /* Outdoor cards get a very subtle warm tint to reinforce weather-dependency */
+    .card[data-job-type="outdoor"] { background: rgba(255,190,80,0.03); }
+    .card[data-job-type="indoor"]  { background: rgba(100,180,255,0.03); }
     .qb-badge {
       display: inline-flex;
       align-items: center;
@@ -992,7 +1025,7 @@
         </div>
       </div>
 
-      <div class="card normal">
+      <div class="card normal" data-job-type="outdoor">
         <div class="card-name">Joliet Tire &amp; Auto</div>
         <div class="card-client">Walk-in &middot; Aug 4</div>
         <div class="card-row">
@@ -1006,7 +1039,7 @@
         </div>
       </div>
 
-      <div class="card normal">
+      <div class="card normal" data-job-type="indoor">
         <div class="card-name">Westside Fitness</div>
         <div class="card-client">Referral &middot; Aug 3</div>
         <div class="card-row">
@@ -1032,7 +1065,7 @@
       </div>
 
       <!-- Urgent -->
-      <div class="card urgent">
+      <div class="card urgent" data-job-type="outdoor">
         <div class="card-name">Riverside Auto — Pylon Sign</div>
         <div class="card-client">Riverside Automotive</div>
         <div class="card-row">
@@ -1051,7 +1084,7 @@
       </div>
 
       <!-- High — Parallel -->
-      <div class="card high">
+      <div class="card high" data-job-type="indoor">
         <div class="card-name">Downtown Diner — Channel Letters</div>
         <div class="card-client">Main St. Restaurant Group</div>
         <div class="card-row">
@@ -1070,7 +1103,7 @@
       </div>
 
       <!-- ❄️ Cold -->
-      <div class="card cold">
+      <div class="card cold" data-job-type="outdoor">
         <div class="card-status-badge cold-badge">❄️ Cold — 22 days silent</div>
         <div class="card-name">Bricktown Brewery — Outdoor Sign</div>
         <div class="card-client">Bricktown Craft Brewing</div>
@@ -1090,7 +1123,7 @@
       </div>
 
       <!-- ✕ Lost -->
-      <div class="card lost">
+      <div class="card lost" data-job-type="outdoor">
         <div class="card-status-badge lost-badge">✕ Lost — Client withdrew</div>
         <div class="card-name">Valley Fresh Grocery — Storefront</div>
         <div class="card-client">Valley Fresh Foods</div>
@@ -1122,7 +1155,7 @@
       </div>
 
       <!-- Normal -->
-      <div class="card normal">
+      <div class="card normal" data-job-type="outdoor">
         <div class="card-name">Prairie Wind Storage — Exterior Identity</div>
         <div class="card-client">Prairie Wind Self Storage</div>
         <div class="card-row">
@@ -1141,7 +1174,7 @@
       </div>
 
       <!-- Urgent -->
-      <div class="card urgent">
+      <div class="card urgent" data-job-type="indoor">
         <div class="card-name">Heritage Bank — Branch Refresh</div>
         <div class="card-client">Heritage Community Bank</div>
         <div class="card-row">
@@ -1171,7 +1204,7 @@
       </div>
 
       <!-- Urgent + Parallel -->
-      <div class="card urgent">
+      <div class="card urgent" data-job-type="outdoor">
         <div class="card-name">Village Tap — Blade Sign</div>
         <div class="card-client">The Village Tap Bar &amp; Grill</div>
         <div class="card-row">
@@ -1190,7 +1223,7 @@
       </div>
 
       <!-- High + Parallel -->
-      <div class="card high">
+      <div class="card high" data-job-type="indoor">
         <div class="card-name">Northside Gym — Vehicle Wrap</div>
         <div class="card-client">Northside Fitness</div>
         <div class="card-row">
@@ -1220,7 +1253,7 @@
       </div>
 
       <!-- Urgent -->
-      <div class="card urgent">
+      <div class="card urgent" data-job-type="outdoor">
         <div class="card-name">Summit Tech Park — Monument Sign</div>
         <div class="card-client">Summit Tech Park LLC</div>
         <div class="card-row">
@@ -1239,7 +1272,7 @@
       </div>
 
       <!-- Normal -->
-      <div class="card normal">
+      <div class="card normal" data-job-type="outdoor">
         <div class="card-name">Walgreens #4712 — Façade Replacement</div>
         <div class="card-client">Walgreens (National)</div>
         <div class="card-row">
@@ -1269,7 +1302,7 @@
       </div>
 
       <!-- Urgent -->
-      <div class="card urgent">
+      <div class="card urgent" data-job-type="outdoor">
         <div class="card-name">Kohl's #0394 — Pylon Reface</div>
         <div class="card-client">Kohl's Corporation</div>
         <div class="card-row">
@@ -1288,7 +1321,7 @@
       </div>
 
       <!-- High + Parallel -->
-      <div class="card high">
+      <div class="card high" data-job-type="outdoor">
         <div class="card-name">La Paloma Restaurant — Exterior</div>
         <div class="card-client">La Paloma Group</div>
         <div class="card-row">
@@ -1315,7 +1348,7 @@
         <div class="col-badge">1</div>
       </div>
 
-      <div class="card done" style="opacity: 0.82;">
+      <div class="card done" style="opacity: 0.82;" data-job-type="indoor">
         <div class="card-name">Speedway #1188 — LED Retrofit</div>
         <div class="card-client">Speedway LLC</div>
         <div class="card-row">
@@ -1918,6 +1951,21 @@
         + ' &nbsp;&nbsp;<span class="hot-action">↑ Highest-impact job right now</span>';
     }
   }
+
+  /* ── Indoor / Outdoor type badge + turnaround ──────── */
+  var TURNAROUND = { indoor: '2–4d', outdoor: '5–10d' };
+  var TYPE_LABEL = { indoor: '🏠 Indoor', outdoor: '☀️ Outdoor' };
+
+  document.querySelectorAll('.board .card[data-job-type]').forEach(function(card) {
+    var jtype = card.getAttribute('data-job-type');
+    if (!jtype) return;
+    var badge = document.createElement('div');
+    badge.className = 'job-type-badge ' + jtype;
+    badge.innerHTML = TYPE_LABEL[jtype]
+      + '<span class="turnaround-chip">~' + TURNAROUND[jtype] + '</span>';
+    var nameEl = card.querySelector('.card-name');
+    if (nameEl) nameEl.insertAdjacentElement('afterend', badge);
+  });
 
   /* ── Payment-ready (Install + overdue date) ────────── */
   document.querySelectorAll('.col').forEach(function(col) {
