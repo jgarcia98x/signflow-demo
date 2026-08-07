@@ -200,7 +200,32 @@
     }
     .cust-row:last-child { border-bottom: none; }
     .cust-row:hover { background: var(--surface-mid); }
-    .cust-row.highlighted { background: rgba(249,168,37,0.06); }
+    .cust-row.highlighted {
+      background: rgba(249,168,37,0.06);
+      border: 1px solid rgba(249,168,37,0.55);
+      border-radius: 8px;
+      box-shadow:
+        0 0 0 1px rgba(249,168,37,0.10),
+        0 0 14px rgba(249,168,37,0.35),
+        inset 0 0 30px rgba(249,168,37,0.03);
+      margin-bottom: 2px;
+    }
+    .cust-row.highlighted:hover {
+      box-shadow:
+        0 0 0 1px rgba(249,168,37,0.18),
+        0 0 22px rgba(249,168,37,0.50);
+    }
+    /* Overdue follow-up rows — red full border */
+    .cust-row .cust-date.soon ~ .cust-row,
+    .cust-row:has(.cust-date.soon) {
+      border: 1px solid rgba(239,83,80,0.65);
+      border-radius: 8px;
+      box-shadow:
+        0 0 0 1px rgba(239,83,80,0.12),
+        0 0 14px rgba(239,83,80,0.38),
+        inset 0 0 30px rgba(239,83,80,0.04);
+      margin-bottom: 2px;
+    }
 
     /* customer name + company */
     .cust-identity { display: flex; flex-direction: column; gap: 2px; }

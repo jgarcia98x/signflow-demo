@@ -396,6 +396,21 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 16px rgba(0,0,0,0.5);
     }
+    /* ── Conflict / Overdue blocks — full red border + glow ── */
+    .job-block.conflict, .job-block[style*="outline"] {
+      border: 2px solid rgba(239,83,80,0.80) !important;
+      outline: none !important;
+      box-shadow:
+        0 0 0 1px rgba(239,83,80,0.15),
+        0 0 16px rgba(239,83,80,0.50),
+        0 4px 16px rgba(0,0,0,0.5);
+    }
+    .job-block.conflict:hover, .job-block[style*="outline"]:hover {
+      box-shadow:
+        0 0 0 1px rgba(239,83,80,0.25),
+        0 0 26px rgba(239,83,80,0.65),
+        0 6px 20px rgba(0,0,0,0.6);
+    }
 
     .job-block-name {
       font-size: 11px; font-weight: 700;
@@ -1033,6 +1048,27 @@
   </div>
   <div class="stats-meta">⚡ AI Optimized Schedule · Garcia Sign &amp; Electric, Joliet IL</div>
 </div>
+
+<script>
+// Dynamic date
+(function() {
+  var el = document.querySelector('.date-chip');
+  if (!el) return;
+  var d = new Date();
+  var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  el.textContent = '📅 ' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+})();
+
+// Tag conflict blocks — remove inline outline, apply .conflict class for CSS glow
+document.querySelectorAll('.job-block').forEach(function(block) {
+  if (block.style.outline) {
+    block.classList.add('conflict');
+    block.style.outline = '';
+    block.style.outlineOffset = '';
+  }
+});
+</script>
 
 </body>
 </html>
