@@ -241,35 +241,57 @@
       gap: 8px;
     }
 
+    /* ── STAGE TAB HEADERS — full colored border + glow ─────── */
     .col-header {
-      background: var(--surface-mid);
+      background: rgba(0,0,0,0.35);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border);
-      border-top: 2px solid var(--col-tone);
+      border: 1.5px solid var(--col-tone);
       border-radius: 10px;
       padding: 9px 12px;
       display: flex;
       align-items: center;
       gap: 7px;
-      box-shadow: var(--shadow-card);
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--col-tone) 15%, transparent),
+        0 0 14px color-mix(in srgb, var(--col-tone) 45%, transparent),
+        0 4px 18px rgba(0,0,0,0.5),
+        inset 0 0 24px color-mix(in srgb, var(--col-tone) 6%, transparent);
+      transition: box-shadow .2s;
+    }
+    .col-header:hover {
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--col-tone) 25%, transparent),
+        0 0 22px color-mix(in srgb, var(--col-tone) 65%, transparent),
+        0 6px 22px rgba(0,0,0,0.55),
+        inset 0 0 24px color-mix(in srgb, var(--col-tone) 10%, transparent);
     }
     .col-title {
       font-size: 10px;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.9px;
-      color: var(--text-muted);
+      color: var(--col-tone);
       flex: 1;
+      text-shadow: 0 0 12px color-mix(in srgb, var(--col-tone) 60%, transparent);
     }
     .col-badge {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--col-tone) 18%, transparent);
+      border: 1px solid color-mix(in srgb, var(--col-tone) 45%, transparent);
       border-radius: 10px;
       padding: 1px 7px;
       font-size: 10px;
-      color: var(--text-dim);
+      color: var(--col-tone);
+      font-weight: 700;
+    }
+    /* Revenue total below badge */
+    .col-revenue {
+      font-size: 9px;
+      color: color-mix(in srgb, var(--col-tone) 70%, transparent);
       font-weight: 600;
+      letter-spacing: 0.3px;
+      margin-top: 1px;
+      text-align: right;
     }
     .qb-badge {
       display: inline-flex;
@@ -849,10 +871,12 @@
   <div class="board">
 
     <!-- ── NEW INQUIRY ── -->
-    <div class="col" style="--col-tone: #9C27B0;">
+    <div class="col" style="--col-tone:#B44FF5;background:rgba(180,79,245,0.03);">
       <div class="col-header">
         <div class="col-title">New Inquiry</div>
-        <div class="col-badge">2</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+          <div class="col-badge">2</div>
+        </div>
       </div>
 
       <div class="card normal">
@@ -885,10 +909,13 @@
     </div>
 
     <!-- ── QUOTE ── -->
-    <div class="col" style="--col-tone: var(--tone-a);">
+    <div class="col" style="--col-tone:#4B8BF5;background:rgba(75,139,245,0.03);">
       <div class="col-header">
         <div class="col-title">Quote</div>
-        <div class="col-badge">4</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+          <div class="col-badge">4</div>
+          <div class="col-revenue">$47.6k</div>
+        </div>
       </div>
 
       <!-- Urgent -->
@@ -972,10 +999,13 @@
     </div>
 
     <!-- ── DESIGN ── -->
-    <div class="col" style="--col-tone: var(--tone-a);">
+    <div class="col" style="--col-tone:#00C8D4;background:rgba(0,200,212,0.03);">
       <div class="col-header">
         <div class="col-title">Design</div>
-        <div class="col-badge">2</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+          <div class="col-badge">2</div>
+          <div class="col-revenue">$63.2k</div>
+        </div>
       </div>
 
       <!-- Normal -->
@@ -1018,10 +1048,13 @@
     </div>
 
     <!-- ── APPROVAL ── -->
-    <div class="col" style="--col-tone: var(--tone-a);">
+    <div class="col" style="--col-tone:#F0C040;background:rgba(240,192,64,0.03);">
       <div class="col-header">
         <div class="col-title">Approval</div>
-        <div class="col-badge">2</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+          <div class="col-badge">2</div>
+          <div class="col-revenue">$50.2k</div>
+        </div>
       </div>
 
       <!-- Urgent + Parallel -->
@@ -1064,10 +1097,13 @@
     </div>
 
     <!-- ── FABRICATION ── -->
-    <div class="col" style="--col-tone: var(--tone-b);">
+    <div class="col" style="--col-tone:#F07040;background:rgba(240,112,64,0.03);">
       <div class="col-header">
         <div class="col-title">Fabrication</div>
-        <div class="col-badge">2</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+          <div class="col-badge">2</div>
+          <div class="col-revenue">$67.4k</div>
+        </div>
       </div>
 
       <!-- Urgent -->
@@ -1110,10 +1146,13 @@
     </div>
 
     <!-- ── INSTALL ── -->
-    <div class="col" style="--col-tone: var(--tone-b);">
+    <div class="col" style="--col-tone:#50D880;background:rgba(80,216,128,0.03);">
       <div class="col-header">
         <div class="col-title">Install</div>
-        <div class="col-badge">2</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+          <div class="col-badge">2</div>
+          <div class="col-revenue">$15.6k</div>
+        </div>
       </div>
 
       <!-- Urgent -->
@@ -1156,7 +1195,7 @@
     </div>
 
     <!-- ── COMPLETE ── -->
-    <div class="col" style="--col-tone: var(--tone-c);">
+    <div class="col" style="--col-tone:#76E040;background:rgba(118,224,64,0.03);">
       <div class="col-header">
         <div class="col-title">Complete</div>
         <span class="qb-badge">✓ QB Sync</span>
