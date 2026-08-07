@@ -515,6 +515,28 @@
     .ss-sent { font-size:9px; font-weight:700; color:var(--green); }
     .ss-value { font-size:9px; color:var(--text-dim); margin-left:4px; }
 
+    /* ── OUTSOURCED vendor dependency ───────────────────────── */
+    .outsourced-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(206,147,216,0.95);
+      background: rgba(206,147,216,0.10);
+      border: 1px solid rgba(206,147,216,0.28);
+      border-radius: 5px;
+      padding: 1px 6px;
+      margin-bottom: 5px;
+      letter-spacing: 0.2px;
+    }
+    /* Subtle left accent on outsourced cards to flag vendor wait */
+    .card[data-outsourced] {
+      border-left-color: rgba(206,147,216,0.55) !important;
+    }
+    .card.urgent[data-outsourced],
+    .card.parallel[data-outsourced] { border-left-color: inherit !important; }
+
     /* ── INDOOR / OUTDOOR job type ───────────────────────────── */
     .job-type-badge {
       display: inline-flex;
@@ -1263,7 +1285,7 @@
       </div>
 
       <!-- Normal -->
-      <div class="card normal" data-job-type="outdoor">
+      <div class="card normal" data-job-type="outdoor" data-outsourced="logo-vectoring">
         <div class="card-name">Prairie Wind Storage — Exterior Identity</div>
         <div class="card-client">Prairie Wind Self Storage</div>
         <div class="card-row">
@@ -1282,7 +1304,7 @@
       </div>
 
       <!-- Urgent -->
-      <div class="card urgent" data-job-type="indoor">
+      <div class="card urgent" data-job-type="indoor" data-outsourced="logo-vectoring">
         <div class="card-name">Heritage Bank — Branch Refresh</div>
         <div class="card-client">Heritage Community Bank</div>
         <div class="card-row">
@@ -1361,7 +1383,7 @@
       </div>
 
       <!-- Urgent -->
-      <div class="card urgent" data-job-type="outdoor">
+      <div class="card urgent" data-job-type="outdoor" data-outsourced="neon-fabrication">
         <div class="card-name">Summit Tech Park — Monument Sign</div>
         <div class="card-client">Summit Tech Park LLC</div>
         <div class="card-row">
@@ -1380,7 +1402,7 @@
       </div>
 
       <!-- Normal -->
-      <div class="card normal" data-job-type="outdoor">
+      <div class="card normal" data-job-type="outdoor" data-outsourced="neon-fabrication">
         <div class="card-name">Walgreens #4712 — Façade Replacement</div>
         <div class="card-client">Walgreens (National)</div>
         <div class="card-row">
@@ -2253,6 +2275,21 @@
     }
   });
 
+  /* ── Outsourced vendor badges ───────────────────────── */
+  var OUTSOURCE_LABELS = {
+    'logo-vectoring':  '🔗 Outsourced: Logo Vectoring (~2–3d)',
+    'neon-fabrication':'🔗 Outsourced: Neon/Specialty Fab (~7–14d)'
+  };
+  document.querySelectorAll('.board .card[data-outsourced]').forEach(function(card) {
+    var otype = card.getAttribute('data-outsourced');
+    if (!otype || !OUTSOURCE_LABELS[otype]) return;
+    var badge = document.createElement('div');
+    badge.className = 'outsourced-badge';
+    badge.textContent = OUTSOURCE_LABELS[otype];
+    var nameEl = card.querySelector('.card-name');
+    if (nameEl) nameEl.insertAdjacentElement('afterend', badge);
+  });
+
   /* ── Indoor / Outdoor type badge + turnaround ──────── */
   var TURNAROUND = { indoor: '2–4d', outdoor: '5–10d' };
   var TYPE_LABEL = { indoor: '🏠 Indoor', outdoor: '☀️ Outdoor' };
@@ -2599,6 +2636,37 @@
       btn.addEventListener('click', a.fn);
       dpAct.appendChild(btn);
     });
+
+    /* Outsourced vendor info in panel */
+    var outsourced = card.getAttribute('data-outsourced');
+    var outsourceSection = panel.querySelector('#dp-outsource');
+    if (!outsourceSection) {
+      outsourceSection = document.createElement('div');
+      outsourceSection.id = 'dp-outsource';
+      outsourceSection.style.cssText = 'margin-bottom:16px;';
+      document.getElementById('dp-advance-wrap').before(outsourceSection);
+    }
+    if (outsourced) {
+      var oLabels = {
+        'logo-vectoring':   { label:'Logo Vectoring', eta:'~2–3 business days', vendor:'External design studio', tip:'Send client assets ASAP to avoid delay.' },
+        'neon-fabrication': { label:'Neon / Specialty Fabrication', eta:'~7–14 business days', vendor:'Outsourced fab shop', tip:'Order early — this is your longest lead-time item.' }
+      };
+      var ol = oLabels[outsourced] || { label: outsourced, eta: 'TBD', vendor: 'External vendor', tip: '' };
+      outsourceSection.innerHTML =
+        '<div style="font-size:9px;text-transform:uppercase;letter-spacing:0.7px;color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:8px;">Vendor / Outsourced Work</div>'
+        +'<div style="background:rgba(206,147,216,0.07);border:1px solid rgba(206,147,216,0.22);border-radius:9px;padding:12px;">'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+        +'<span style="font-size:13px;">🔗</span>'
+        +'<div><div style="font-size:12px;font-weight:700;color:rgba(206,147,216,0.95);">'+ol.label+'</div>'
+        +'<div style="font-size:10px;color:rgba(255,255,255,0.45);">'+ol.vendor+' · Lead time: '+ol.eta+'</div></div></div>'
+        +(ol.tip ? '<div style="font-size:10px;color:rgba(206,147,216,0.70);font-style:italic;">⚠ '+ol.tip+'</div>' : '')
+        +'<div style="display:flex;gap:6px;margin-top:9px;">'
+        +'<button class="dp-action-btn" style="flex:1;font-size:10px;" onclick="window.toast&&toast(\'Vendor contacted ✓\',\'🔗\')">Contact Vendor</button>'
+        +'<button class="dp-action-btn" style="font-size:10px;" onclick="window.toast&&toast(\'Vendor status checked\',\'📋\')">Check Status</button>'
+        +'</div></div>';
+    } else {
+      outsourceSection.innerHTML = '';
+    }
 
     /* Advance to next stage */
     var wrap = document.getElementById('dp-advance-wrap');
