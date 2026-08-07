@@ -289,8 +289,7 @@
       background: var(--surface);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--card-accent);
+      border: 1px solid rgba(255,255,255,0.10);
       border-radius: 10px;
       padding: 12px 12px 10px;
       cursor: grab;
@@ -299,18 +298,86 @@
     }
     .card:hover {
       background: var(--surface-mid);
-      box-shadow: var(--shadow-md), 0 0 20px var(--card-glow, var(--red-glow-sm));
       transform: translateY(-2px);
     }
     .card:active { cursor: grabbing; }
 
-    /* card accent + glow colors */
-    .card.urgent  { --card-accent: #ef5350; --card-glow: rgba(239,83,80,0.35); }
-    .card.high    { --card-accent: var(--amber); --card-glow: rgba(249,168,37,0.3); }
-    .card.normal  { --card-accent: rgba(255,255,255,0.2); --card-glow: rgba(255,255,255,0.1); }
-    .card.done    { --card-accent: var(--green); --card-glow: rgba(102,187,106,0.3); }
-    .card.cold    { --card-accent: #4FC3F7; --card-glow: rgba(79,195,247,0.25); opacity: 0.80; }
-    .card.lost    { --card-accent: rgba(255,255,255,0.15); --card-glow: rgba(255,255,255,0.08); opacity: 0.65; }
+    /* ── Normal / High — subtle left accent only ─────────────── */
+    .card.normal { border-left: 3px solid rgba(255,255,255,0.18); }
+    .card.high   {
+      border-left: 3px solid var(--amber);
+      box-shadow: var(--shadow-card), 0 0 10px rgba(249,168,37,0.18);
+    }
+    .card.done { border-left: 3px solid var(--green); }
+
+    /* ── URGENT — full red border + strong glow ─────────────── */
+    .card.urgent {
+      border: 2px solid rgba(239,83,80,0.80);
+      background: rgba(239,83,80,0.07);
+      box-shadow:
+        0 0 0 1px rgba(239,83,80,0.15),
+        0 0 18px rgba(239,83,80,0.45),
+        0 4px 20px rgba(0,0,0,0.5),
+        inset 0 0 40px rgba(239,83,80,0.05);
+    }
+    .card.urgent:hover {
+      box-shadow:
+        0 0 0 1px rgba(239,83,80,0.25),
+        0 0 28px rgba(239,83,80,0.60),
+        0 6px 28px rgba(0,0,0,0.55),
+        inset 0 0 40px rgba(239,83,80,0.08);
+    }
+
+    /* ── PARALLEL — full amber border + amber glow ───────────── */
+    .card.parallel {
+      border: 2px solid rgba(249,168,37,0.70);
+      background: rgba(249,168,37,0.06);
+      box-shadow:
+        0 0 0 1px rgba(249,168,37,0.12),
+        0 0 16px rgba(249,168,37,0.40),
+        0 4px 20px rgba(0,0,0,0.5),
+        inset 0 0 40px rgba(249,168,37,0.04);
+    }
+    .card.parallel:hover {
+      box-shadow:
+        0 0 0 1px rgba(249,168,37,0.20),
+        0 0 26px rgba(249,168,37,0.55),
+        0 6px 28px rgba(0,0,0,0.55);
+    }
+
+    /* ── COLD — full cyan border + icy glow ──────────────────── */
+    .card.cold {
+      border: 2px solid rgba(79,195,247,0.55);
+      background: rgba(79,195,247,0.05);
+      opacity: 0.88;
+      box-shadow:
+        0 0 0 1px rgba(79,195,247,0.10),
+        0 0 14px rgba(79,195,247,0.35),
+        0 4px 20px rgba(0,0,0,0.5);
+    }
+    .card.cold:hover {
+      opacity: 1;
+      box-shadow:
+        0 0 0 1px rgba(79,195,247,0.18),
+        0 0 22px rgba(79,195,247,0.50),
+        0 6px 28px rgba(0,0,0,0.55);
+    }
+
+    /* ── LOST — full muted border + dim glow ────────────────── */
+    .card.lost {
+      border: 1.5px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.02);
+      opacity: 0.62;
+      box-shadow:
+        0 0 10px rgba(255,255,255,0.06),
+        0 4px 16px rgba(0,0,0,0.45);
+    }
+    .card.lost:hover {
+      opacity: 0.80;
+      box-shadow:
+        0 0 14px rgba(255,255,255,0.10),
+        0 6px 24px rgba(0,0,0,0.50);
+    }
 
     /* ── STATUS BADGE (Cold / Lost) ─────────────────────────── */
     .card-status-badge {
@@ -1309,6 +1376,11 @@
 <script>
 (function () {
   'use strict';
+
+  /* ── Tag parallel cards with .parallel class ─────── */
+  document.querySelectorAll('.card').forEach(function(card) {
+    if (card.querySelector('.parallel-badge')) card.classList.add('parallel');
+  });
 
   /* ── Dynamic Date ─────────────────────────────────── */
   (function () {
