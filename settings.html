@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SignFlow — Settings</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:         #D32F2F;
+      --red-glow-sm: rgba(211,47,47,0.25);
+      --amber:       #F9A825;
+      --green:       #66BB6A;
+      --bg:          #0c0c14;
+      --surface:     rgba(255,255,255,0.06);
+      --surface-mid: rgba(255,255,255,0.09);
+      --surface-hi:  rgba(255,255,255,0.13);
+      --border:      rgba(255,255,255,0.10);
+      --text:        rgba(255,255,255,0.93);
+      --text-muted:  rgba(255,255,255,0.55);
+      --text-dim:    rgba(255,255,255,0.32);
+    }
+
+    html, body { height: 100%; }
+    body {
+      background: radial-gradient(ellipse at 30% 0%, #1a1422 0%, var(--bg) 65%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      font-size: 13px;
+      display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: rgba(180,30,30,0.82); backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      padding: 0 24px; height: 56px; display: flex; align-items: center;
+      gap: 16px; flex-shrink: 0; z-index: 200;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .logo { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin-right: 8px; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+    .header-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.2); }
+    nav a { color: rgba(255,255,255,0.70); text-decoration: none; font-size: 13px; font-weight: 500; padding: 5px 11px; border-radius: 7px; transition: color .15s, background .15s; letter-spacing: 0.1px; }
+    nav a:hover { color: #fff; background: rgba(255,255,255,0.12); }
+    nav a.active { color: #fff; background: rgba(255,255,255,0.15); box-shadow: 0 0 12px rgba(255,255,255,0.08); }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .date-chip { font-size: 12px; color: rgba(255,255,255,0.72); font-weight: 500; }
+    .btn-new { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; border-radius: 7px; padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: pointer; backdrop-filter: blur(8px); transition: background .15s; }
+    .btn-new:hover { background: rgba(255,255,255,0.22); }
+    .avatar { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; cursor: pointer; }
+
+    /* ── PAGE ── */
+    .page-content { flex: 1; overflow-y: auto; padding: 28px 28px 40px; }
+
+    .page-title { font-size: 20px; font-weight: 800; margin-bottom: 24px; }
+
+    /* ── SETTINGS LAYOUT ── */
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .settings-full { grid-column: 1 / -1; }
+
+    /* ── SECTION CARD ── */
+    .section-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 22px 24px;
+      backdrop-filter: blur(16px);
+    }
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .section-title {
+      font-size: 13px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-muted);
+    }
+
+    /* ── FORM FIELDS ── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .form-row.single { grid-template-columns: 1fr; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); }
+    .field input, .field select {
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 12px; font-size: 13px;
+      color: var(--text); outline: none; font-family: inherit;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .field input:focus, .field select:focus {
+      border-color: rgba(211,47,47,0.55);
+      box-shadow: 0 0 10px rgba(211,47,47,0.2);
+    }
+    .field input::placeholder { color: var(--text-dim); }
+    .field select { cursor: pointer; }
+    .field select option { background: #1a1a28; color: var(--text); }
+
+    /* ── BUTTONS ── */
+    .btn-save {
+      background: var(--red); border: none; border-radius: 8px;
+      color: #fff; padding: 9px 22px; font-size: 13px; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.2px;
+      transition: background .15s, box-shadow .15s;
+    }
+    .btn-save:hover { background: #B71C1C; box-shadow: 0 0 16px rgba(211,47,47,0.5); }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.08); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); padding: 8px 16px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-outline:hover { background: var(--surface-mid); border-color: var(--border-hi); }
+
+    .btn-connect {
+      background: rgba(75,139,245,0.15); border: 1px solid rgba(75,139,245,0.4);
+      border-radius: 8px; color: #7AADFF; padding: 8px 16px;
+      font-size: 12px; font-weight: 700; cursor: pointer;
+      transition: background .15s, box-shadow .15s;
+    }
+    .btn-connect:hover { background: rgba(75,139,245,0.25); box-shadow: 0 0 12px rgba(75,139,245,0.3); }
+
+    .btn-invite {
+      background: rgba(102,187,106,0.12); border: 1px solid rgba(102,187,106,0.35);
+      border-radius: 8px; color: var(--green); padding: 8px 16px;
+      font-size: 12px; font-weight: 700; cursor: pointer;
+      transition: background .15s, box-shadow .15s;
+    }
+    .btn-invite:hover { background: rgba(102,187,106,0.22); box-shadow: 0 0 12px rgba(102,187,106,0.3); }
+
+    .btn-muted {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; color: var(--text-dim); padding: 8px 16px;
+      font-size: 12px; font-weight: 600; cursor: default;
+    }
+
+    /* ── TOGGLE SWITCHES ── */
+    .toggle-list { display: flex; flex-direction: column; gap: 0; }
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-info { flex: 1; }
+    .toggle-label { font-size: 13px; font-weight: 600; color: var(--text); }
+    .toggle-desc  { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+    /* CSS toggle switch */
+    .toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 22px; transition: background .25s, box-shadow .25s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute; width: 16px; height: 16px;
+      border-radius: 50%; background: rgba(255,255,255,0.55);
+      left: 2px; top: 2px; transition: transform .25s, background .25s;
+    }
+    .toggle-switch input:checked + .toggle-slider {
+      background: rgba(211,47,47,0.7); border-color: rgba(211,47,47,0.5);
+      box-shadow: 0 0 10px rgba(211,47,47,0.3);
+    }
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(18px); background: #fff;
+    }
+
+    /* ── INTEGRATION CARDS ── */
+    .integration-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .integration-card {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px;
+    }
+    .integration-icon { font-size: 22px; flex-shrink: 0; }
+    .integration-info { flex: 1; }
+    .integration-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .integration-status { font-size: 11px; margin-top: 2px; }
+    .status-connected { color: var(--green); font-weight: 600; }
+    .status-not-connected { color: var(--text-dim); }
+    .status-coming-soon { color: rgba(255,255,255,0.28); font-style: italic; }
+
+    /* ── TEAM SECTION ── */
+    .team-member {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 14px;
+    }
+    .member-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(211,47,47,0.25); border: 1px solid rgba(211,47,47,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+    .member-info { flex: 1; }
+    .member-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .member-role { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+    .member-badge {
+      background: rgba(102,187,106,0.12); border: 1px solid rgba(102,187,106,0.3);
+      border-radius: 8px; padding: 2px 9px;
+      font-size: 10px; font-weight: 700; color: var(--green);
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: rgba(30,30,44,0.97); border: 1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(20px); border-radius: 10px;
+      padding: 10px 22px; font-size: 13px; font-weight: 600; color: var(--text);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6); z-index: 9999;
+      opacity: 0; transition: opacity .22s, transform .22s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      header { flex-wrap: wrap; height: auto; padding: 10px 14px 0; gap: 8px; }
+      .header-sep { display: none; } .date-chip { display: none; } .avatar { display: none; }
+      .header-right { margin-left: auto; }
+      nav { width: 100%; overflow-x: auto; display: flex; gap: 0; border-top: 1px solid rgba(255,255,255,0.08); padding: 0; scrollbar-width: none; }
+      nav::-webkit-scrollbar { display: none; }
+      nav a { flex-shrink: 0; font-size: 13px; padding: 10px 14px; border-radius: 0; border-bottom: 2px solid transparent; }
+      nav a.active { border-bottom: 2px solid rgba(255,255,255,0.9); }
+      .page-content { padding: 14px; }
+      .settings-grid { grid-template-columns: 1fr; }
+      .settings-full { grid-column: 1; }
+      .form-row { grid-template-columns: 1fr; }
+      .integration-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ═══════════════════════════════════════════════════ -->
+<header>
+  <div class="logo">SignFlow</div>
+  <div class="header-sep"></div>
+  <nav>
+    <a href="index.html">Pipeline</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="customers.html">Customers</a>
+    <a href="jobs.html">Jobs</a>
+    <a href="reports.html">Reports</a>
+    <a href="settings.html" class="active">Settings</a>
+  </nav>
+  <div class="header-right">
+    <div class="date-chip" id="date-chip">📅 Sun, Aug 2, 2026</div>
+    <button class="btn-new">＋ New Job</button>
+    <div class="avatar">PG</div>
+  </div>
+</header>
+
+<!-- ══ PAGE CONTENT ══════════════════════════════════════════════ -->
+<div class="page-content">
+  <div class="page-title">⚙️ Settings</div>
+
+  <div class="settings-grid">
+
+    <!-- ── 1. PROFILE ── -->
+    <div class="section-card settings-full">
+      <div class="section-header">
+        <div class="section-title">Profile</div>
+        <button class="btn-save" id="btn-save-profile">Save Changes</button>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>First &amp; Last Name</label>
+          <input type="text" value="Peter Garcia" id="field-name" />
+        </div>
+        <div class="field">
+          <label>Company</label>
+          <input type="text" value="U.S. Electric" id="field-company" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Role</label>
+          <select id="field-role">
+            <option selected>Owner</option>
+            <option>Manager</option>
+            <option>Estimator</option>
+            <option>Installer</option>
+            <option>Admin</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" value="(815) 555-0147" id="field-phone" />
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" value="peter@uselectric.com" id="field-email" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 2. NOTIFICATIONS ── -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title">Notifications</div>
+      </div>
+      <div class="toggle-list">
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-label">Email Summaries</div>
+            <div class="toggle-desc">Daily pipeline digest to your inbox</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" checked onchange="handleToggle(this, 'Email summaries')">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-label">SMS Alerts</div>
+            <div class="toggle-desc">Text alerts for urgent job updates</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" checked onchange="handleToggle(this, 'SMS alerts')">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-label">Cold Job Reminders</div>
+            <div class="toggle-desc">Nudge when a quote goes 7+ days silent</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" checked onchange="handleToggle(this, 'Cold job reminders')">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-label">Payment Reminders</div>
+            <div class="toggle-desc">Alert when invoices go past due</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" checked onchange="handleToggle(this, 'Payment reminders')">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-label">Weekly Report</div>
+            <div class="toggle-desc">Friday summary of pipeline &amp; revenue</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" checked onchange="handleToggle(this, 'Weekly report')">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 3. INTEGRATIONS ── -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title">Integrations</div>
+      </div>
+      <div class="integration-grid">
+        <div class="integration-card">
+          <div class="integration-icon">📊</div>
+          <div class="integration-info">
+            <div class="integration-name">QuickBooks</div>
+            <div class="integration-status status-connected">✓ Connected</div>
+          </div>
+          <button class="btn-outline" style="font-size:11px;padding:6px 12px;" onclick="toast('QuickBooks settings coming soon')">Manage</button>
+        </div>
+        <div class="integration-card">
+          <div class="integration-icon">📅</div>
+          <div class="integration-info">
+            <div class="integration-name">Google Calendar</div>
+            <div class="integration-status status-not-connected">Not connected</div>
+          </div>
+          <button class="btn-connect" onclick="toast('Connecting Google Calendar…')">Connect</button>
+        </div>
+        <div class="integration-card">
+          <div class="integration-icon">💳</div>
+          <div class="integration-info">
+            <div class="integration-name">Stripe</div>
+            <div class="integration-status status-not-connected">Not connected</div>
+          </div>
+          <button class="btn-connect" onclick="toast('Connecting Stripe…')">Connect</button>
+        </div>
+        <div class="integration-card">
+          <div class="integration-icon">💬</div>
+          <div class="integration-info">
+            <div class="integration-name">iMessage</div>
+            <div class="integration-status status-coming-soon">Coming soon</div>
+          </div>
+          <button class="btn-muted">Coming Soon</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 4. TEAM ── -->
+    <div class="section-card settings-full">
+      <div class="section-header">
+        <div class="section-title">Team</div>
+        <button class="btn-invite" onclick="toast('📧 Invite link copied — share it with your team member')">+ Invite Team Member</button>
+      </div>
+      <div class="team-member">
+        <div class="member-avatar">PG</div>
+        <div class="member-info">
+          <div class="member-name">Peter Garcia</div>
+          <div class="member-role">peter@uselectric.com · Garcia Sign &amp; Electric</div>
+        </div>
+        <div class="member-badge">Owner</div>
+      </div>
+      <div style="font-size:12px;color:var(--text-dim);text-align:center;padding:16px 0;">
+        Your team members will appear here once they accept their invite.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ TOAST ════════════════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  /* Date chip */
+  var el = document.getElementById('date-chip');
+  if (el) {
+    var d = new Date();
+    var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    el.textContent = '📅 ' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  }
+
+  /* Toast */
+  var toastEl = document.getElementById('toast');
+  var toastTimer;
+  window.toast = function(msg) {
+    clearTimeout(toastTimer);
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2600);
+  };
+
+  /* Save profile */
+  document.getElementById('btn-save-profile').addEventListener('click', function(){
+    var name = document.getElementById('field-name').value.trim() || 'Profile';
+    toast('✓ Settings saved — ' + name);
+  });
+
+  /* Toggle handler */
+  window.handleToggle = function(input, label) {
+    toast((input.checked ? '🔔 ' : '🔕 ') + label + (input.checked ? ' enabled' : ' disabled'));
+  };
+})();
+</script>
+</body>
+</html>
