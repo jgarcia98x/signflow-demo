@@ -407,6 +407,76 @@
       text-shadow: 0 0 10px rgba(255,215,0,0.5);
     }
 
+    /* ── AUTO FOLLOW-UP outreach UI ─────────────────────────── */
+    .followup-bar {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .followup-preview {
+      font-size: 10px;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 7px;
+      padding: 7px 9px;
+      margin-bottom: 7px;
+      line-height: 1.5;
+      font-style: italic;
+    }
+    .followup-preview strong { color: rgba(255,255,255,0.75); font-style: normal; }
+    .followup-actions { display: flex; gap: 6px; align-items: center; }
+    .btn-followup-send {
+      flex: 1;
+      background: rgba(249,168,37,0.15);
+      border: 1px solid rgba(249,168,37,0.40);
+      border-radius: 7px;
+      color: var(--amber);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background .15s, box-shadow .15s;
+      letter-spacing: 0.2px;
+    }
+    .btn-followup-send:hover {
+      background: rgba(249,168,37,0.25);
+      box-shadow: 0 0 10px rgba(249,168,37,0.25);
+    }
+    .btn-followup-schedule {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 7px;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 5px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .followup-sent-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    @keyframes followupScheduled {
+      0%  { opacity: 0; transform: translateY(4px); }
+      100%{ opacity: 1; transform: translateY(0); }
+    }
+    .followup-queued {
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(100,180,255,0.85);
+      background: rgba(100,180,255,0.10);
+      border: 1px solid rgba(100,180,255,0.22);
+      border-radius: 5px;
+      padding: 2px 7px;
+      animation: followupScheduled .25s ease;
+    }
+
     /* ── INDOOR / OUTDOOR job type ───────────────────────────── */
     .job-type-badge {
       display: inline-flex;
@@ -1951,6 +2021,86 @@
         + ' &nbsp;&nbsp;<span class="hot-action">↑ Highest-impact job right now</span>';
     }
   }
+
+  /* ── Automated outreach follow-up on cold/lost cards ── */
+  var FOLLOWUP_KEY = 'sf-followups';
+  var sentFollowups = {};
+  try { sentFollowups = JSON.parse(localStorage.getItem(FOLLOWUP_KEY) || '{}'); } catch(e) {}
+
+  var FOLLOWUP_TEMPLATES = {
+    cold: function(name, days) {
+      return 'Hi, just circling back on the <strong>' + name + '</strong> project — it\'s been '
+        + days + ' days since we last spoke. Happy to adjust the quote or timing to fit your schedule. Worth a quick 5-min chat?';
+    },
+    lost: function(name) {
+      return 'Hi, I know you went another direction on <strong>' + name + '</strong> — no hard feelings at all. If anything changes or a future project comes up, I\'d love another shot. Mind if I check back in 90 days?';
+    }
+  };
+
+  document.querySelectorAll('.board .card.cold, .board .card.lost').forEach(function(card) {
+    var nameEl = card.querySelector('.card-name');
+    if (!nameEl) return;
+    var jobName = nameEl.textContent.trim();
+    var cardId  = jobName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+    var isLost  = card.classList.contains('lost');
+    var type    = isLost ? 'lost' : 'cold';
+
+    // Days silent from card status badge or notified date
+    var days = 0;
+    var badge = card.querySelector('.card-status-badge');
+    if (badge) {
+      var dm = badge.textContent.match(/(\d+)\s+days/);
+      if (dm) days = parseInt(dm[1]);
+    }
+    if (!days) {
+      var notEl = card.querySelector('.card-notified');
+      if (notEl) days = daysAgo(parseCardDate(notEl.textContent));
+    }
+
+    var bar = document.createElement('div');
+    bar.className = 'followup-bar';
+
+    if (sentFollowups[cardId]) {
+      bar.innerHTML = '<div class="followup-sent-badge">✓ Follow-up sent · '
+        + (type === 'lost' ? '90-day re-engage queued' : 'Awaiting reply') + '</div>';
+    } else {
+      var tpl = (FOLLOWUP_TEMPLATES[type] || FOLLOWUP_TEMPLATES.cold)(jobName, days || '?');
+      bar.innerHTML =
+        '<div class="followup-preview">' + tpl + '</div>'
+        + '<div class="followup-actions">'
+        + '  <button class="btn-followup-send" data-card-id="' + cardId + '" data-type="' + type + '">'
+        +    (isLost ? '🔄 Send Re-engage' : '📬 Send Follow-up') + '</button>'
+        + '  <button class="btn-followup-schedule" data-card-id="' + cardId + '" data-type="schedule">'
+        +    '🕐 Schedule</button>'
+        + '</div>';
+    }
+
+    card.appendChild(bar);
+  });
+
+  // Follow-up button actions
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.btn-followup-send, .btn-followup-schedule');
+    if (!btn) return;
+    var cardId = btn.dataset.cardId;
+    var dtype  = btn.dataset.type;
+    var bar    = btn.closest('.followup-bar');
+    if (!bar) return;
+
+    if (dtype === 'schedule') {
+      var tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      btn.replaceWith(Object.assign(document.createElement('div'), {
+        className: 'followup-queued',
+        textContent: '📅 Queued for ' + months[tomorrow.getMonth()] + ' ' + tomorrow.getDate()
+      }));
+    } else {
+      sentFollowups[cardId] = Date.now();
+      try { localStorage.setItem(FOLLOWUP_KEY, JSON.stringify(sentFollowups)); } catch(x) {}
+      bar.innerHTML = '<div class="followup-sent-badge">✓ Follow-up sent · '
+        + (dtype === 'lost' ? '90-day re-engage queued' : 'Awaiting reply') + '</div>';
+    }
+  });
 
   /* ── Indoor / Outdoor type badge + turnaround ──────── */
   var TURNAROUND = { indoor: '2–4d', outdoor: '5–10d' };
