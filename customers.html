@@ -227,6 +227,44 @@
       margin-bottom: 2px;
     }
 
+    /* Days-since-contact chip */
+    .cust-days {
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 5px;
+      padding: 1px 6px;
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+    .cust-days.fresh  { color: rgba(255,255,255,0.40); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); }
+    .cust-days.stale  { color: rgba(249,168,37,0.90); background: rgba(249,168,37,0.10); border: 1px solid rgba(249,168,37,0.28); }
+    .cust-days.old    { color: #ef5350; background: rgba(239,83,80,0.10); border: 1px solid rgba(239,83,80,0.30); }
+    /* Indoor/Outdoor on customer rows */
+    .cust-type {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: 5px;
+    }
+    .cust-type.indoor  { color: rgba(100,180,255,0.85); background: rgba(100,180,255,0.10); border: 1px solid rgba(100,180,255,0.22); }
+    .cust-type.outdoor { color: rgba(255,190,80,0.85); background: rgba(255,190,80,0.10); border: 1px solid rgba(255,190,80,0.22); }
+    /* Auto follow-up button on overdue rows */
+    .followup-btn {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--amber);
+      background: rgba(249,168,37,0.12);
+      border: 1px solid rgba(249,168,37,0.35);
+      border-radius: 6px;
+      padding: 3px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .followup-btn:hover { background: rgba(249,168,37,0.20); }
+    .followup-sent { font-size: 10px; color: rgba(102,187,106,0.85); font-weight: 700; }
+
     /* customer name + company */
     .cust-identity { display: flex; flex-direction: column; gap: 2px; }
     .cust-name { font-size: 13px; font-weight: 600; color: var(--text); }
@@ -1024,6 +1062,67 @@
   </div>
   <div class="stats-meta">Garcia Sign &amp; Electric, Joliet IL · Last updated: just now</div>
 </div>
+
+<script>
+(function() {
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  document.querySelectorAll('.cust-row').forEach(function(row) {
+    // --- Days-since-contact chip ---
+    var dateCells = row.querySelectorAll('.cust-date');
+    var firstDate = dateCells[0];
+    if (firstDate) {
+      var parsed = new Date(firstDate.textContent.trim());
+      if (!isNaN(parsed)) {
+        parsed.setHours(0,0,0,0);
+        var days = Math.round((today - parsed) / 86400000);
+        var chip = document.createElement('span');
+        chip.className = 'cust-days ' + (days <= 3 ? 'fresh' : days <= 10 ? 'stale' : 'old');
+        chip.textContent = days + 'd';
+        var nameEl = row.querySelector('.cust-name');
+        if (nameEl && nameEl.parentNode) nameEl.parentNode.insertBefore(chip, nameEl.nextSibling);
+      }
+    }
+
+    // --- Indoor/Outdoor badge on company ---
+    var tradeEl = row.querySelector('.cust-trade');
+    var companyEl = row.querySelector('.cust-company');
+    if (tradeEl && companyEl) {
+      var trade = tradeEl.textContent || '';
+      var isOutdoor = /Pylon|Fa[cç]ade|Monument|Exterior|Storefront|Blade|Outdoor/i.test(trade);
+      var typeBadge = document.createElement('span');
+      typeBadge.className = 'cust-type ' + (isOutdoor ? 'outdoor' : 'indoor');
+      typeBadge.textContent = isOutdoor ? '\u2600\uFE0F Outdoor' : '\uD83C\uDFE0 Indoor';
+      companyEl.appendChild(typeBadge);
+    }
+
+    // --- Auto follow-up button for overdue soon rows ---
+    var soonDate = row.querySelector('.cust-date.soon');
+    if (soonDate) {
+      var soonParsed = new Date(soonDate.textContent.trim());
+      if (!isNaN(soonParsed) && soonParsed < today) {
+        var lastCell = row.querySelector('td:last-child, .cust-cell:last-child');
+        if (!lastCell) {
+          var cells = row.querySelectorAll('td, .cust-cell');
+          lastCell = cells[cells.length - 1];
+        }
+        if (lastCell) {
+          var btn = document.createElement('button');
+          btn.className = 'followup-btn';
+          btn.textContent = '\uD83D\uDCEC Auto Follow-up';
+          btn.addEventListener('click', function() {
+            var sent = document.createElement('span');
+            sent.className = 'followup-sent';
+            sent.textContent = '\u2713 Sent';
+            btn.parentNode.replaceChild(sent, btn);
+          });
+          lastCell.appendChild(btn);
+        }
+      }
+    }
+  });
+})();
+</script>
 
 </body>
 </html>

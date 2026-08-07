@@ -396,6 +396,35 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 16px rgba(0,0,0,0.5);
     }
+    /* Indoor/Outdoor on schedule blocks */
+    .job-block-type {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-bottom: 3px;
+      display: inline-block;
+    }
+    .job-block-type.indoor {
+      color: rgba(100,180,255,0.90);
+      background: rgba(100,180,255,0.15);
+      border: 1px solid rgba(100,180,255,0.25);
+    }
+    .job-block-type.outdoor {
+      color: rgba(255,190,80,0.90);
+      background: rgba(255,190,80,0.15);
+      border: 1px solid rgba(255,190,80,0.25);
+    }
+    /* Payment-ready job blocks */
+    @keyframes schedPayPulse {
+      0%,100% { box-shadow: 0 0 0 1px rgba(255,210,0,0.35), 0 0 12px rgba(255,210,0,0.40); }
+      50%     { box-shadow: 0 0 0 2px rgba(255,210,0,0.55), 0 0 22px rgba(255,210,0,0.65); }
+    }
+    .job-block.payment-ready {
+      border: 1.5px solid rgba(255,210,0,0.75) !important;
+      animation: schedPayPulse 2.2s ease-in-out infinite;
+    }
     /* ── Conflict / Overdue blocks — full red border + glow ── */
     .job-block.conflict, .job-block[style*="outline"] {
       border: 2px solid rgba(239,83,80,0.80) !important;
@@ -1066,6 +1095,32 @@ document.querySelectorAll('.job-block').forEach(function(block) {
     block.classList.add('conflict');
     block.style.outline = '';
     block.style.outlineOffset = '';
+  }
+});
+</script>
+
+<script>
+// Indoor/Outdoor classification + badges
+document.querySelectorAll('.job-block').forEach(function(block) {
+  var name = (block.querySelector('.job-block-name') || {}).textContent || '';
+  var detail = (block.querySelector('.job-block-detail') || {}).textContent || '';
+  var combined = name + ' ' + detail;
+  var isIndoor = /Heritage Bank|Panel|Electrical|LED|Walgreens|Speedway|Northside|Westside|Downtown/i.test(combined);
+  var jtype = isIndoor ? 'indoor' : 'outdoor';
+  block.setAttribute('data-job-type', jtype);
+  var badge = document.createElement('div');
+  badge.className = 'job-block-type ' + jtype;
+  badge.textContent = isIndoor ? '\uD83C\uDFE0 Indoor' : '\u2600\uFE0F Outdoor';
+  block.insertBefore(badge, block.firstChild);
+});
+
+// Payment-ready: job blocks in past day cells
+document.querySelectorAll('.day-cell').forEach(function(cell) {
+  var isPast = cell.classList.contains('past') || cell.classList.contains('overdue-cell');
+  if (isPast) {
+    cell.querySelectorAll('.job-block').forEach(function(b) {
+      if (!b.classList.contains('conflict')) b.classList.add('payment-ready');
+    });
   }
 });
 </script>
