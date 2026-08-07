@@ -477,6 +477,44 @@
       animation: followupScheduled .25s ease;
     }
 
+    /* ── SLOW SEASON sidebar items ───────────────────────────── */
+    .ss-item {
+      background: rgba(79,195,247,0.04);
+      border: 1px solid rgba(79,195,247,0.14);
+      border-radius: 8px;
+      padding: 9px 10px;
+      margin-bottom: 6px;
+    }
+    .ss-item.lost-item {
+      background: rgba(255,255,255,0.03);
+      border-color: rgba(255,255,255,0.10);
+    }
+    .ss-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
+    .ss-name   { font-size:11px; font-weight:700; color:var(--text); flex:1; }
+    .ss-meta   { font-size:9px; color:var(--text-dim); }
+    .ss-age    { font-size:9px; font-weight:700; border-radius:4px; padding:1px 5px; }
+    .ss-age.cold-age { color:rgba(79,195,247,0.90); background:rgba(79,195,247,0.12); border:1px solid rgba(79,195,247,0.25); }
+    .ss-age.lost-age { color:rgba(255,255,255,0.45); background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); }
+    .ss-msg    { font-size:9px; color:var(--text-muted); font-style:italic; line-height:1.45; margin-bottom:6px; }
+    .ss-actions { display:flex; gap:5px; }
+    .ss-btn-send {
+      flex:1; background:rgba(79,195,247,0.14); border:1px solid rgba(79,195,247,0.35);
+      border-radius:6px; color:rgba(79,195,247,0.90); font-size:9px; font-weight:700;
+      padding:4px 8px; cursor:pointer; transition:background .15s;
+    }
+    .ss-btn-send:hover { background:rgba(79,195,247,0.24); }
+    .ss-btn-send.lost-btn {
+      background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.15);
+      color:rgba(255,255,255,0.55);
+    }
+    .ss-btn-snooze {
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10);
+      border-radius:6px; color:var(--text-dim); font-size:9px; font-weight:600;
+      padding:4px 7px; cursor:pointer;
+    }
+    .ss-sent { font-size:9px; font-weight:700; color:var(--green); }
+    .ss-value { font-size:9px; color:var(--text-dim); margin-left:4px; }
+
     /* ── INDOOR / OUTDOOR job type ───────────────────────────── */
     .job-type-badge {
       display: inline-flex;
@@ -1579,8 +1617,24 @@
           <button class="qi-why" aria-expanded="false">Why?<em class="chevron">▾</em></button>
         </div>
         <div class="qi-explain">
-          <div class="qi-explain-inner">Quote gone cold at 22 days. A quick follow-up today could revive an $8.6k job — low effort, high upside. See Smart Nudge on Customers screen.</div>
+          <div class="qi-explain-inner">Quote gone cold at 22 days. A quick follow-up today could revive an $8.6k job — low effort, high upside.</div>
         </div>
+      </div>
+
+      <!-- ── SLOW SEASON OUTREACH ── -->
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:rgba(79,195,247,0.85);">❄️ Slow Season Outreach</div>
+          <div style="font-size:9px;color:var(--text-dim);" id="outreach-count"></div>
+        </div>
+        <div id="slow-season-list"></div>
+        <button id="send-all-followups" style="
+          display:none;width:100%;margin-top:8px;
+          background:rgba(79,195,247,0.12);border:1px solid rgba(79,195,247,0.35);
+          border-radius:7px;color:rgba(79,195,247,0.90);font-size:10px;font-weight:700;
+          padding:6px;cursor:pointer;letter-spacing:0.2px;transition:background .15s;">
+          📬 Queue All Follow-ups
+        </button>
       </div>
 
     </div>
@@ -2022,7 +2076,7 @@
     }
   }
 
-  /* ── Automated outreach follow-up on cold/lost cards ── */
+  /* ── Slow Season Outreach sidebar + card follow-ups ─── */
   var FOLLOWUP_KEY = 'sf-followups';
   var sentFollowups = {};
   try { sentFollowups = JSON.parse(localStorage.getItem(FOLLOWUP_KEY) || '{}'); } catch(e) {}
@@ -2078,8 +2132,105 @@
     card.appendChild(bar);
   });
 
+  /* ── Populate Slow Season sidebar ─────────────────── */
+  var ssList = document.getElementById('slow-season-list');
+  var ssCount = document.getElementById('outreach-count');
+  var sendAllBtn = document.getElementById('send-all-followups');
+  var coldLostCards = Array.from(document.querySelectorAll('.board .card.cold, .board .card.lost'));
+
+  if (ssList && coldLostCards.length) {
+    ssCount.textContent = coldLostCards.length + ' job' + (coldLostCards.length > 1 ? 's' : '');
+    if (coldLostCards.length > 1) sendAllBtn.style.display = 'block';
+
+    coldLostCards.forEach(function(card) {
+      var nameEl = card.querySelector('.card-name');
+      var valEl  = card.querySelector('.card-value');
+      var badgeEl= card.querySelector('.card-status-badge');
+      if (!nameEl) return;
+
+      var jobName = nameEl.textContent.trim();
+      var cardId  = jobName.replace(/[^a-z0-9]/gi,'-').toLowerCase();
+      var isLost  = card.classList.contains('lost');
+      var days = 0;
+      if (badgeEl) { var dm = badgeEl.textContent.match(/(\d+)\s+days/); if (dm) days = parseInt(dm[1]); }
+      if (!days) { var notEl = card.querySelector('.card-notified'); if (notEl) days = daysAgo(parseCardDate(notEl.textContent)); }
+      var val = valEl && !valEl.classList.contains('muted') ? valEl.textContent.trim() : '';
+
+      var item = document.createElement('div');
+      item.className = 'ss-item' + (isLost ? ' lost-item' : '');
+      item.setAttribute('data-card-id', cardId);
+
+      var tpl = isLost
+        ? 'No hard feelings on ' + jobName + '. Mind if we check back in 90 days?'
+        : 'Circling back on ' + jobName + ' — ' + (days||'?') + ' days since we spoke. Still interested?';
+
+      if (sentFollowups[cardId]) {
+        item.innerHTML =
+          '<div class="ss-header"><div class="ss-name">' + jobName + '</div>'
+          + (val ? '<span class="ss-value">' + val + '</span>' : '') + '</div>'
+          + '<div class="ss-sent">✓ Follow-up sent</div>';
+      } else {
+        item.innerHTML =
+          '<div class="ss-header">'
+          + '<div class="ss-name">' + jobName + '</div>'
+          + (val ? '<span class="ss-value">' + val + '</span>' : '')
+          + '<span class="ss-age ' + (isLost ? 'lost-age' : 'cold-age') + '">'
+          + (isLost ? '✕ Lost' : days + 'd silent') + '</span>'
+          + '</div>'
+          + '<div class="ss-msg">"' + tpl + '"</div>'
+          + '<div class="ss-actions">'
+          + '<button class="ss-btn-send' + (isLost ? ' lost-btn' : '') + '" data-card-id="' + cardId + '" data-is-lost="' + isLost + '">'
+          + (isLost ? '🔄 Re-engage' : '📬 Send Now') + '</button>'
+          + '<button class="ss-btn-snooze" data-snooze="' + cardId + '">7d snooze</button>'
+          + '</div>';
+      }
+      ssList.appendChild(item);
+    });
+  }
+
+  sendAllBtn && sendAllBtn.addEventListener('click', function() {
+    coldLostCards.forEach(function(card) {
+      var nameEl = card.querySelector('.card-name');
+      if (!nameEl) return;
+      var cardId = nameEl.textContent.trim().replace(/[^a-z0-9]/gi,'-').toLowerCase();
+      sentFollowups[cardId] = Date.now();
+    });
+    try { localStorage.setItem(FOLLOWUP_KEY, JSON.stringify(sentFollowups)); } catch(x) {}
+    if (ssList) {
+      ssList.querySelectorAll('.ss-item').forEach(function(item) {
+        var n = item.querySelector('.ss-name');
+        var sent = item.querySelector('.ss-sent');
+        if (!sent && n) {
+          item.querySelectorAll('.ss-msg,.ss-actions').forEach(function(el){ el.remove(); });
+          var s = document.createElement('div'); s.className='ss-sent'; s.textContent='✓ Follow-up sent';
+          item.appendChild(s);
+        }
+      });
+    }
+    sendAllBtn.style.display = 'none';
+  });
+
   // Follow-up button actions
   document.addEventListener('click', function(e) {
+    // Sidebar snooze
+    if (e.target.closest('.ss-btn-snooze')) {
+      var snoozeId = e.target.dataset.snooze;
+      var item = e.target.closest('.ss-item');
+      if (item) { item.querySelectorAll('.ss-msg,.ss-actions').forEach(function(el){el.remove();}); var s=document.createElement('div');s.className='ss-sent';s.textContent='⏰ Snoozed 7 days';item.appendChild(s); }
+      return;
+    }
+    // Sidebar send
+    if (e.target.closest('.ss-btn-send')) {
+      var ssBtn = e.target.closest('.ss-btn-send');
+      var cardId2 = ssBtn.dataset.cardId;
+      var item2 = ssBtn.closest('.ss-item');
+      sentFollowups[cardId2] = Date.now();
+      try { localStorage.setItem(FOLLOWUP_KEY, JSON.stringify(sentFollowups)); } catch(x) {}
+      if (item2) { item2.querySelectorAll('.ss-msg,.ss-actions').forEach(function(el){el.remove();}); var s2=document.createElement('div');s2.className='ss-sent';s2.textContent='✓ Follow-up sent';item2.appendChild(s2); }
+      // also update the card on the board
+      var boardBar = document.querySelector('.board [data-card-id="' + cardId2 + '"] .followup-bar, .board .card .followup-bar');
+      return;
+    }
     var btn = e.target.closest('.btn-followup-send, .btn-followup-schedule');
     if (!btn) return;
     var cardId = btn.dataset.cardId;
