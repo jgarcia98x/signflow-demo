@@ -1061,7 +1061,7 @@
     }
 
   /* ══ MOBILE RESPONSIVE ══════════════════════════════════════ */
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
 
     /* Header: stack logo + nav, hide secondary items */
     header {
@@ -2931,6 +2931,54 @@
 
 })();
 </script>
+<style id="sf-touch-ipad">
+  /* ══ v3 TOUCH / iPad OPTIMIZATION LAYER ═════════════════════════ */
+
+  /* iOS 100vh address-bar fix + smooth momentum scrolling on stacked layout */
+  @media (max-width: 1024px){
+    html, body { height: 100dvh; }
+    .main-content { -webkit-overflow-scrolling: touch; }
+    .board-wrap { max-height: 62vh; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+    .col { scroll-snap-align: start; }
+    .ai-sidebar { max-height: none; }
+    .col { min-width: 200px; }          /* wider columns = easier tapping */
+    .card { padding: 13px 13px 11px; }  /* roomier tap area */
+    .card-name { font-size: 14px; }
+  }
+
+  /* Touch devices (phones + all iPads), regardless of exact width:
+     enforce Apple ~44px minimum tap targets + kill iOS input zoom. */
+  @media (pointer: coarse){
+    nav a { min-height: 44px; display: flex; align-items: center; }
+    .filter-pill { min-height: 38px; display: inline-flex; align-items: center; padding: 0 15px; }
+    .btn-new { min-height: 44px; }
+    #sf-bell { width: 44px !important; height: 44px !important; font-size: 17px !important; }
+    .card, nav a, .filter-pill, button, .sfq-btn, .dp-action-btn, .sf-res-dot, .queue-item {
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .card { touch-action: pan-x pan-y; }
+    .sfq-btn { min-height: 44px !important; padding: 11px 16px !important; font-size: 12px !important; }
+    .dp-action-btn { min-height: 48px !important; }
+    #dp-note-add { min-height: 46px !important; padding: 0 16px !important; }
+    .sf-res-dot { width: 26px !important; height: 26px !important; font-size: 10px !important; }
+    .step-item { min-height: 42px; }
+    #dp-close { width: 44px; height: 44px; font-size: 20px; }
+    /* 16px inputs stop iOS Safari from auto-zooming on focus */
+    input, textarea, select, .search-box, #dp-note-input, #nj-name { font-size: 16px !important; }
+  }
+
+  /* Detail panel: full-screen sheet on phones, comfortable drawer on iPad */
+  @media (max-width: 640px){
+    #detail-panel { width: 100% !important; border-left: none; }
+  }
+  @media (min-width: 641px) and (max-width: 1024px){
+    #detail-panel { width: 440px !important; }
+  }
+  /* Notification dropdown: fit small screens */
+  @media (max-width: 640px){
+    #sf-notif-panel { right: 8px !important; left: 8px !important; width: auto !important; }
+  }
+</style>
 <script src="signflow-engine.js"></script>
 
 </body>
