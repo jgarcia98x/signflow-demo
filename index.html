@@ -8,25 +8,25 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --red:          #D32F2F;
-      --red-dark:     #B71C1C;
-      --red-glow:     rgba(211,47,47,0.4);
-      --red-glow-sm:  rgba(211,47,47,0.25);
-      --amber:        #F9A825;
-      --amber-glow:   rgba(249,168,37,0.35);
-      --green:        #66BB6A;
-      --green-glow:   rgba(102,187,106,0.35);
+      --red:          #C2453F;
+      --red-dark:     #A5322D;
+      --red-glow:     rgba(194,69,63,0.16);
+      --red-glow-sm:  rgba(194,69,63,0.10);
+      --amber:        #D9A441;
+      --amber-glow:   rgba(217,164,65,0.14);
+      --green:        #5FA97A;
+      --green-glow:   rgba(95,169,122,0.14);
       --blue-tone:    #7986CB;
       --teal-tone:    #4DD0E1;
 
       /* Glass system */
       --bg:           #0c0c14;
       --bg-mid:       #111118;
-      --surface:      rgba(255,255,255,0.06);
-      --surface-mid:  rgba(255,255,255,0.09);
-      --surface-hi:   rgba(255,255,255,0.13);
-      --border:       rgba(255,255,255,0.10);
-      --border-hi:    rgba(255,255,255,0.20);
+      --surface:      rgba(255,255,255,0.045);
+      --surface-mid:  rgba(255,255,255,0.07);
+      --surface-hi:   rgba(255,255,255,0.10);
+      --border:       rgba(255,255,255,0.075);
+      --border-hi:    rgba(255,255,255,0.14);
 
       /* Text */
       --text:         rgba(255,255,255,0.93);
@@ -34,14 +34,14 @@
       --text-dim:     rgba(255,255,255,0.32);
 
       /* Shadows */
-      --shadow:       0 2px 16px rgba(0,0,0,0.5);
-      --shadow-md:    0 4px 28px rgba(0,0,0,0.6);
-      --shadow-card:  0 4px 20px rgba(0,0,0,0.45);
+      --shadow:       0 2px 14px rgba(0,0,0,0.42);
+      --shadow-md:    0 6px 26px rgba(0,0,0,0.5);
+      --shadow-card:  0 3px 16px rgba(0,0,0,0.34);
 
       /* Column tones */
-      --tone-a:    #7986CB;
-      --tone-b:    #4DD0E1;
-      --tone-c:    #66BB6A;
+      --tone-a:    #8189B8;
+      --tone-b:    #6FB3BF;
+      --tone-c:    #5FA97A;
     }
 
     html, body { height: 100%; }
@@ -58,7 +58,7 @@
 
     /* ── HEADER ─────────────────────────────────────────────── */
     header {
-      background: rgba(180,30,30,0.82);
+      background: rgba(24,25,30,0.86);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid rgba(255,255,255,0.12);
@@ -1150,6 +1150,80 @@
     .card { padding: 10px 10px 8px; }
     .card-name { font-size: 13px; }
   }
+
+    /* ══ v3 REFINEMENT LAYER — calmer, Apple-inspired ══════════════
+       Quiets neon glow, softens cards, tidies type. Structural rules
+       above are preserved; these only adjust visual weight. */
+    body{
+      background: radial-gradient(ellipse at 32% -6%, #17161f 0%, var(--bg) 62%);
+      font-size:13.5px;
+      -webkit-font-smoothing:antialiased;
+      letter-spacing:-0.005em;
+    }
+    /* kill neon text glow everywhere */
+    .stat-val, .stat-val.red, .stat-val.amber, .stat-val.green,
+    .card-value, .col-title, .sidebar-title, .logo{ text-shadow:none !important; }
+
+    /* softer cards: no colored glow ring, gentle lift */
+    .card{
+      background:rgba(255,255,255,0.042) !important;
+      border:1px solid rgba(255,255,255,0.075) !important;
+      border-radius:13px !important;
+      box-shadow:0 1px 2px rgba(0,0,0,0.22) !important;
+      transition:background .16s ease, border-color .16s ease, transform .06s ease !important;
+    }
+    .card:hover{
+      background:rgba(255,255,255,0.065) !important;
+      border-color:rgba(255,255,255,0.14) !important;
+      box-shadow:0 4px 16px rgba(0,0,0,0.3) !important;
+      transform:none !important;
+    }
+    /* status conveyed by a quiet left edge instead of a glowing border */
+    .card{ position:relative; overflow:hidden; }
+    .card::after{
+      content:''; position:absolute; left:0; top:0; bottom:0; width:2px;
+      background:transparent; border-radius:2px 0 0 2px;
+    }
+    .card.urgent::after{ background:var(--red); }
+    .card.high::after{ background:var(--amber); }
+    .card.cold::after{ background:#5A93C4; }
+    .card.done::after{ background:var(--green); }
+    .card.lost::after{ background:rgba(255,255,255,0.16); }
+
+    /* quieter status tags */
+    .priority-label{
+      font-size:10px !important; font-weight:600 !important;
+      background:rgba(255,255,255,0.05) !important;
+      border:1px solid rgba(255,255,255,0.08) !important;
+      box-shadow:none !important; letter-spacing:0.1px !important;
+    }
+    .parallel-badge, .job-type-badge, .days-badge, .payment-badge, .qb-badge{
+      box-shadow:none !important; font-weight:600 !important; letter-spacing:0.2px !important;
+    }
+    .parallel-badge{ background:rgba(217,164,65,0.10) !important; border:1px solid rgba(217,164,65,0.22) !important; }
+
+    /* typography hierarchy */
+    .card-name{ font-size:13.5px !important; font-weight:600 !important; letter-spacing:-0.01em !important; line-height:1.32 !important; }
+    .card-client{ font-size:11.5px !important; color:var(--text-muted) !important; font-weight:400 !important; }
+    .card-value{ font-weight:650 !important; font-variant-numeric:tabular-nums; }
+    .col-title{ font-size:11.5px !important; font-weight:650 !important; letter-spacing:0.6px !important; }
+    .stat-val{ font-variant-numeric:tabular-nums; font-weight:650 !important; letter-spacing:-0.02em !important; }
+
+    /* breathing room */
+    .card{ padding:13px 14px !important; }
+    .col-list, .board{ gap:10px !important; }
+    header{ border-bottom:1px solid rgba(255,255,255,0.08) !important; }
+    .logo{ font-weight:650 !important; letter-spacing:-0.01em !important; }
+    nav a{ font-weight:500 !important; }
+    nav a.active{ background:rgba(255,255,255,0.08) !important; }
+    .ai-banner{
+      background:rgba(194,69,63,0.07) !important;
+      border-bottom:1px solid rgba(194,69,63,0.16) !important;
+      box-shadow:none !important;
+    }
+    .btn-new{ box-shadow:none !important; font-weight:600 !important; }
+    .queue-item{ border-radius:12px !important; box-shadow:none !important; }
+    .stats-bar{ background:rgba(255,255,255,0.025) !important; }
   </style>
 </head>
 <body>
@@ -2425,6 +2499,13 @@
     <div id="dp-steps"></div>
     <div id="dp-actions-title">Quick Actions</div>
     <div id="dp-actions"></div>
+    <div id="dp-note-title">Notes</div>
+    <div id="dp-note-wrap">
+      <input id="dp-note-input" type="text" placeholder="Add a note…" />
+      <button id="dp-note-add">Add</button>
+    </div>
+    <div id="dp-feed-title">Activity &amp; History</div>
+    <div id="dp-feed"></div>
     <div id="dp-advance-wrap"></div>
   </div>
 </div>
@@ -2506,6 +2587,41 @@
   color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:8px;
 }
 #dp-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
+/* ── Notes + Activity feed (v3) ─────────────────────────────── */
+#dp-note-title,#dp-feed-title{
+  font-size:9px;text-transform:uppercase;letter-spacing:0.7px;
+  color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:8px;
+}
+#dp-note-wrap{display:flex;gap:6px;margin-bottom:18px;}
+#dp-note-input{
+  flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);
+  border-radius:8px;padding:8px 10px;color:#fff;font-size:12px;font-family:inherit;
+}
+#dp-note-input:focus{outline:none;border-color:rgba(194,69,63,0.5);}
+#dp-note-input::placeholder{color:rgba(255,255,255,0.28);}
+#dp-note-add{
+  background:rgba(194,69,63,0.85);border:none;color:#fff;font-weight:600;
+  font-size:12px;padding:8px 13px;border-radius:8px;cursor:pointer;font-family:inherit;
+}
+#dp-note-add:hover{background:#C2453F;}
+#dp-feed{display:flex;flex-direction:column;margin-bottom:18px;padding-left:3px;}
+.dp-fitem{display:flex;gap:10px;padding:7px 0;position:relative;}
+.dp-fitem::before{
+  content:'';position:absolute;left:4px;top:16px;bottom:-7px;width:1px;
+  background:rgba(255,255,255,0.09);
+}
+.dp-fitem:last-child::before{display:none;}
+.dp-fdot{
+  width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px;z-index:1;
+  background:rgba(255,255,255,0.18);box-shadow:0 0 0 2px #12121f;
+}
+.dp-fdot.stage{background:#C2453F;}
+.dp-fdot.note{background:#5A93C4;}
+.dp-fdot.action{background:#D9A441;}
+.dp-fdot.impact{background:#5FA97A;}
+.dp-ftext{flex:1;font-size:12px;color:rgba(255,255,255,0.78);line-height:1.4;}
+.dp-fmeta{font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;}
+
 #dp-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:18px;}
 .dp-action-btn{
   background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
@@ -2695,12 +2811,12 @@
     var clientName = (card.querySelector('.card-client')||{}).textContent||'client';
     var jobName    = (card.querySelector('.card-name')||{}).textContent||'job';
     var actions = [
-      {icon:'📞', label:'Call Client',   fn:function(){ toast('Calling '+clientName+'…','📞'); }},
-      {icon:'💬', label:'Send Message',  fn:function(){ toast('Message drafted for '+clientName,'💬'); }},
-      {icon:'📄', label:'Send Invoice',  fn:function(){ toast('Invoice sent to '+clientName+' ✓','📄'); }},
+      {icon:'📞', label:'Call Client',   fn:function(){ SFLog.add(card,'action','Called '+clientName); SFLog.renderFeed(card); toast('Calling '+clientName+'… · logged','📞'); }},
+      {icon:'💬', label:'Send Message',  fn:function(){ SFLog.add(card,'action','Message sent to '+clientName); SFLog.renderFeed(card); toast('Message sent · logged','💬'); }},
+      {icon:'📄', label:'Send Invoice',  fn:function(){ SFLog.add(card,'action','Invoice sent to '+clientName); SFLog.renderFeed(card); toast('Invoice sent ✓ · logged','📄'); }},
       {icon:'📋', label:'Copy Link',     fn:function(){ toast('Job link copied','📋'); }},
-      {icon:'📸', label:'Add Photo',     fn:function(){ toast('Photo upload coming soon','📸'); }},
-      {icon:'📝', label:'Add Note',      fn:function(){ toast('Note saved ✓','📝'); }},
+      {icon:'📸', label:'Add Photo',     fn:function(){ SFLog.add(card,'action','Photo attached'); SFLog.renderFeed(card); toast('Photo attached · logged','📸'); }},
+      {icon:'📝', label:'Add Note',      fn:function(){ var i=document.getElementById('dp-note-input'); i&&i.focus(); }},
     ];
     var dpAct = document.getElementById('dp-actions');
     dpAct.innerHTML = '';
@@ -2758,16 +2874,41 @@
           return (c.querySelector('.col-title')||{}).textContent.trim() === nextStage.name;
         });
         if (targetCol && activeCard) {
+          var fromStage = stage;
           targetCol.appendChild(activeCard);
           if (typeof updateColBadges === 'function') updateColBadges();
           if (typeof updateJobCount === 'function') updateJobCount();
-          toast('Moved to ' + nextStage.name + ' ✓', '→');
+          SFLog.add(activeCard,'stage','Stage: '+fromStage+' \u2192 '+nextStage.name);
+          if (activeCard.classList.contains('urgent')) {
+            SFLog.add(activeCard,'impact','\u23F1\uFE0F Started ahead of schedule');
+            activeCard.setAttribute('data-early','1');
+          }
+          if (typeof SFImpact !== 'undefined') SFImpact.refresh();
+          toast('Moved to ' + nextStage.name + ' \u2713 · logged', '\u2192');
           closePanel();
         }
       });
       wrap.appendChild(advBtn);
     } else if (stageIdx === STAGES.length-1) {
       wrap.innerHTML = '<div style="text-align:center;font-size:11px;color:var(--green);font-weight:700;padding:12px;">✓ Job Complete — ready to archive</div>';
+    }
+
+    /* ── Activity feed + notes (v3) ── */
+    if (window.SFLog) {
+      SFLog.renderFeed(card);
+      var noteInput = document.getElementById('dp-note-input');
+      var noteAdd   = document.getElementById('dp-note-add');
+      if (noteInput) noteInput.value = '';
+      function submitNote(){
+        var v = (noteInput.value||'').trim();
+        if(!v) return;
+        SFLog.add(card,'note','\u{1F4DD} '+v);
+        noteInput.value='';
+        SFLog.renderFeed(card);
+        toast('Note saved \u2713','\u{1F4DD}');
+      }
+      if (noteAdd)   noteAdd.onclick = submitNote;
+      if (noteInput) noteInput.onkeydown = function(e){ if(e.key==='Enter') submitNote(); };
     }
 
     panel.classList.add('open');
@@ -2790,7 +2931,8 @@
 
 })();
 </script>
+<script src="signflow-engine.js"></script>
 
 </body>
 </html>
-<!-- v2 1785898175 -->
+<!-- v3 signflow-engine -->
