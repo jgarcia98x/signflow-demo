@@ -501,6 +501,12 @@
 })();
 </script>
 <style id="sf-touch-ipad">
+/* Desktop/landscape-iPad: keep nav a single horizontal row, never wrap vertically */
+@media (min-width:1025px){
+  header nav{display:flex;align-items:center;gap:2px;flex-shrink:0;flex-wrap:nowrap;white-space:nowrap;}
+  header nav a{white-space:nowrap;}
+}
+
 /* Touch targets + iOS no-zoom + prevent horizontal blowout on iPad */
 @media (pointer: coarse){
   nav a{min-height:44px;display:flex;align-items:center;}

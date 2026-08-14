@@ -83,7 +83,17 @@
 
     .header-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.2); }
 
+    /* Nav must stay a single horizontal row — never wrap vertically (iPad landscape bug) */
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+    }
     nav a {
+      white-space: nowrap;
       color: rgba(255,255,255,0.70);
       text-decoration: none;
       font-size: 13px;
