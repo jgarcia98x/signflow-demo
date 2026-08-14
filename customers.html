@@ -504,7 +504,7 @@
     .stats-meta { margin-left: auto; font-size: 11px; color: var(--text-dim); }
 
   /* ══ MOBILE RESPONSIVE ══════════════════════════════════════ */
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
 
     /* Header: stack logo + nav, hide secondary items */
     header {
@@ -1476,5 +1476,20 @@
 })();
 </script>
 
+<style id="sf-touch-ipad">
+/* Touch targets + iOS no-zoom + prevent horizontal blowout on iPad */
+@media (pointer: coarse){
+  nav a{min-height:44px;display:flex;align-items:center;}
+  button,.btn-new,.filter-pill,.tab,.pill{min-height:44px;}
+  input,textarea,select{font-size:16px !important;}
+  *{-webkit-tap-highlight-color:transparent;}
+}
+@media (max-width:1024px){
+  html,body{min-height:100dvh;}
+  body{overflow-x:hidden;}
+  /* wide tables/calendars scroll instead of breaking the page */
+  table{max-width:100%;}
+}
+</style>
 </body>
 </html>

@@ -214,7 +214,7 @@
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* ── MOBILE ── */
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
       header { flex-wrap: wrap; height: auto; padding: 10px 14px 0; gap: 8px; }
       .header-sep { display: none; } .date-chip { display: none; } .avatar { display: none; }
       .header-right { margin-left: auto; }
@@ -455,5 +455,20 @@
   };
 })();
 </script>
+<style id="sf-touch-ipad">
+/* Touch targets + iOS no-zoom + prevent horizontal blowout on iPad */
+@media (pointer: coarse){
+  nav a{min-height:44px;display:flex;align-items:center;}
+  button,.btn-new,.filter-pill,.tab,.pill{min-height:44px;}
+  input,textarea,select{font-size:16px !important;}
+  *{-webkit-tap-highlight-color:transparent;}
+}
+@media (max-width:1024px){
+  html,body{min-height:100dvh;}
+  body{overflow-x:hidden;}
+  /* wide tables/calendars scroll instead of breaking the page */
+  table{max-width:100%;}
+}
+</style>
 </body>
 </html>

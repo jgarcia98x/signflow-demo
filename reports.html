@@ -225,7 +225,7 @@
     @keyframes tIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
     @keyframes tOut{from{opacity:1}to{opacity:0}}
 
-    @media(max-width:900px){.two-col,.three-col,.kpi-row,.insights-grid{grid-template-columns:1fr;}}
+    @media(max-width:1024px){.two-col,.three-col,.kpi-row,.insights-grid{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
@@ -751,5 +751,20 @@
 
 })();
 </script>
+<style id="sf-touch-ipad">
+/* Touch targets + iOS no-zoom + prevent horizontal blowout on iPad */
+@media (pointer: coarse){
+  nav a{min-height:44px;display:flex;align-items:center;}
+  button,.btn-new,.filter-pill,.tab,.pill{min-height:44px;}
+  input,textarea,select{font-size:16px !important;}
+  *{-webkit-tap-highlight-color:transparent;}
+}
+@media (max-width:1024px){
+  html,body{min-height:100dvh;}
+  body{overflow-x:hidden;}
+  /* wide tables/calendars scroll instead of breaking the page */
+  table{max-width:100%;}
+}
+</style>
 </body>
 </html>
