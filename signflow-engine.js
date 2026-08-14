@@ -116,11 +116,11 @@
       var act=actionFor(card);
       var wrap=document.createElement('div');
       wrap.className='sfq-actions';
-      wrap.style.cssText='display:flex;gap:6px;margin-top:9px;flex-wrap:wrap;';
+      wrap.style.cssText='display:flex;gap:6px;margin:2px 11px 11px;';
       var btn=document.createElement('button');
       btn.className='sfq-btn';
       btn.textContent=act.label;
-      btn.style.cssText='background:rgba(194,69,63,0.9);border:none;color:#fff;font-weight:600;font-size:11px;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit;';
+      btn.style.cssText='flex:1;background:rgba(194,69,63,0.95);border:none;color:#fff;font-weight:700;font-size:12px;padding:9px 12px;border-radius:8px;cursor:pointer;font-family:inherit;';
       btn.onmouseover=function(){ btn.style.background='#C2453F'; };
       btn.onmouseout=function(){ btn.style.background='rgba(194,69,63,0.9)'; };
       btn.onclick=function(e){
@@ -143,8 +143,9 @@
         SFImpact.refresh();
       };
       wrap.appendChild(btn);
-      var expl=item.querySelector('.qi-explain, .qi-why');
-      if(expl && expl.parentNode){ expl.parentNode.insertBefore(wrap, expl); }
+      /* place as its own full-width row BELOW the item's main row (never inside the flex row that holds the name) */
+      var row=item.querySelector('.qi-row');
+      if(row && row.parentNode){ row.parentNode.insertBefore(wrap, row.nextSibling); }
       else item.appendChild(wrap);
     });
   }

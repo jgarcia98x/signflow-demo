@@ -2988,6 +2988,29 @@
   @media (max-width: 640px){
     #sf-notif-panel { right: 8px !important; left: 8px !important; width: auto !important; }
   }
+
+  /* ══ Smart Queue readability ══ */
+  /* Job names wrap and stay legible instead of truncating to "K.." */
+  .ai-sidebar .qi-name{
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+    font-weight: 600 !important;
+  }
+  /* Opaque sticky header so scrolled items don't bleed through it */
+  .ai-sidebar .sidebar-header{
+    background: #17100f !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  /* Action buttons: full-width, comfortable tap size, readable */
+  .sfq-actions{ display:flex; gap:6px; margin:2px 11px 11px !important; }
+  .sfq-btn{ flex:1; min-height:40px; }
+  /* Keep the "Why?" toggle from being clipped at the right edge */
+  .ai-sidebar .qi-why{ white-space:nowrap; flex-shrink:0; }
+  .ai-sidebar .qi-row{ flex-wrap:wrap; }
 </style>
 <script src="signflow-engine.js"></script>
 
