@@ -375,9 +375,30 @@
     wrap.appendChild(b);
   }
 
+  /* Fill the leftover run at the bottom of sparse columns with a quiet
+     "+ Add job" slot, so the space reads as intentional rather than empty.
+     Cards stay content-sized (stretching them looked hollow). */
+  function initColumnSlots(){
+    var cols=document.querySelectorAll('.board .col');
+    Array.prototype.forEach.call(cols, function(col){
+      if(col.querySelector('.sf-slot')) return;
+      var b=document.createElement('button');
+      b.type='button'; b.className='sf-slot';
+      b.textContent='+ Add job';
+      b.title='Add a job to this stage';
+      b.addEventListener('click', function(){
+        var nb=document.querySelector('.btn-new');
+        if(nb) nb.click();
+        else if(typeof window.toast==='function') window.toast('New job','\uD83D\uDCCB');
+      });
+      col.appendChild(b);
+    });
+  }
+
   function boot(){
     try{ initDensity(); }catch(e){ console.warn('DENS',e); }
     try{ initQueueToggle(); }catch(e){ console.warn('QT',e); }
+    try{ initColumnSlots(); }catch(e){ console.warn('SLOT',e); }
     try{ initSmartQueue(); }catch(e){ console.warn('SFQ',e); }
     try{ initResources(); }catch(e){ console.warn('RES',e); }
     try{ initImpact(); }catch(e){ console.warn('IMP',e); }

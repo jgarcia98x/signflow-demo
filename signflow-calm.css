@@ -253,12 +253,18 @@ html.density-compact .card .outsourced-badge,
 html.density-compact .card .stat-sep{
   display: none !important;
 }
-html.density-compact .card{ padding: 12px 14px !important; }
-/* keep the money + due on one tidy line */
+html.density-compact .card{ padding: 11px 13px !important; }
+/* keep the money + due on one tidy line; tighter internal rhythm so the
+   value sits close to the date row instead of floating */
 html.density-compact .card .card-row{
   display: flex !important; align-items: center !important;
-  justify-content: space-between !important; gap: 8px; margin: 6px 0 0 !important;
+  justify-content: space-between !important; gap: 8px; margin: 4px 0 0 !important;
 }
+html.density-compact .card .card-name{ margin-bottom: 1px !important; }
+/* cards with no dollar figure (TBD) were the only hollow ones — pull the
+   value up so every card is anchored the same way */
+html.density-compact .card .card-value.muted{ margin-top: 0 !important; }
+html.density-compact .card{ min-height: 0 !important; }
 html.density-compact .card .card-row:empty{ display: none !important; }
 
 /* ── 7a. QUIET THE FOCUS BAR ──────────────────────────────────────
@@ -365,6 +371,38 @@ html.queue-collapsed .col{ min-width: 150px !important; }
    column of cards reads as a calm stack rather than ragged blocks. */
 .card{ min-height: 76px; display: flex; flex-direction: column; justify-content: center; }
 html.density-compact .card{ min-height: 72px; }
+
+/* ══ COMPACT: DEAD SPACE ══════════════════════════════════
+   Tried stretching cards to fill the column; it just relocated the emptiness
+   from the column bottom INTO each card (hollow cards in "Compact" mode).
+   Correct fix: keep cards content-sized, and make the leftover space
+   intentional with a quiet drop/add slot that absorbs the remainder. */
+html.density-compact .col{ display: flex; flex-direction: column; }
+html.density-compact .col .card{ flex: 0 0 auto; }
+
+.sf-slot{
+  /* fixed, modest height — a slot that stretched to fill looked accidental;
+     the leftover run below it stays as clean whitespace */
+  flex: 0 0 auto;
+  height: 46px;
+  margin: 2px 0 4px;
+  border: 1px dashed rgba(255,255,255,0.10);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.22);
+  font-size: 11px; font-weight: 500;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+  background: transparent;
+  font-family: inherit;
+}
+.sf-slot:hover{
+  border-color: rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.02);
+}
+/* only show the slot in compact mode, where the gap actually appears */
+html:not(.density-compact) .sf-slot{ display: none; }
 
 .board-wrap{ position: relative; }
 .board-wrap::after{
