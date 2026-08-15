@@ -1,0 +1,355 @@
+/* ══════════════════════════════════════════════════════════════════
+   SignFlow — "Calm" layer  (Apple Health inspired)
+   Pure visual. No logic, no data, no ranking changes.
+   Loaded LAST so it wins without !important wars where possible.
+
+   1. One accent, not six      5. Quiet marks, not emoji
+   2. No glows                 6. Air (spacing + type hierarchy)
+   3. Compact really compacts  7. Quiet Focus bar + stats strip
+   4. Red = overdue only       8. Crew dots: exceptions only
+   ══════════════════════════════════════════════════════════════════ */
+
+:root{
+  --calm-ink:        rgba(255,255,255,0.94);
+  --calm-ink-2:      rgba(255,255,255,0.58);
+  --calm-ink-3:      rgba(255,255,255,0.34);
+  --calm-hair:       rgba(255,255,255,0.07);
+  --calm-hair-hi:    rgba(255,255,255,0.12);
+  --calm-surface:    rgba(255,255,255,0.035);
+  --calm-alert:      #E5534B;   /* the ONLY alarm color */
+  --calm-elev:       0 1px 2px rgba(0,0,0,0.28), 0 6px 20px rgba(0,0,0,0.22);
+}
+
+/* ── 2. KILL EVERY GLOW ───────────────────────────────────────────
+   Luminous text/box shadows are the main "neon" tell. Shadows are for
+   elevation only: soft, black, low-opacity. */
+.logo, .sidebar-title, .col-title, .stat-val, .card-name, .card-value,
+.priority-label, .qi-name, .qi-num, .hot-name, .hot-action,
+.col-badge, .col-revenue, .parallel-badge, .qb-badge, .payment-badge{
+  text-shadow: none !important;
+}
+.card, .card:hover, .col, .col-header, .queue-item, .btn-new, .btn-new:hover,
+.filter-pill, .filter-pill.active, .qi-num, .sidebar-header, .avatar,
+.ai-banner, .stats-bar, .search-box, .card.hottest, nav a.active,
+.sfq-btn, .card-status-badge, .priority-label{
+  box-shadow: none !important;
+}
+/* restore *real* elevation on the one surface that should float */
+.card{ box-shadow: var(--calm-elev) !important; }
+
+/* ── 1. ONE ACCENT, NOT SIX ───────────────────────────────────────
+   Column identity drops to neutral type; the column's hue survives only
+   as a small dot, so the board still reads as a pipeline. */
+/* inline style="background:rgba(<tone>,0.03)" on each .col tints whole columns
+   (QUOTE's pink read as a red wash) — override to one neutral surface. */
+.col{ background: rgba(255,255,255,0.012) !important; }
+.col[style]{ background: rgba(255,255,255,0.012) !important; }
+.col-header{
+  border: none !important;                 /* was 1.5px solid var(--col-tone) */
+  border-bottom: 1px solid var(--calm-hair) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 10px 4px !important;
+}
+.col-header:hover{ box-shadow: none !important; }
+
+/* Bottleneck warning (.col-overloaded) is real signal — keep the meaning,
+   drop the neon. Quiet amber text + a small dot, no glow ring. */
+.col-header.col-overloaded{
+  border: none !important;
+  border-bottom: 1px solid rgba(229,83,75,0.35) !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+.col-header.col-overloaded .col-title{
+  color: rgba(229,83,75,0.82) !important;
+  text-shadow: none !important;
+}
+.col-header.col-overloaded .col-title::before{ background: var(--calm-alert) !important; }
+.col-header.col-overloaded .col-badge{
+  background: rgba(229,83,75,0.14) !important;
+  border: none !important;
+  color: rgba(229,83,75,0.90) !important;
+}
+/* hottest-job outline ring → quiet border, no orange halo */
+.card.hottest{ outline: none !important; }
+/* .card.urgent's animated glow (var(--vi)) → flat */
+.card.urgent{ box-shadow: var(--calm-elev) !important; }
+.days-badge.days-critical{
+  color: rgba(229,83,75,0.85) !important;
+  background: rgba(229,83,75,0.10) !important;
+  border-color: rgba(229,83,75,0.28) !important;
+}
+.col-title{
+  color: var(--calm-ink-2) !important;      /* was var(--col-tone) */
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.7px !important;
+  text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+/* the surviving hue: one quiet 6px dot */
+.col-title::before{
+  content:""; width:6px; height:6px; border-radius:50%;
+  background: var(--col-tone, rgba(255,255,255,0.3));
+  opacity:0.75; flex-shrink:0;
+}
+/* the col-badge was a neon source: color-mix border + tinted fill */
+.col-badge{
+  background: rgba(255,255,255,0.07) !important;   /* was color-mix(--col-tone 18%) */
+  color: var(--calm-ink-2) !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+  text-shadow: none !important;
+}
+/* neutralize any color-mix tinting driven by --col-tone on column chrome */
+.col-header, .col-header *{ box-shadow: none !important; text-shadow: none !important; }
+.col-revenue{ box-shadow:none !important; }
+
+/* outsourced/vendor pills: quiet in expanded, gone in compact */
+.outsourced-badge{
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid var(--calm-hair) !important;
+  color: var(--calm-ink-3) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  font-weight: 500 !important;
+}
+/* vendor-wait left accent shouldn't tint the whole card */
+.card[data-outsourced]{ border-left-color: var(--calm-hair) !important; }
+
+/* residual glow on status dots */
+.card::after, .priority-label::before, .col-title::before{ box-shadow: none !important; filter: none !important; }
+
+/* stats strip: the "Last synced … / Garcia Sign & Electric" note was crammed
+   mid-row (.stats-bar is nowrap, so it can't be wrapped to its own line).
+   It's ambient info, not a KPI — remove it from the number rhythm entirely. */
+.stats-meta{ display: none !important; }
+.col-revenue{ color: var(--calm-ink-3) !important; font-weight: 500 !important; }  /* was color-mix(--col-tone 70%) */
+
+/* URGENT cards: no glowing outline — the quiet left edge already carries it */
+.card.urgent, .card.parallel, .card.hottest{
+  border-color: var(--calm-hair) !important;
+  border-left-color: var(--calm-hair) !important;
+}
+/* urgency lives in the left edge + label dot only — no full-perimeter tint */
+.card.urgent{ border-color: var(--calm-hair) !important; }
+
+/* the ⚠ in a column badge is literal text — mute it rather than shout */
+.col-badge{ color: var(--calm-ink-2) !important; }
+
+/* ── 4. RED MEANS OVERDUE. PERIOD. ────────────────────────────────
+   Everything that was red-for-decoration goes neutral. */
+.filter-pill.active{
+  background: rgba(255,255,255,0.10) !important;
+  border-color: var(--calm-hair-hi) !important;
+  color: var(--calm-ink) !important;
+}
+.sidebar-header{
+  border-top: none !important;
+  border-bottom: 1px solid var(--calm-hair) !important;
+  background: #16161c !important;
+}
+.sidebar-title{ color: var(--calm-ink) !important; font-weight: 600 !important; }
+.sidebar-subtitle{ color: var(--calm-ink-3) !important; }
+.qi-num{
+  background: rgba(255,255,255,0.07) !important;
+  color: var(--calm-ink-2) !important;
+  border: none !important;
+}
+.sfq-btn{
+  background: rgba(255,255,255,0.11) !important;
+  color: var(--calm-ink) !important;
+  font-weight: 600 !important;
+  border: 1px solid var(--calm-hair-hi) !important;
+}
+.sfq-btn:hover{ background: rgba(255,255,255,0.17) !important; }
+/* left status edge: neutral by default … */
+.card::after{ background: rgba(255,255,255,0.13) !important; }
+/* … red ONLY for genuinely overdue/urgent work */
+.card.urgent::after{ background: var(--calm-alert) !important; }
+.card.done::after,
+.card.cold::after,
+.card.lost::after{ background: rgba(255,255,255,0.10) !important; }
+
+/* ── 5. QUIET MARKS, NOT EMOJI ────────────────────────────────────
+   Hide the emoji glyph inside status labels, replace with a small dot.
+   Text label stays, so meaning is preserved for screen readers. */
+.priority-label{
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px !important;
+  text-transform: uppercase;
+  display: inline-flex !important; align-items: center; gap: 6px;
+  /* hide the ORIGINAL text node (emoji + word) without duplicating it:
+     zero out the glyphs, then re-emit a clean label in ::after */
+  font-size: 0 !important;
+  line-height: 1.2 !important;
+  color: transparent !important;
+}
+.priority-label::before{
+  content:""; width:6px; height:6px; border-radius:50%;
+  background: var(--pl-tone, rgba(255,255,255,0.32)); flex-shrink:0;
+}
+.priority-label::after{
+  font-size: 10.5px !important;
+  letter-spacing: 0.3px;
+  color: var(--pl-tone, var(--calm-ink-3));
+}
+.priority-label.urgent{ --pl-tone: var(--calm-alert); }
+.priority-label.high{ --pl-tone: rgba(255,255,255,0.50); }
+.priority-label.normal{ --pl-tone: rgba(255,255,255,0.32); }
+.priority-label.urgent::after{ content:"Urgent"; }
+.priority-label.high::after{ content:"High"; }
+.priority-label.normal::after{ content:"Normal"; }
+/* any other variant: show a neutral dot only, no duplicated word */
+.priority-label:not(.urgent):not(.high):not(.normal)::after{ content:""; }
+
+/* ── 6. AIR + TYPE HIERARCHY ──────────────────────────────────────
+   One bold element per card (the money). Everything else recedes. */
+.card{
+  background: var(--calm-surface) !important;
+  border: 1px solid var(--calm-hair) !important;
+  border-radius: 14px !important;
+  padding: 14px 15px !important;
+  margin-bottom: 11px !important;
+}
+.card-name{
+  font-size: 13px !important;
+  font-weight: 500 !important;      /* not bold — the value is the anchor */
+  color: var(--calm-ink) !important;
+  line-height: 1.35 !important;
+  letter-spacing: -0.1px;
+}
+.card-value{
+  font-size: 15px !important;
+  font-weight: 700 !important;      /* the ONE bold thing */
+  color: var(--calm-ink) !important;
+  letter-spacing: -0.3px;
+}
+.card-value.muted{ color: var(--calm-ink-3) !important; font-weight: 600 !important; }
+.card-client{ color: var(--calm-ink-3) !important; font-size: 11px !important; }
+.card-due{ color: var(--calm-ink-2) !important; font-size: 11px !important; font-weight: 500 !important; }
+.card-due.soon{ color: var(--calm-alert) !important; }
+.col{ padding: 0 10px 10px !important; }
+
+/* ── 3. COMPACT REALLY COMPACTS ───────────────────────────────────
+   A compact card = name · value · due · one status dot. Nothing else.
+   (Closes the gap where cold banners + follow-up drafts still showed.) */
+html.density-compact .card .followup-preview,
+html.density-compact .card .followup-actions,
+html.density-compact .card .btn-followup-send,
+html.density-compact .card .btn-followup-schedule,
+html.density-compact .card .card-status-badge,
+html.density-compact .card .cold-badge,
+html.density-compact .card .lost-badge,
+html.density-compact .card .qi-vendor-window,
+html.density-compact .card .outsourced-badge,
+html.density-compact .card .stat-sep{
+  display: none !important;
+}
+html.density-compact .card{ padding: 12px 14px !important; }
+/* keep the money + due on one tidy line */
+html.density-compact .card .card-row{
+  display: flex !important; align-items: center !important;
+  justify-content: space-between !important; gap: 8px; margin: 6px 0 0 !important;
+}
+html.density-compact .card .card-row:empty{ display: none !important; }
+
+/* ── 7a. QUIET THE FOCUS BAR ──────────────────────────────────────
+   Was a loud orange shout-banner; now a single calm line. */
+.ai-banner{
+  background: rgba(255,255,255,0.03) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--calm-hair) !important;
+  color: var(--calm-ink-2) !important;
+  font-size: 12px !important;
+  padding: 9px 24px !important;
+  font-weight: 500 !important;
+}
+.ai-banner strong{ color: var(--calm-ink-2) !important; font-weight: 600 !important; }
+.ai-banner > span:first-child{ display: none !important; }  /* 🔥 */
+.hot-name{ color: var(--calm-ink) !important; font-weight: 600 !important; }
+.hot-action{
+  color: var(--calm-ink-3) !important;
+  font-weight: 500 !important;
+  background: none !important;
+}
+.card.hottest{ border-color: rgba(255,255,255,0.20) !important; }
+
+/* ── 7b. QUIET THE STATS STRIP ────────────────────────────────────
+   11 competing numbers → a calm row; only overdue keeps its color. */
+.stats-bar{
+  background: rgba(255,255,255,0.02) !important;
+  border-top: 1px solid var(--calm-hair) !important;
+  gap: 26px !important;
+  padding: 11px 24px !important;
+}
+.stat-val{ color: var(--calm-ink) !important; font-weight: 600 !important; font-size: 13px !important; }
+.stat-val.green, .stat-val.amber{ color: var(--calm-ink) !important; }  /* neutralize */
+.stat-val.red{ color: var(--calm-alert) !important; }                   /* overdue only */
+.stat-label{
+  color: var(--calm-ink-3) !important;
+  font-size: 9.5px !important;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: 500 !important;
+}
+/* de-emphasize secondary stats so the eye lands on the few that matter */
+.stat:nth-child(n+9) .stat-val{ color: var(--calm-ink-2) !important; font-weight: 500 !important; }
+/* strip decorative emoji from stat labels (⚡ Parallel, ❄️ Cold) */
+.stat-label{ font-variant-emoji: text; }
+.stat-sep{ background: var(--calm-hair) !important; }
+.stats-meta{ color: var(--calm-ink-3) !important; font-size: 10px !important; }
+
+/* ── 8. CREW DOTS: SHOW ONLY EXCEPTIONS ───────────────────────────
+   A wall of identical green = zero information. Free days go faint;
+   only partial/busy carry color. */
+.sf-res-dot{ box-shadow: none !important; border: none !important; }
+.sf-res-dot[data-state="free"]{
+  background: rgba(255,255,255,0.07) !important;
+  color: var(--calm-ink-3) !important;
+}
+.sf-res-dot[data-state="partial"]{
+  background: rgba(217,164,65,0.22) !important;
+  color: rgba(240,200,120,0.95) !important;
+}
+.sf-res-dot[data-state="busy"]{
+  background: rgba(229,83,75,0.20) !important;
+  color: rgba(255,150,140,0.95) !important;
+}
+
+/* ── Header / chrome: neutral ─────────────────────────────────────*/
+.logo{ font-weight: 700 !important; letter-spacing: -0.4px !important; }
+nav a.active{ background: rgba(255,255,255,0.10) !important; }
+.btn-new{
+  background: rgba(255,255,255,0.12) !important;
+  border: 1px solid var(--calm-hair-hi) !important;
+  font-weight: 600 !important;
+}
+.btn-new:hover{ background: rgba(255,255,255,0.18) !important; }
+
+/* The board scrolls horizontally (7 columns never fit). Hard-cut columns at the
+   sidebar edge read as "broken/overlapping" — a soft fade makes the scroll
+   boundary legible and intentional. */
+.board-wrap{ position: relative; }
+.board-wrap::after{
+  content:""; position: sticky; float: right; top: 0; right: 0;
+  width: 44px; height: 100%; pointer-events: none;
+  background: linear-gradient(to right, rgba(12,12,20,0), rgba(12,12,20,0.9));
+}
+
+/* Smart Queue: more air between rows */
+.queue-item{
+  background: rgba(255,255,255,0.025) !important;
+  border: 1px solid var(--calm-hair) !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px !important;
+}
+.queue-item:hover{ background: rgba(255,255,255,0.05) !important; }
+.ai-sidebar .qi-row{ padding: 12px 13px !important; }

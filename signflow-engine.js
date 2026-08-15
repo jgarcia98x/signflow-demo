@@ -167,8 +167,8 @@
   function resRow(who, role){
     var dots=DAYS.map(function(d){
       var v=resGet(who,d);
-      return '<span class="sf-res-dot" data-who="'+esc(who)+'" data-day="'+d+'" title="'+d+': '+v+'" '
-        +'style="width:15px;height:15px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:'+CYCLE_COLOR[v]+';font-size:8px;color:rgba(0,0,0,0.5);font-weight:700;">'+d[0]+'</span>';
+      return '<span class="sf-res-dot" data-who="'+esc(who)+'" data-day="'+d+'" data-state="'+v+'" title="'+d+': '+v+'" '
+        +'style="width:15px;height:15px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:8px;font-weight:700;">'+d[0]+'</span>';
     }).join('');
     return '<div class="sf-res-row" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'
       +'<div style="min-width:0;"><div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(who)+'</div>'
@@ -201,7 +201,7 @@
       var dot=e.target.closest('.sf-res-dot'); if(!dot) return;
       var who=dot.getAttribute('data-who'), day=dot.getAttribute('data-day');
       var cur=resGet(who,day), nv=CYCLE[(CYCLE.indexOf(cur)+1)%CYCLE.length];
-      resSet(who,day,nv); dot.style.background=CYCLE_COLOR[nv]; dot.title=day+': '+nv;
+      resSet(who,day,nv); dot.setAttribute('data-state',nv); dot.title=day+': '+nv;
       reRankQueue();
       T(who+' · '+day+': '+nv,'👷');
     });
