@@ -767,3 +767,21 @@ header{
 @media (max-width: 1024px){
   .schedule-grid{ grid-template-columns: 190px repeat(5, 1fr) !important; }
 }
+
+/* ═══ DEEP-LINK ARRIVAL FLASH ═══════════════════════════════════════
+   When Customers → "View in Pipeline" lands you on a card, it needs to
+   announce itself — otherwise you arrive on a board of fifteen cards
+   with no idea which one you asked for. */
+@keyframes sfDeepPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(91,143,199,.55); }
+  70%  { box-shadow: 0 0 0 12px rgba(91,143,199,0); }
+  100% { box-shadow: 0 0 0 0 rgba(91,143,199,0); }
+}
+.card.sf-deep-hit{
+  animation: sfDeepPulse 1.3s ease-out 2;
+  border-color: rgba(91,143,199,.75) !important;
+  position: relative; z-index: 5;
+}
+@media (prefers-reduced-motion: reduce){
+  .card.sf-deep-hit{ animation: none; border-color: rgba(91,143,199,.9) !important; }
+}

@@ -606,8 +606,7 @@
     <a href="index.html">Pipeline</a>
     <a href="schedule.html">Schedule</a>
     <a href="#" class="active">Customers</a>
-    <a href="jobs.html">Jobs</a>
-    <a href="reports.html">Reports</a>
+    <a href="jobs.html">Jobs &amp; Reports</a>
     <a href="settings.html">Settings</a>
   </nav>
   <div class="header-right">
@@ -1237,22 +1236,96 @@
       +'<div class="cp-meta-card"><div class="cp-meta-lbl">Next Follow-Up</div><div class="cp-meta-val" style="font-size:11px;color:'+sc+';">'+c.nextFollowup+'</div></div>'
       +'</div>'
       +'<div class="cp-action-grid">'
-      +'<div class="cp-action-btn" onclick="toast(\'Calling '+name+'…\',\'📞\')"><span class="ca-icon">📞</span>Call</div>'
-      +'<div class="cp-action-btn" onclick="toast(\'Message drafted for '+name+'\',\'💬\')"><span class="ca-icon">💬</span>Text</div>'
-      +'<div class="cp-action-btn" onclick="toast(\'Email drafted for '+name+'\',\'✉️\')"><span class="ca-icon">✉️</span>Email</div>'
+      +'<div class="cp-action-btn" data-act="call" data-cust="'+esc(name)+'"><span class="ca-icon">📞</span>Call</div>'
+      +'<div class="cp-action-btn" data-act="text" data-cust="'+esc(name)+'"><span class="ca-icon">💬</span>Text</div>'
+      +'<div class="cp-action-btn" data-act="email" data-cust="'+esc(name)+'"><span class="ca-icon">✉️</span>Email</div>'
       +'<div class="cp-action-btn" onclick="toast(\'Note saved ✓\',\'📝\')"><span class="ca-icon">📝</span>Add Note</div>'
       +'<div class="cp-action-btn" onclick="toast(\'Reminder set for '+name+'\',\'📅\')"><span class="ca-icon">📅</span>Reminder</div>'
       +'<div class="cp-action-btn" onclick="toast(\'Invoice sent to '+name+' ✓\',\'📄\')"><span class="ca-icon">📄</span>Invoice</div>'
       +'</div>'
       +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.3);font-weight:700;margin-bottom:8px;">Active Jobs</div>'
       + (c.jobs.length ? c.jobs.map(function(j){
-          return '<div class="cp-job-row" onclick="toast(\'Opening: '+j.name+'\',\'🔗\')"><div><div class="cp-job-name">'+j.name+'</div><div class="cp-job-meta">'+j.stage+'</div></div><div class="cp-job-val">'+j.val+'</div></div>';
+          return '<div class="cp-job-row" data-job="'+esc(j.name)+'" data-cust="'+esc(name)+'"><div><div class="cp-job-name">'+j.name+'</div><div class="cp-job-meta">'+j.stage+'</div></div><div class="cp-job-val">'+j.val+'</div></div>';
         }).join('') : '<div style="font-size:11px;color:rgba(255,255,255,.3);">No active jobs</div>')
-      +'<div style="margin-top:16px;"><button style="width:100%;padding:10px;background:rgba(211,47,47,.15);border:1px solid rgba(211,47,47,.3);border-radius:8px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;" onclick="toast(\'Opening '+name+' in Pipeline →\',\'🔗\');closePanel();">View in Pipeline →</button></div>';
+      +'<div style="margin-top:16px;"><button class="cp-vip-btn" data-job="'+esc(c.jobs.length?c.jobs[0].name:'')+'" data-cust="'+esc(name)+'" style="width:100%;padding:10px;background:rgba(91,143,199,.15);border:1px solid rgba(91,143,199,.38);border-radius:8px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;">View in Pipeline →</button></div>';
     overlay.style.display = 'block';
     panel.style.transform = 'translateX(0)';
   }
   window.openCustomerPanel = openCustomerPanel;
+
+  /* ── Real navigation, replacing the toast stubs ──────────────────────
+     "View in Pipeline" previously fired a toast and closed the panel; it
+     never went anywhere. It now deep-links to the board with the job
+     slug, which index.html reads on load to scroll to, highlight and
+     open that card. */
+  function sfSlug(nm){
+    return String(nm).toLowerCase().replace(/[^a-z0-9]+/g,'-')
+      .replace(/^-+|-+$/g,'').slice(0,60);
+  }
+
+  /* Escape for safe use inside an HTML attribute. Job names contain
+     apostrophes ("Kohl's") and em dashes, which is exactly what broke
+     the previous inline-onclick approach. */
+  function esc(str){
+    return String(str == null ? '' : str)
+      .replace(/&/g,'&amp;').replace(/"/g,'&quot;')
+      .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  /* Delegated handlers — bound once, survive panel re-renders. */
+  document.addEventListener('click', function(e){
+    var vip = e.target.closest('.cp-vip-btn, .cp-job-row');
+    if (vip) {
+      sfViewInPipeline(vip.getAttribute('data-job'), vip.getAttribute('data-cust'));
+      return;
+    }
+    var act = e.target.closest('.cp-action-btn[data-act]');
+    if (act) sfContact(act.getAttribute('data-act'), act.getAttribute('data-cust'));
+  });
+
+  window.sfViewInPipeline = function(jobName, customer){
+    var target = jobName && jobName.trim();
+    if (!target) {
+      toast('No active job for ' + customer + ' yet', 'ℹ️');
+      return;
+    }
+    location.href = 'index.html?job=' + encodeURIComponent(sfSlug(target));
+  };
+
+  /* Contact details are per-customer where known, with a shop-wide
+     fallback so the buttons always do something real rather than
+     pretending. */
+  var CONTACTS = {
+    "Kohl's Corporation":        { phone:'+18155551204', email:'facilities@kohls-example.com' },
+    'Heritage Community Bank':   { phone:'+18155559871', email:'ops@heritagebank-example.com' },
+    'Summit Tech Park LLC':      { phone:'+18155553360', email:'pm@summittech-example.com' },
+    'La Paloma Group':           { phone:'+18155557742', email:'manager@lapaloma-example.com' },
+    'Prairie Wind Self Storage': { phone:'+18155552218', email:'office@prairiewind-example.com' },
+    'The Village Tap':           { phone:'+18155556690', email:'owner@villagetap-example.com' },
+    'Northside Fitness':         { phone:'+18155554417', email:'gm@northsidefit-example.com' },
+    'Walgreens (National)':      { phone:'+18005559300', email:'signage@walgreens-example.com' },
+    'Main St. Restaurant Group': { phone:'+18155558123', email:'info@mainstgroup-example.com' },
+    'Riverside Automotive':      { phone:'+18155550072', email:'service@riversideauto-example.com' }
+  };
+
+  window.sfContact = function(kind, name){
+    var c = CONTACTS[name] || {};
+    if (kind === 'call'){
+      if (!c.phone) return toast('No phone on file for ' + name, 'ℹ️');
+      toast('Calling ' + name + '…', '📞');
+      location.href = 'tel:' + c.phone;
+    } else if (kind === 'text'){
+      if (!c.phone) return toast('No mobile on file for ' + name, 'ℹ️');
+      toast('Opening Messages…', '💬');
+      location.href = 'sms:' + c.phone;
+    } else if (kind === 'email'){
+      if (!c.email) return toast('No email on file for ' + name, 'ℹ️');
+      toast('Opening mail…', '✉️');
+      location.href = 'mailto:' + c.email +
+        '?subject=' + encodeURIComponent('U.S. Electric — your sign project');
+    }
+  };
+
 
   /* ── Wire customer rows ────────────────────────────────── */
   document.querySelectorAll('.cust-row').forEach(function(row) {
