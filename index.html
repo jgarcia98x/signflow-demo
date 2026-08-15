@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SignFlow — Job Pipeline</title>
+  <!-- Drag layer + job persistence must exist before the inline board
+       scripts run, so they load here rather than at the foot of the page. -->
+  <script src="signflow-dnd.js"></script>
+  <script src="signflow-jobs.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1679,7 +1683,7 @@
 
       <!-- VENDOR WINDOW CALLOUT -->
       <div class="qi-vendor-window">
-        <div class="qi-vendor-window-title">\u{1f517} 2 JOBS WAITING ON VENDORS — USE THE WINDOW</div>
+        <div class="qi-vendor-window-title">🔗 2 JOBS WAITING ON VENDORS — USE THE WINDOW</div>
         <div class="qi-vendor-job"><strong>Summit Tech Park</strong> — neon fab at vendor <span style="color:rgba(255,255,255,0.35);">(≈ 9 days left)</span> — <span style="color:rgba(206,147,216,0.7);">crew is free</span></div>
         <div class="qi-vendor-job"><strong>Heritage Bank</strong> — logo vectoring at studio <span style="color:rgba(255,255,255,0.35);">(≈ 2 days left)</span> — <span style="color:rgba(206,147,216,0.7);">advance other jobs now</span></div>
         <div class="qi-vendor-window-note">While vendor work runs, your crew has capacity. Smart Queue has surfaced these parallel moves below.</div>
@@ -1960,44 +1964,72 @@
     countEl.textContent = newI + ' new · ' + (total - newI) + ' active';
   }
 
-  /* ── Drag and Drop ────────────────────────────────── */
-  var dragCard = null;
+  /* ── Drag and Drop ────────────────────────────────────────
+     Pointer-based via SFDnD. The old HTML5 dragstart/drop API was
+     silently dead on iPad and iPhone, and only ever appended to the
+     bottom of a column. This supports reordering too.
+  ─────────────────────────────────────────────────────────── */
+  function bindDrag(/* card */) { /* handled globally by SFDnD */ }
 
-  function bindDrag(card) {
-    card.setAttribute('draggable','true');
-    card.addEventListener('dragstart', function(e) {
-      dragCard = card;
-      setTimeout(function(){ card.style.opacity = '0.45'; }, 0);
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    card.addEventListener('dragend', function() {
-      card.style.opacity = '';
-      dragCard = null;
-      document.querySelectorAll('.col').forEach(function(c){ c.classList.remove('drag-over'); });
-      updateColBadges(); updateJobCount();
+  function colKeyOf(col) {
+    if (!col) return '';
+    var t = (col.querySelector('.col-title') || {}).textContent || '';
+    return t.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  }
+
+  /* Persist the stage + position of every card in a column. */
+  function recordPlacement(col) {
+    if (!col || !window.SFJobs) return;
+    var key = colKeyOf(col);
+    col.querySelectorAll('.card').forEach(function (c, i) {
+      SFJobs.place(c, key, i);
     });
   }
 
-  document.querySelectorAll('.card').forEach(bindDrag);
+  if (window.SFDnD) {
+    SFDnD.init({
+      item: '.card',
+      container: '.col',
+      reorder: true,
+      handleCancel: '.step-item, input, button, select, textarea, a',
+      onDrop: function (card, toCol, fromCol) {
+        updateColBadges();
+        updateJobCount();
+        recordPlacement(toCol);
+        if (fromCol && fromCol !== toCol) recordPlacement(fromCol);
 
-  document.querySelectorAll('.col').forEach(function(col) {
-    col.addEventListener('dragover', function(e) {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      col.classList.add('drag-over');
-    });
-    col.addEventListener('dragleave', function(e) {
-      if (!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
-    });
-    col.addEventListener('drop', function(e) {
-      e.preventDefault();
-      col.classList.remove('drag-over');
-      if (dragCard && dragCard.closest('.col') !== col) {
-        col.appendChild(dragCard);
-        updateColBadges(); updateJobCount();
+        if (fromCol !== toCol) {
+          var fromName = (fromCol && (fromCol.querySelector('.col-title') || {}).textContent || '').trim();
+          var toName   = (toCol   && (toCol.querySelector('.col-title')   || {}).textContent || '').trim();
+          if (window.SFLog && SFLog.add) {
+            SFLog.add(card, 'stage', 'Stage: ' + fromName + ' \u2192 ' + toName);
+          }
+          if (window.toast) toast('Moved to ' + toName, '\uD83D\uDCCB');
+        }
       }
     });
-  });
+  }
+
+  /* Restore drag positions saved from a previous visit. */
+  (function restorePlacements() {
+    if (!window.SFJobs) return;
+    var saved = SFJobs.allPlaces();
+    if (!saved || !Object.keys(saved).length) return;
+
+    var byKey = {};
+    document.querySelectorAll('.col').forEach(function (c) { byKey[colKeyOf(c)] = c; });
+
+    var moves = [];
+    document.querySelectorAll('.card').forEach(function (card) {
+      var id = SFJobs.ensureId(card);
+      var p = saved[id];
+      if (p && byKey[p.zone]) moves.push({ card: card, col: byKey[p.zone], index: p.index });
+    });
+    moves.sort(function (a, b) { return a.index - b.index; });
+    moves.forEach(function (m) { m.col.appendChild(m.card); });
+
+    if (moves.length) { updateColBadges(); updateJobCount(); }
+  })();
 
   /* ── Search ───────────────────────────────────────── */
   var currentFilter = 'all', currentSearch = '';
@@ -2051,6 +2083,14 @@
   function createCardEl(job) {
     var div = document.createElement('div');
     div.className = 'card ' + (job.priority || 'normal');
+    if (job.type)   div.setAttribute('data-job-type', job.type);
+    if (job.vendor) div.setAttribute('data-outsourced', job.vendor);
+    div.setAttribute('data-custom-id', String(job.id));
+
+    var steps = (job.steps && job.steps.length)
+      ? job.steps
+      : ['Initial site visit / scope', 'Send quote / proposal'];
+
     div.innerHTML =
       '<div class="card-name">' + escHtml(job.name) + '</div>' +
       '<div class="card-client">' + escHtml(job.client || job.name) + '</div>' +
@@ -2064,10 +2104,11 @@
         '</div>' +
       '</div>' +
       '<div class="card-steps">' +
-        '<label class="step-item"><input type="checkbox"> Initial site visit / scope</label>' +
-        '<label class="step-item"><input type="checkbox"> Send quote / proposal</label>' +
+        steps.map(function (s) {
+          return '<label class="step-item"><input type="checkbox"> ' + escHtml(s) + '</label>';
+        }).join('') +
       '</div>';
-    bindDrag(div);
+    if (window.SFJobs) SFJobs.ensureId(div);
     initCheckboxes(div);
     return div;
   }
@@ -2077,6 +2118,14 @@
     var col = getColEl(job.column || 'new');
     if (col) col.appendChild(createCardEl(job));
   });
+
+  /* Give every card a stable id, then replay any saved edits.
+     Runs after custom jobs are injected so both kinds are covered. */
+  if (window.SFJobs) {
+    document.querySelectorAll('.card').forEach(function (c) { SFJobs.ensureId(c); });
+    SFJobs.hydrate('.card');
+  }
+
   updateColBadges(); updateJobCount();
 
   /* Inject drag-over + modal CSS */
@@ -2088,9 +2137,9 @@
     '#sf-modal.open{display:flex;}',
     '#sf-modal-box{background:#16162a;border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:28px 32px;width:440px;max-width:94vw;box-shadow:0 12px 60px rgba(0,0,0,.8);}',
     '#sf-modal input,#sf-modal select{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:10px 13px;color:#fff;font-size:13px;outline:none;font-family:inherit;}',
-    '#sf-modal input:focus,#sf-modal select:focus{border-color:rgba(211,47,47,.6);}',
+    '#sf-modal input:focus,#sf-modal select:focus{border-color:rgba(91,143,199,.75);}',
     '#sf-modal label.sf-lbl{font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px;}',
-    '#sf-modal-submit{width:100%;background:linear-gradient(135deg,#D32F2F,#B71C1C);border:none;border-radius:9px;color:#fff;font-size:14px;font-weight:700;padding:13px;cursor:pointer;margin-top:4px;transition:opacity .15s;}',
+    '#sf-modal-submit{width:100%;background:linear-gradient(135deg,#5B8FC7,#416E9E);border:none;border-radius:9px;color:#fff;font-size:14px;font-weight:700;padding:13px;cursor:pointer;margin-top:4px;transition:opacity .15s;}',
     '#sf-modal-submit:hover{opacity:.85;}',
     '.sf-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}',
     '.sf-field{display:flex;flex-direction:column;gap:6px;}'
@@ -2103,7 +2152,7 @@
   modal.innerHTML = [
     '<div id="sf-modal-box">',
     '  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">',
-    '    <div style="font-size:17px;font-weight:700;color:#fff;">＋ New Job</div>',
+    '    <div id="sf-modal-title" style="font-size:17px;font-weight:700;color:#fff;">＋ New Job</div>',
     '    <button id="sf-modal-close" style="background:none;border:none;color:rgba(255,255,255,.45);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1;">✕</button>',
     '  </div>',
     '  <div style="display:flex;flex-direction:column;gap:14px;">',
@@ -2111,7 +2160,7 @@
     '    <div class="sf-field"><label class="sf-lbl">Client / Company</label><input id="nj-client" type="text" placeholder="e.g. ABC Electric LLC"></div>',
     '    <div class="sf-row-2">',
     '      <div class="sf-field"><label class="sf-lbl">Priority</label>',
-    '        <select id="nj-priority"><option value="normal">⚪ Normal</option><option value="high">🟡 High</option><option value="urgent">🔴 Urgent</option></select></div>',
+    '        <select id="nj-priority"><option value="normal">⚪ Normal</option><option value="high">🟡 High</option><option value="urgent">🔴 Urgent</option><option value="cold">❄️ Cold</option><option value="lost">✕ Lost</option><option value="done">✓ Complete</option></select></div>',
     '      <div class="sf-field"><label class="sf-lbl">Stage</label>',
     '        <select id="nj-col"><option value="new">New Inquiry</option><option value="quote">Quote</option><option value="approved">Approved</option><option value="production">Production</option><option value="install">Install</option><option value="invoice">Invoice</option></select></div>',
     '    </div>',
@@ -2119,43 +2168,153 @@
     '      <div class="sf-field"><label class="sf-lbl">Job Value ($)</label><input id="nj-value" type="number" placeholder="e.g. 4800"></div>',
     '      <div class="sf-field"><label class="sf-lbl">Due Date</label><input id="nj-due" type="text" placeholder="e.g. Aug 20"></div>',
     '    </div>',
+    '    <div class="sf-row-2">',
+    '      <div class="sf-field"><label class="sf-lbl">Job Type</label>',
+    '        <select id="nj-type"><option value="outdoor">☀️ Outdoor</option><option value="indoor">🏠 Indoor</option></select></div>',
+    '      <div class="sf-field"><label class="sf-lbl">Vendor / Outsourced</label>',
+    '        <select id="nj-vendor"><option value="">— In-house —</option><option value="logo-vectoring">🔗 Logo Vectoring</option><option value="neon-fabrication">🔗 Neon / Specialty Fab</option></select></div>',
+    '    </div>',
+    '    <div class="sf-field"><label class="sf-lbl">Next Step 1</label><input id="nj-step1" type="text" placeholder="e.g. Initial site visit / scope"></div>',
+    '    <div class="sf-field"><label class="sf-lbl">Next Step 2</label><input id="nj-step2" type="text" placeholder="e.g. Send quote / proposal"></div>',
     '    <button id="sf-modal-submit">Add Job →</button>',
     '  </div>',
     '</div>'
   ].join('');
   document.body.appendChild(modal);
 
-  function openModal()  { modal.classList.add('open'); setTimeout(function(){ document.getElementById('nj-name').focus(); }, 60); }
-  function closeModal() { modal.classList.remove('open'); }
+  /* The same modal serves both "new job" and "edit job". editTarget
+     holds the card being edited, or null when creating. */
+  var editTarget = null;
 
-  document.querySelector('.btn-new').addEventListener('click', openModal);
+  function $f(id) { return document.getElementById(id); }
+
+  function clearForm() {
+    ['nj-name','nj-client','nj-value','nj-due','nj-step1','nj-step2']
+      .forEach(function(id){ if ($f(id)) $f(id).value = ''; });
+    if ($f('nj-priority')) $f('nj-priority').value = 'normal';
+    if ($f('nj-col'))      $f('nj-col').value = 'new';
+    if ($f('nj-type'))     $f('nj-type').value = 'outdoor';
+    if ($f('nj-vendor'))   $f('nj-vendor').value = '';
+  }
+
+  /* Map a column element to the modal's stage <option> value. */
+  var STAGE_KEYS = ['new','quote','approved','production','install','invoice'];
+  function colKeyForSelect(col) {
+    if (!col) return 'new';
+    var cols = Array.prototype.slice.call(document.querySelectorAll('.col'));
+    var i = cols.indexOf(col);
+    return STAGE_KEYS[i] || 'new';
+  }
+
+  function openModal(card) {
+    editTarget = card || null;
+    var titleEl  = $f('sf-modal-title');
+    var submitEl = $f('sf-modal-submit');
+
+    if (editTarget) {
+      var d = SFJobs.read(editTarget);
+      $f('nj-name').value     = d.name;
+      $f('nj-client').value   = d.client;
+      $f('nj-priority').value = d.priority;
+      $f('nj-col').value      = colKeyForSelect(editTarget.closest('.col'));
+      $f('nj-value').value    = d.value;
+      $f('nj-due').value      = (d.due === 'TBD' ? '' : d.due);
+      $f('nj-type').value     = d.type || 'outdoor';
+      $f('nj-vendor').value   = editTarget.getAttribute('data-outsourced') || '';
+      $f('nj-step1').value    = d.steps[0] || '';
+      $f('nj-step2').value    = d.steps[1] || '';
+      titleEl.textContent  = '✎ Edit Job';
+      submitEl.textContent = 'Save Changes ✓';
+    } else {
+      clearForm();
+      titleEl.textContent  = '＋ New Job';
+      submitEl.textContent = 'Add Job →';
+    }
+
+    modal.classList.add('open');
+    setTimeout(function(){ $f('nj-name').focus(); }, 60);
+  }
+  function closeModal() { modal.classList.remove('open'); editTarget = null; }
+
+  window.SFOpenJobModal = openModal;   /* used by the detail panel's Edit button */
+
+  document.querySelector('.btn-new').addEventListener('click', function(){ openModal(null); });
   document.getElementById('sf-modal-close').addEventListener('click', closeModal);
   modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
 
+  $f('nj-name').addEventListener('input', function(){ this.style.borderColor = ''; });
+
   document.getElementById('sf-modal-submit').addEventListener('click', function() {
-    var nameEl = document.getElementById('nj-name');
+    var nameEl = $f('nj-name');
     var name = nameEl.value.trim();
     if (!name) { nameEl.style.borderColor = '#D32F2F'; nameEl.focus(); return; }
     nameEl.style.borderColor = '';
+
+    var steps = [$f('nj-step1').value.trim(), $f('nj-step2').value.trim()].filter(Boolean);
+    var patch = {
+      name:     name,
+      client:   $f('nj-client').value.trim() || name,
+      priority: $f('nj-priority').value,
+      value:    $f('nj-value').value || '',
+      due:      $f('nj-due').value.trim() || '',
+      type:     $f('nj-type').value,
+      steps:    steps,
+      _forceLabel: true
+    };
+    var vendor   = $f('nj-vendor').value;
+    var stageKey = $f('nj-col').value;
+
+    /* ── EDIT ──────────────────────────────────────────── */
+    if (editTarget) {
+      var card = editTarget;
+      SFJobs.update(card, patch);
+
+      if (vendor) card.setAttribute('data-outsourced', vendor);
+      else card.removeAttribute('data-outsourced');
+
+      /* Stage change from the dropdown moves the card. */
+      var destCol = getColEl(stageKey);
+      var srcCol  = card.closest('.col');
+      if (destCol && destCol !== srcCol) {
+        destCol.appendChild(card);
+        if (window.SFLog && SFLog.add) SFLog.add(card, 'stage', 'Stage changed via edit');
+        recordPlacement(destCol);
+        if (srcCol) recordPlacement(srcCol);
+      }
+
+      /* Keep any custom-job record in sync. */
+      var cj = customJobs.filter(function(j){ return String(j.id) === card.getAttribute('data-custom-id'); })[0];
+      if (cj) {
+        cj.name = patch.name; cj.client = patch.client; cj.priority = patch.priority;
+        cj.value = patch.value; cj.due = patch.due; cj.column = stageKey;
+        cj.type = patch.type; cj.vendor = vendor; cj.steps = steps;
+        try { localStorage.setItem(JOBS_KEY, JSON.stringify(customJobs)); } catch(e) {}
+      }
+
+      updateColBadges(); updateJobCount();
+      if (window.SFLog && SFLog.add) SFLog.add(card, 'action', 'Job details updated');
+      closeModal();
+      if (window.toast) toast('Job updated ✓', '✎');
+      return;
+    }
+
+    /* ── CREATE ────────────────────────────────────────── */
     var job = {
       id: Date.now(),
-      name: name,
-      client: document.getElementById('nj-client').value.trim() || name,
-      priority: document.getElementById('nj-priority').value,
-      column: document.getElementById('nj-col').value,
-      value: document.getElementById('nj-value').value || '',
-      due: document.getElementById('nj-due').value.trim() || ''
+      name: patch.name, client: patch.client, priority: patch.priority,
+      column: stageKey, value: patch.value, due: patch.due,
+      type: patch.type, vendor: vendor, steps: steps
     };
     customJobs.push(job);
     try { localStorage.setItem(JOBS_KEY, JSON.stringify(customJobs)); } catch(e) {}
     var col = getColEl(job.column);
-    col.appendChild(createCardEl(job));
+    var el = createCardEl(job);
+    col.appendChild(el);
     updateColBadges(); updateJobCount();
     closeModal();
-    ['nj-name','nj-client','nj-value','nj-due'].forEach(function(id){ document.getElementById(id).value=''; });
-    document.getElementById('nj-priority').value = 'normal';
-    document.getElementById('nj-col').value = 'new';
+    clearForm();
+    if (window.toast) toast('Job added ✓', '＋');
   });
 
   /* ══════════════════════════════════════════════════════════
@@ -2842,6 +3001,27 @@
       btn.addEventListener('click', a.fn);
       dpAct.appendChild(btn);
     });
+
+    /* Edit — reopens the New Job modal prefilled with this card. */
+    var editBtn = document.getElementById('dp-edit-btn');
+    if (!editBtn) {
+      editBtn = document.createElement('button');
+      editBtn.id = 'dp-edit-btn';
+      editBtn.style.cssText =
+        'width:100%;margin:2px 0 16px;padding:11px;border-radius:9px;cursor:pointer;'
+       +'background:rgba(91,143,199,.13);border:1px solid rgba(91,143,199,.42);'
+       +'color:#9EC4EE;font-size:12.5px;font-weight:700;font-family:inherit;'
+       +'transition:background .15s;';
+      editBtn.innerHTML = '✎  Edit Job Details';
+      editBtn.addEventListener('mouseenter', function(){ editBtn.style.background='rgba(120,170,235,.22)'; });
+      editBtn.addEventListener('mouseleave', function(){ editBtn.style.background='rgba(120,170,235,.13)'; });
+      var meta = document.getElementById('dp-meta');
+      if (meta && meta.parentNode) meta.parentNode.insertBefore(editBtn, meta.nextSibling);
+    }
+    editBtn.onclick = function () {
+      closePanel();
+      if (window.SFOpenJobModal) SFOpenJobModal(card);
+    };
 
     /* Outsourced vendor info in panel */
     var outsourced = card.getAttribute('data-outsourced');
