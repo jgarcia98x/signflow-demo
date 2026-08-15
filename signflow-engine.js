@@ -408,3 +408,22 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
   else boot();
 })();
+
+/* ── Customers: every recency chip shipped as class "old" (red), so the
+   fresh/stale tiers never rendered and red lost all signal value.
+   Re-grade from the actual day count: <14d neutral, 14-29d amber, 30d+ red. */
+(function(){
+  function gradeRecency(){
+    var chips=document.querySelectorAll('.cust-days');
+    if(!chips.length) return;
+    Array.prototype.forEach.call(chips, function(el){
+      var m=/(\d+)\s*d/i.exec(el.textContent||'');
+      if(!m) return;
+      var days=parseInt(m[1],10);
+      el.classList.remove('fresh','stale','old');
+      el.classList.add(days>=30 ? 'old' : days>=14 ? 'stale' : 'fresh');
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',gradeRecency);
+  else gradeRecency();
+})();

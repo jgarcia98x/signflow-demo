@@ -420,3 +420,240 @@ html:not(.density-compact) .sf-slot{ display: none; }
 }
 .queue-item:hover{ background: rgba(255,255,255,0.05) !important; }
 .ai-sidebar .qi-row{ padding: 12px 13px !important; }
+
+/* ══════════════════════════════════════════════════════════════════
+   CROSS-TAB CALM — Schedule · Customers · Jobs · Reports · Settings
+   Same language as Pipeline: no glows, one accent, red = alert only,
+   quiet marks, generous air. Pure visual; no logic touched.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Universal: kill luminous shadows everywhere on these pages ──── */
+.kpi-val, .kpi-label, .kpi-sub, .section-title, .rp-item-val, .rp-item-name,
+.cust-name, .cust-company, .cust-trade, .status-badge, .job-block-name,
+.job-block-time, .day-name, .legend-item, .toggle-label, .integration-name,
+.stage-pill, .pipeline-value, .sub-bar-title, .th, .cust-date{
+  text-shadow: none !important;
+}
+.kpi-card, .section, .section-card, .cust-row, .job-block, .day-cell,
+.toggle-slider, .integration-icon, .contact-btn, .nudge-btn, .status-badge,
+.legend-dot, .stage-pill, .table-wrap, .section-action{
+  box-shadow: none !important;
+}
+
+/* ── Surfaces: one calm card language across every tab ───────────── */
+.kpi-card, .section, .section-card, .table-wrap{
+  background: var(--calm-surface) !important;
+  border: 1px solid var(--calm-hair) !important;
+  border-radius: 14px !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.kpi-card{ padding: 18px !important; }
+.kpi-card:hover, .section:hover{ border-color: var(--calm-hair-hi) !important; }
+
+/* ── Type hierarchy: one bold number, everything else recedes ────── */
+.kpi-val{
+  font-size: 25px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.6px !important;
+  color: var(--calm-ink) !important;
+}
+.kpi-val.amber, .kpi-val.green, .kpi-val.red{ color: var(--calm-ink) !important; }
+.kpi-label{
+  color: var(--calm-ink-3) !important;
+  font-size: 10px !important; letter-spacing: 0.5px !important;
+  text-transform: uppercase; font-weight: 500 !important;
+}
+.kpi-sub, .kpi-trend{ color: var(--calm-ink-3) !important; font-weight: 500 !important; }
+.kpi-trend.trend-up{ color: rgba(120,190,150,0.85) !important; }   /* quiet, not neon */
+.section-title{
+  color: var(--calm-ink) !important;
+  font-size: 13px !important; font-weight: 600 !important;
+  letter-spacing: -0.1px !important;
+}
+.section-action{ color: var(--calm-ink-3) !important; font-weight: 500 !important; }
+.rp-item-name{ color: var(--calm-ink-2) !important; font-weight: 500 !important; }
+.rp-item-val{ color: var(--calm-ink) !important; font-weight: 600 !important; }
+.rp-item{ border-color: var(--calm-hair) !important; }
+
+/* ── Tables (Customers / Jobs): quiet rows, readable hierarchy ───── */
+.th{
+  color: var(--calm-ink-3) !important;
+  font-size: 10px !important; letter-spacing: 0.5px !important;
+  text-transform: uppercase; font-weight: 500 !important;
+}
+.cust-row{ border-bottom: 1px solid var(--calm-hair) !important; padding: 13px 16px !important; }
+.cust-row:hover{ background: rgba(255,255,255,0.03) !important; }
+.cust-name{ color: var(--calm-ink) !important; font-weight: 500 !important; font-size: 13px !important; }
+.cust-company, .cust-trade, .cust-date{ color: var(--calm-ink-3) !important; font-weight: 400 !important; }
+
+/* status badges → quiet dot + muted label (matches Pipeline priority) */
+.status-badge{
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid var(--calm-hair) !important;
+  color: var(--calm-ink-2) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.2px !important;
+}
+
+/* small action buttons: neutral, not red */
+.contact-btn, .nudge-btn, .section-action, .stage-pill{
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid var(--calm-hair) !important;
+  color: var(--calm-ink-2) !important;
+}
+.contact-btn:hover, .nudge-btn:hover, .section-action:hover{
+  background: rgba(255,255,255,0.12) !important;
+  color: var(--calm-ink) !important;
+}
+
+/* ── Schedule: calendar reads as a calm grid ─────────────────────── */
+.day-cell{
+  background: rgba(255,255,255,0.015) !important;
+  border-color: var(--calm-hair) !important;
+}
+.day-header{ border-color: var(--calm-hair) !important; }
+.day-name{
+  color: var(--calm-ink-3) !important;
+  font-size: 10px !important; letter-spacing: 0.5px !important;
+  text-transform: uppercase; font-weight: 500 !important;
+}
+.job-block{
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid var(--calm-hair) !important;
+  border-left: 2px solid rgba(255,255,255,0.18) !important;
+  border-radius: 8px !important;
+}
+.job-block:hover{ background: rgba(255,255,255,0.09) !important; }
+.job-block-name{ color: var(--calm-ink) !important; font-weight: 500 !important; }
+.job-block-time{ color: var(--calm-ink-2) !important; font-weight: 500 !important; }
+.job-block-detail{ color: var(--calm-ink-3) !important; }
+/* urgent/install jobs keep a single red edge — the only alarm on the page */
+.job-block.urgent, .job-block.install{ border-left-color: var(--calm-alert) !important; }
+.legend-dot{ opacity: 0.8 !important; }
+.legend-item{ color: var(--calm-ink-3) !important; font-size: 11px !important; }
+
+/* ── Settings: iOS-quiet toggles ─────────────────────────────────── */
+.section-card{ padding: 20px 22px !important; }
+.toggle-label{ color: var(--calm-ink) !important; font-weight: 500 !important; }
+.toggle-desc{ color: var(--calm-ink-3) !important; }
+.toggle-row{ border-color: var(--calm-hair) !important; }
+.toggle-slider{
+  background: rgba(255,255,255,0.12) !important;
+  border: 1px solid var(--calm-hair-hi) !important;
+}
+/* ON state: calm green like iOS, not glowing red */
+.toggle-switch input:checked + .toggle-slider{
+  background: rgba(95,169,122,0.85) !important;
+  border-color: rgba(95,169,122,0.5) !important;
+  box-shadow: none !important;
+}
+.integration-name{ color: var(--calm-ink) !important; font-weight: 500 !important; }
+.integration-status{ color: var(--calm-ink-3) !important; font-weight: 500 !important; }
+.integration-icon{
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid var(--calm-hair) !important;
+}
+.field input, .field select, .field textarea{
+  background: rgba(255,255,255,0.04) !important;
+  border: 1px solid var(--calm-hair) !important;
+  color: var(--calm-ink) !important;
+  border-radius: 9px !important;
+}
+.field input:focus, .field select:focus, .field textarea:focus{
+  border-color: var(--calm-hair-hi) !important;
+  outline: none !important;
+}
+.field label{ color: var(--calm-ink-3) !important; font-weight: 500 !important; }
+
+/* ── Shared chrome on every tab ──────────────────────────────────── */
+.sub-bar-title{ color: var(--calm-ink) !important; font-weight: 600 !important; }
+.pipeline-value{ color: var(--calm-ink-2) !important; font-weight: 500 !important; }
+.value-tbd, .muted{ color: var(--calm-ink-3) !important; }
+
+/* ── Header: the other 5 tabs shipped a RED header (rgba(180,30,30,.82))
+      while Pipeline is neutral. Unify to Pipeline's calm chrome. ────── */
+header{
+  background: rgba(24,25,30,0.90) !important;
+  border-bottom: 1px solid var(--calm-hair) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.03) !important;
+}
+
+/* ── Reports: bar colors are injected inline by JS, so CSS can't win on
+      `background` — desaturate the rendered result instead. Keeps each
+      bar distinguishable without the rainbow/neon. ───────────────────── */
+.funnel-bar, .rev-bar, .client-bar, .velocity-bar, .rate-ring{
+  filter: saturate(0.42) brightness(0.92) !important;
+  box-shadow: none !important;
+}
+.rev-selected .rev-bar{ box-shadow: none !important; filter: saturate(0.55) !important; }
+.funnel-bar{ color: rgba(255,255,255,0.85) !important; }
+/* circular stat badges: quiet ring, no glow */
+.stat-circle, .donut, .kpi-circle{ filter: saturate(0.5) !important; box-shadow: none !important; }
+
+/* ── Customers: day-counter bars are routine "days since contact",
+      not alerts. Neutral unless genuinely overdue. ──────────────────── */
+.nudge-card{
+  background: rgba(255,255,255,0.03) !important;
+  border: 1px solid var(--calm-hair) !important;
+  border-left: 2px solid rgba(255,255,255,0.16) !important;
+}
+.nudge-card.overdue, .nudge-card.urgent{ border-left-color: var(--calm-alert) !important; }
+.nudge-name{ color: var(--calm-ink) !important; font-weight: 500 !important; }
+.nudge-company, .nudge-reason{ color: var(--calm-ink-3) !important; }
+.nudge-section-label{
+  color: var(--calm-ink-3) !important; font-size: 10px !important;
+  letter-spacing: 0.5px !important; text-transform: uppercase; font-weight: 500 !important;
+}
+.nudge-divider{ background: var(--calm-hair) !important; }
+.nudge-avatar{ background: rgba(255,255,255,0.08) !important; color: var(--calm-ink-2) !important; }
+
+/* ── Settings: "Save Changes" is a routine action, not an alarm ────── */
+.btn-save{
+  background: rgba(255,255,255,0.14) !important;
+  border: 1px solid var(--calm-hair-hi) !important;
+  color: var(--calm-ink) !important;
+  font-weight: 600 !important;
+}
+.btn-save:hover{ background: rgba(255,255,255,0.20) !important; }
+
+/* ── Schedule: lift low-contrast job text to a readable level ─────── */
+.job-block-detail, .job-block.done .job-block-name, .job-block[style*="opacity"]{
+  color: rgba(255,255,255,0.52) !important;
+}
+.job-block[style*="opacity"]{ opacity: 1 !important; }
+
+/* ── Customers: recency chips already have a fresh/stale/old scale;
+      only the "old" tier should read as alert, and quietly. ────────── */
+.cust-days.fresh{
+  color: var(--calm-ink-3) !important;
+  background: rgba(255,255,255,0.05) !important;
+  border-color: var(--calm-hair) !important;
+}
+.cust-days.stale{
+  color: rgba(217,164,65,0.80) !important;
+  background: rgba(217,164,65,0.08) !important;
+  border-color: rgba(217,164,65,0.20) !important;
+}
+.cust-days.old{
+  color: rgba(229,83,75,0.85) !important;
+  background: rgba(229,83,75,0.09) !important;
+  border-color: rgba(229,83,75,0.24) !important;
+}
+.cust-days{ font-weight: 600 !important; }
+
+/* Schedule: "Auto-Resolve" is a helpful action, not a destructive one */
+.btn-resolve, .conflict-action, .btn-auto-resolve{
+  background: rgba(255,255,255,0.13) !important;
+  border: 1px solid var(--calm-hair-hi) !important;
+  color: var(--calm-ink) !important;
+  box-shadow: none !important;
+}
+
+/* ── Reports fix: .rev-bar is height:<pct>% of .rev-bar-wrap, but the wrap
+      is `flex:1` with no height basis, so the percentage resolved against
+      zero and every bar collapsed to its 4px min-height (flat chart).
+      Giving the wrap a definite basis restores the bar heights. ─────── */
+.rev-chart{ align-items: stretch !important; }
+.rev-col{ min-height: 0 !important; }
+.rev-bar-wrap{ flex: 1 1 auto !important; min-height: 84px !important; height: 84px !important; }
