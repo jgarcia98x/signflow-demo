@@ -143,9 +143,9 @@
         SFImpact.refresh();
       };
       wrap.appendChild(btn);
-      /* place as its own full-width row BELOW the item's main row (never inside the flex row that holds the name) */
+      /* single clean row: action on the RIGHT of the item's main row (pushed right by CSS margin-left:auto) */
       var row=item.querySelector('.qi-row');
-      if(row && row.parentNode){ row.parentNode.insertBefore(wrap, row.nextSibling); }
+      if(row){ row.appendChild(wrap); }
       else item.appendChild(wrap);
     });
   }
@@ -337,7 +337,24 @@
   };
 
   /* ── boot ─────────────────────────────────────────────────────── */
+  function initDensity(){
+    var t=document.getElementById('sf-density-toggle'); if(!t) return;
+    var label=t.querySelector('.sfd-label');
+    function sync(){
+      var compact=document.documentElement.classList.contains('density-compact');
+      t.setAttribute('aria-pressed', compact?'true':'false');
+      if(label) label.textContent = compact?'Compact':'Expanded';
+    }
+    sync();
+    t.addEventListener('click', function(){
+      var compact=document.documentElement.classList.toggle('density-compact');
+      try{ localStorage.setItem('sf_density', compact?'compact':'expanded'); }catch(e){}
+      sync();
+    });
+  }
+
   function boot(){
+    try{ initDensity(); }catch(e){ console.warn('DENS',e); }
     try{ initSmartQueue(); }catch(e){ console.warn('SFQ',e); }
     try{ initResources(); }catch(e){ console.warn('RES',e); }
     try{ initImpact(); }catch(e){ console.warn('IMP',e); }

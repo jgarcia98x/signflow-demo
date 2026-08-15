@@ -1237,6 +1237,7 @@
   </style>
 </head>
 <body>
+<script>try{if(localStorage.getItem('sf_density')!=='expanded')document.documentElement.classList.add('density-compact');}catch(e){document.documentElement.classList.add('density-compact');}</script>
 
 <!-- ══ HEADER ═══════════════════════════════════════════════════ -->
 <header>
@@ -1269,6 +1270,10 @@
   <div class="sub-bar-title">Job Pipeline</div>
   <div class="job-count">2 new · 11 active · 2 cold · 1 lost</div>
   <input class="search-box" type="text" placeholder="🔍  Search jobs…" />
+  <button id="sf-density-toggle" type="button" aria-pressed="true" title="Card density — At a glance">
+    <span class="sfd-track"><span class="sfd-knob"></span></span>
+    <span class="sfd-label">Compact</span>
+  </button>
   <div class="filter-pills">
     <div class="filter-pill active">All</div>
     <div class="filter-pill">My Jobs</div>
@@ -3011,6 +3016,68 @@
   /* Keep the "Why?" toggle from being clipped at the right edge */
   .ai-sidebar .qi-why{ white-space:nowrap; flex-shrink:0; }
   .ai-sidebar .qi-row{ flex-wrap:wrap; }
+</style>
+<style id="sf-density">
+  /* ════ DENSITY TOGGLE (switch UI) ════ */
+  #sf-density-toggle{
+    display:inline-flex;align-items:center;gap:8px;flex-shrink:0;cursor:pointer;
+    background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+    border-radius:20px;padding:4px 12px 4px 5px;font-family:inherit;
+    color:rgba(255,255,255,0.72);font-size:11px;font-weight:600;letter-spacing:0.2px;
+    transition:background .18s,border-color .18s;
+  }
+  #sf-density-toggle:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.18);}
+  .sfd-track{width:30px;height:17px;border-radius:10px;background:rgba(255,255,255,0.16);position:relative;transition:background .2s;flex-shrink:0;}
+  .sfd-knob{position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,0.4);}
+  html.density-compact .sfd-track{background:var(--red);}
+  html.density-compact .sfd-knob{left:15px;}
+
+  /* ════ COMPACT MODE — cards show only title / value / due / urgency ════ */
+  .card{ transition:padding .2s ease; }
+  html.density-compact .card{ padding:11px 13px 10px; }
+  html.density-compact .card .card-client,
+  html.density-compact .card .card-steps,
+  html.density-compact .card .card-notified,
+  html.density-compact .card .vendor-wait-row,
+  html.density-compact .card .turnaround-chip,
+  html.density-compact .card .qb-badge,
+  html.density-compact .card .qb-synced,
+  html.density-compact .card .payment-badge,
+  html.density-compact .card .followup-sent-badge,
+  html.density-compact .card .parallel-badge,
+  html.density-compact .card .job-type-badge,
+  html.density-compact .card .days-badge{
+    display:none !important;
+  }
+  /* collapse the now-empty value-row spacer so value sits tight */
+  html.density-compact .card .card-row{ margin:0; }
+
+  /* ════ SMART QUEUE — permanent Apple-Health declutter (all views) ════ */
+  .ai-sidebar .qi-row{ display:flex; align-items:center; gap:10px; flex-wrap:nowrap; padding:11px 12px; }
+  .ai-sidebar .qi-info{ flex:1; min-width:0; }
+  .ai-sidebar .qi-name{ white-space:normal !important; overflow:visible !important; text-overflow:clip !important; font-size:12.5px !important; line-height:1.3 !important; font-weight:600 !important; }
+  /* one job = one line: drop secondary annotations + noise */
+  .ai-sidebar .qi-info > div:not(.qi-name){ display:none !important; }
+  .ai-sidebar .qi-seq,
+  .ai-sidebar .qi-badge-wrap{ display:none !important; }
+  /* quieter ranking indicator */
+  .ai-sidebar .qi-num{ box-shadow:none !important; border:none !important; background:rgba(255,255,255,0.09) !important; color:rgba(255,255,255,0.65) !important; font-weight:700 !important; }
+  /* single primary action, pushed right, never stacked */
+  .sfq-actions{ margin:0 0 0 auto !important; flex:0 0 auto !important; display:flex !important; }
+  .sfq-btn{ flex:0 0 auto !important; min-height:34px; padding:7px 13px !important; font-size:11.5px !important; white-space:nowrap; }
+
+  /* "Why?" hidden by default — hover on desktop, tap on touch */
+  .ai-sidebar .qi-explain{ display:none; }
+  .ai-sidebar .qi-explain[data-open]{ display:block !important; }
+  @media (hover:hover){
+    .ai-sidebar .qi-why{ opacity:0; pointer-events:none; width:0; padding:0; margin:0; overflow:hidden; }
+    .ai-sidebar .queue-item:hover .qi-explain{ display:block !important; }
+  }
+  @media (hover:none){
+    .ai-sidebar .qi-why{ opacity:0.75; }
+  }
+  /* calmer parallel grouping: soften the indented connector items */
+  .ai-sidebar .queue-item[style*="border-left"]{ background:rgba(217,164,65,0.05); border-radius:0 10px 10px 0; }
 </style>
 <script src="signflow-engine.js"></script>
 
