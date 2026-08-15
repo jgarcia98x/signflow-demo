@@ -353,8 +353,31 @@
     });
   }
 
+  /* Collapse/expand the Smart Queue so the board can use the full width */
+  function initQueueToggle(){
+    var wrap=document.querySelector('.board-wrap'); if(!wrap) return;
+    if(document.getElementById('sf-queue-toggle')) return;
+    var b=document.createElement('button');
+    b.id='sf-queue-toggle'; b.type='button';
+    function sync(){
+      var col=document.documentElement.classList.contains('queue-collapsed');
+      b.textContent = col ? '\u2039' : '\u203A';
+      b.title = col ? 'Show Smart Queue' : 'Hide Smart Queue (full-width board)';
+      b.setAttribute('aria-label', b.title);
+    }
+    try{ if(localStorage.getItem('sf_queue')==='collapsed') document.documentElement.classList.add('queue-collapsed'); }catch(e){}
+    sync();
+    b.addEventListener('click', function(){
+      var col=document.documentElement.classList.toggle('queue-collapsed');
+      try{ localStorage.setItem('sf_queue', col?'collapsed':'open'); }catch(e){}
+      sync();
+    });
+    wrap.appendChild(b);
+  }
+
   function boot(){
     try{ initDensity(); }catch(e){ console.warn('DENS',e); }
+    try{ initQueueToggle(); }catch(e){ console.warn('QT',e); }
     try{ initSmartQueue(); }catch(e){ console.warn('SFQ',e); }
     try{ initResources(); }catch(e){ console.warn('RES',e); }
     try{ initImpact(); }catch(e){ console.warn('IMP',e); }

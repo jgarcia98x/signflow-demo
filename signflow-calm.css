@@ -334,9 +334,38 @@ nav a.active{ background: rgba(255,255,255,0.10) !important; }
 }
 .btn-new:hover{ background: rgba(255,255,255,0.18) !important; }
 
-/* The board scrolls horizontally (7 columns never fit). Hard-cut columns at the
-   sidebar edge read as "broken/overlapping" — a soft fade makes the scroll
-   boundary legible and intentional. */
+/* ══ BOARD FIT ═════════════════════════════════════════
+   7 columns need ~1306px; only ~922px is visible beside the sidebar.
+   Rather than crushing columns to an unreadable 121px, we:
+     a) snap scrolling so a column is never sliced in half
+     b) let the Smart Queue collapse, freeing 258px for the board          */
+.board-wrap{ scroll-snap-type: x mandatory; scroll-padding-left: 0; }
+.col{ scroll-snap-align: start; }
+
+/* Collapsible Smart Queue — gives the board the full width on demand */
+.ai-sidebar{ transition: width .22s ease, min-width .22s ease, opacity .18s ease; }
+html.queue-collapsed .ai-sidebar{
+  display: none !important;   /* .ai-sidebar sets display:flex later; width:0 alone loses */
+}
+/* board.min-width:980px would still force a scrollbar — release it so the
+   7 columns can share the reclaimed width */
+html.queue-collapsed .board{ min-width: 0 !important; }
+html.queue-collapsed .col{ min-width: 150px !important; }
+#sf-queue-toggle{
+  position: absolute; top: 8px; right: 8px; z-index: 60;
+  width: 26px; height: 26px; border-radius: 7px; cursor: pointer;
+  background: rgba(255,255,255,0.08); border: 1px solid var(--calm-hair-hi);
+  color: var(--calm-ink-2); font-size: 12px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-family: inherit; transition: background .15s;
+}
+#sf-queue-toggle:hover{ background: rgba(255,255,255,0.15); color: var(--calm-ink); }
+
+/* Uniform card rhythm: equal vertical spacing, consistent min-height so a
+   column of cards reads as a calm stack rather than ragged blocks. */
+.card{ min-height: 76px; display: flex; flex-direction: column; justify-content: center; }
+html.density-compact .card{ min-height: 72px; }
+
 .board-wrap{ position: relative; }
 .board-wrap::after{
   content:""; position: sticky; float: right; top: 0; right: 0;
