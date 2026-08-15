@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="signflow-dnd.js"></script>
+  <script src="signflow-jobs.js"></script>
   <title>SignFlow — Smart Schedule</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1249,6 +1251,208 @@ document.querySelectorAll('.job-block').forEach(function(block) {
     block.style.outlineOffset = '';
   }
 });
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   SCHEDULE DRAG & DROP  (Peter, 2026-08-15)
+   Reassign a job block to a different crew member or day by dragging.
+   Conflicts are recomputed live after every drop, so clearing an
+   overlap actually clears the ⚠ flag instead of leaving it stale.
+   ═══════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  /* ── time parsing: "7:00 AM – 4:00 PM" → minutes since midnight ── */
+  function toMinutes(str) {
+    var m = String(str).trim().match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
+    if (!m) return null;
+    var h = parseInt(m[1], 10);
+    var min = m[2] ? parseInt(m[2], 10) : 0;
+    var mer = m[3].toUpperCase();
+    if (mer === 'PM' && h !== 12) h += 12;
+    if (mer === 'AM' && h === 12) h = 0;
+    return h * 60 + min;
+  }
+
+  function blockRange(block) {
+    var el = block.querySelector('.job-block-time');
+    if (!el) return null;
+    var parts = (el.textContent || '').split(/[–—-]/);
+    if (parts.length < 2) return null;
+    var s = toMinutes(parts[0]), e = toMinutes(parts[1]);
+    if (s == null || e == null) return null;
+    return { start: s, end: e };
+  }
+
+  /* Two blocks clash when their time ranges overlap. */
+  function overlaps(a, b) {
+    return a && b && a.start < b.end && b.start < a.end;
+  }
+
+  /* ── recompute every conflict on the board ────────────────────────
+     The board ships with hand-authored .conflict-badge chips already in
+     the markup, so we show/hide those rather than injecting a second
+     set (which produced doubled ⚠ CONFLICT labels). */
+  function conflictBadge(block) {
+    var b = block.querySelector('.conflict-badge');
+    if (b) return b;
+    b = document.createElement('div');
+    b.className = 'conflict-badge';
+    b.textContent = '\u26A0 CONFLICT';
+    block.insertBefore(b, block.firstChild);
+    return b;
+  }
+
+  function recheckConflicts() {
+    document.querySelectorAll('.job-block').forEach(function (b) {
+      b.classList.remove('conflict');
+      var badge = b.querySelector('.conflict-badge');
+      if (badge) badge.style.display = 'none';
+    });
+    document.querySelectorAll('.day-cell').forEach(function (c) {
+      c.classList.remove('conflict-cell');
+    });
+
+    document.querySelectorAll('.day-cell').forEach(function (cell) {
+      var blocks = Array.prototype.slice.call(cell.querySelectorAll('.job-block'));
+      if (blocks.length < 2) return;
+
+      var ranges = blocks.map(blockRange);
+      var hit = false;
+
+      for (var i = 0; i < blocks.length; i++) {
+        for (var j = i + 1; j < blocks.length; j++) {
+          if (overlaps(ranges[i], ranges[j])) {
+            blocks[i].classList.add('conflict');
+            blocks[j].classList.add('conflict');
+            hit = true;
+          }
+        }
+      }
+      if (hit) cell.classList.add('conflict-cell');
+    });
+
+    document.querySelectorAll('.job-block.conflict').forEach(function (b) {
+      conflictBadge(b).style.display = '';
+    });
+
+    updateCrewConflictState();
+    return document.querySelectorAll('.day-cell.conflict-cell').length;
+  }
+
+  /* ── crew badge: conflict state only ───────────────────────────
+     The utilisation percentages are authored figures that account for
+     travel, prep and admin — not just block hours. Recomputing them from
+     block times alone produced nonsense (a PM running six short meetings
+     dropped to 10%). So we only swap the badge to a conflict warning and
+     restore the original number when the conflict clears. */
+  function updateCrewConflictState() {
+    document.querySelectorAll('.crew-util').forEach(function (util) {
+      if (!util.hasAttribute('data-orig')) {
+        util.setAttribute('data-orig', util.textContent.trim());
+        util.setAttribute('data-orig-class', util.className);
+      }
+
+      var node = util.closest('.crew-label') || util.parentNode;
+      var cells = [], n = node && node.nextElementSibling;
+      while (n && cells.length < 5 && n.classList.contains('day-cell')) {
+        cells.push(n); n = n.nextElementSibling;
+      }
+
+      var hasConflict = cells.some(function (c) {
+        return !!c.querySelector('.job-block.conflict');
+      });
+
+      var orig = util.getAttribute('data-orig') || '';
+
+      if (hasConflict) {
+        /* Show a load figure alongside the warning. Dave's authored badge
+           reads "⚠ Conflict" with no number, which made the single most
+           overbooked crew look like they had no load at all — so derive
+           one from booked hours when the markup doesn't supply it. */
+        var pct = null;
+        var m = orig.match(/(\d+)\s*%/);
+        if (m) {
+          pct = m[1];
+        } else {
+          var mins = 0;
+          cells.forEach(function (c) {
+            c.querySelectorAll('.job-block').forEach(function (b) {
+              var r = blockRange(b);
+              if (r) mins += (r.end - r.start);
+            });
+          });
+          if (mins > 0) pct = Math.round((mins / (40 * 60)) * 100);
+        }
+        util.className = 'crew-util util-over';
+        util.textContent = (pct != null ? pct + '% \u00B7 ' : '') + '\u26A0';
+        util.title = 'Double-booked — overlapping jobs this week';
+      } else {
+        util.className = util.getAttribute('data-orig-class') || util.className;
+        util.textContent = orig || util.textContent;
+        util.removeAttribute('title');
+      }
+    });
+  }
+
+  /* ── identify a cell so placements can be restored ──────────────── */
+  function cellKey(cell) {
+    var all = Array.prototype.slice.call(document.querySelectorAll('.day-cell'));
+    return 'cell-' + all.indexOf(cell);
+  }
+
+  function ready(fn) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn);
+    } else { fn(); }
+  }
+
+  ready(function () {
+    /* Restore any saved moves before the first conflict pass. */
+    if (window.SFJobs) {
+      var saved = SFJobs.allPlaces();
+      var cells = Array.prototype.slice.call(document.querySelectorAll('.day-cell'));
+      document.querySelectorAll('.job-block').forEach(function (b) {
+        var id = SFJobs.ensureId(b);
+        var p = saved[id];
+        if (!p || !/^cell-\d+$/.test(p.zone || '')) return;
+        var idx = parseInt(p.zone.split('-')[1], 10);
+        if (cells[idx] && b.parentNode !== cells[idx]) cells[idx].appendChild(b);
+      });
+    }
+
+    recheckConflicts();
+
+    if (!window.SFDnD) return;
+    SFDnD.init({
+      item: '.job-block',
+      container: '.day-cell',
+      reorder: true,
+      handleCancel: 'button, input, select, textarea, a',
+      onDrop: function (block, toCell, fromCell) {
+        if (window.SFJobs) {
+          var key = cellKey(toCell);
+          Array.prototype.slice.call(toCell.querySelectorAll('.job-block'))
+            .forEach(function (b, i) { SFJobs.place(b, key, i); });
+        }
+
+        var before = document.querySelectorAll('.job-block.conflict').length;
+        recheckConflicts();
+        var after = document.querySelectorAll('.job-block.conflict').length;
+
+        var name = (block.querySelector('.job-block-name') || {}).textContent || 'Job';
+        if (typeof window.toast === 'function') {
+          if (after < before)      toast(name + ' moved \u2014 conflict resolved \u2713', '\u2705');
+          else if (after > before) toast(name + ' moved \u2014 new conflict created', '\u26A0');
+          else                     toast(name + ' reassigned', '\uD83D\uDCC5');
+        }
+      }
+    });
+  });
+
+  window.SFRecheckConflicts = recheckConflicts;
+})();
 </script>
 
 <script>

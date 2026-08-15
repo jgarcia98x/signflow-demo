@@ -657,3 +657,113 @@ header{
 .rev-chart{ align-items: stretch !important; }
 .rev-col{ min-height: 0 !important; }
 .rev-bar-wrap{ flex: 1 1 auto !important; min-height: 84px !important; height: 84px !important; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   NORMAL-PRIORITY BLUE  (Peter, 2026-08-15)
+   ───────────────────────────────────────────────────────────────────
+   Normal jobs read as dead space when they're grey — and they're the
+   bulk of the board. A calm slate-blue gives them presence without
+   competing with the alert palette.
+
+   Deliberately scoped: pipeline cards and schedule blocks ONLY.
+   Urgent (red) and High (amber) are untouched.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  --calm-normal:      #5B8FC7;                 /* slate blue, desaturated to match */
+  --calm-normal-soft: rgba(91,143,199,0.13);
+  --calm-normal-hair: rgba(91,143,199,0.34);
+}
+
+/* ── Pipeline cards ─────────────────────────────────────────────── */
+/* A crisp 3px edge, no gradient wash. The earlier fill made some cards
+   read as a diffuse glow and others as nothing at all; a solid rule is
+   legible on every card regardless of what sits behind it. */
+.card.normal{
+  border-left: 3px solid var(--calm-normal) !important;
+  background-image: none !important;
+}
+.card.normal:hover{
+  border-left-color: #7FADDF !important;
+  border-color: var(--calm-normal-hair) !important;
+}
+/* Match the edge weight so the column doesn't look ragged. The calm pass
+   routed urgency through ::after and left border-left grey — fine when
+   nothing else used the edge, but now that Normal is blue and High is
+   amber, a grey edge made URGENT read as the *lowest* priority on the
+   board. All three now share one channel: blue < amber < red. */
+.card.urgent, .card.high{ border-left-width: 3px !important; }
+.card.urgent{ border-left-color: var(--calm-alert) !important; }
+
+/* status dot + label */
+.card.normal .priority-label.normal{ --pl-tone: var(--calm-normal) !important; }
+.card.normal .priority-label.normal::before{
+  background: var(--calm-normal) !important;
+}
+.priority-label.normal{ color: rgba(158,196,238,0.86) !important; }
+
+/* Keep urgent/high exactly as the calm pass left them. */
+.card.urgent, .card.high{ background-image: none !important; }
+
+/* Cold, lost and done stay muted — blue is for live-and-normal work. */
+.card.cold, .card.lost, .card.done{
+  background-image: none !important;
+  border-left-color: var(--calm-hair) !important;
+}
+
+/* ── Schedule blocks ────────────────────────────────────────────── */
+/* Blocks carry a per-job background colour inline, so tint the edge only. */
+.job-block:not(.conflict):not(.urgent):not(.install){
+  border-left: 2px solid var(--calm-normal) !important;
+}
+.job-block.conflict{ border-left-color: var(--calm-alert) !important; }
+
+/* Crew utilisation states added by the live recalc (schedule drag). */
+.util-mid  { background: rgba(91,143,199,0.16) !important; color:#9EC4EE !important;
+             border: 1px solid rgba(91,143,199,0.30) !important; }
+.util-over { background: rgba(229,83,75,0.18)  !important; color:#E5534B !important;
+             border: 1px solid rgba(229,83,75,0.34) !important; }
+
+/* HIGH priority needs its own edge so it isn't mistaken for Normal blue
+   or Urgent red. Amber sits between the two without joining the alert
+   palette. */
+.card.high{ border-left-color: #D9A441 !important; }
+.priority-label.high{ --pl-tone: #D9A441 !important; color: rgba(217,164,65,0.92) !important; }
+.card.high .priority-label.high::before{ background: #D9A441 !important; }
+
+/* Vendor-wait cards ([data-outsourced]) tinted their left edge purple, and
+   the urgent variant used `inherit`, which resolves to near-white — so the
+   two outsourced urgent jobs lost their red entirely. Priority is the more
+   important signal on the edge; vendor status is already shown by its own
+   badge and in the detail panel. */
+.card.urgent[data-outsourced]{ border-left-color: var(--calm-alert) !important; }
+.card.high[data-outsourced]{   border-left-color: #D9A441 !important; }
+.card.normal[data-outsourced]{ border-left-color: var(--calm-normal) !important; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCHEDULE CREW LABELS — stop truncating names
+   ───────────────────────────────────────────────────────────────────
+   The label column packs avatar + name + utilisation badge onto one
+   190px row, so every crew name ellipsised ("Mike Re…", "Dav…"). The
+   badge now sits on its own line under the role, which frees the full
+   width for the name and reads more calmly besides.
+   ═══════════════════════════════════════════════════════════════════ */
+.schedule-grid{ grid-template-columns: 212px repeat(5, 1fr) !important; }
+
+.crew-label{ flex-wrap: wrap !important; row-gap: 6px !important; }
+.crew-info{ flex: 1 1 auto !important; min-width: 0 !important; }
+.crew-name{
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.25 !important;
+}
+/* Badge drops to its own line, aligned under the text rather than the avatar. */
+.crew-label .crew-util{
+  flex: 0 0 auto !important;
+  margin-left: 44px !important;   /* avatar (34) + gap (10) */
+  align-self: flex-start !important;
+}
+
+@media (max-width: 1024px){
+  .schedule-grid{ grid-template-columns: 190px repeat(5, 1fr) !important; }
+}
