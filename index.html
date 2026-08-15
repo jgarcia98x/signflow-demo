@@ -6,7 +6,8 @@
   <title>SignFlow — Job Pipeline</title>
   <!-- Drag layer + job persistence must exist before the inline board
        scripts run, so they load here rather than at the foot of the page. -->
-  <script src="signflow-dnd.js"></script>
+  <script src="signflow-store.js"></script>
+<script src="signflow-dnd.js"></script>
   <script src="signflow-jobs.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1251,8 +1252,7 @@
     <a href="#" class="active">Pipeline</a>
     <a href="schedule.html">Schedule</a>
     <a href="customers.html">Customers</a>
-    <a href="jobs.html">Jobs</a>
-    <a href="reports.html">Reports</a>
+    <a href="jobs.html">Jobs &amp; Reports</a>
     <a href="settings.html">Settings</a>
   </nav>
   <div class="header-right">
@@ -2011,6 +2011,49 @@
   }
 
   /* Restore drag positions saved from a previous visit. */
+  /* ── Deep link: index.html?job=<slug> ────────────────────────────────
+     Customers "View in Pipeline" links here. Scroll the card into view,
+     flash it so the eye lands on it, and open its detail panel. */
+  (function deepLink() {
+    var want = new URLSearchParams(location.search).get('job');
+    if (!want) return;
+
+    function attempt(tries) {
+      var card = document.querySelector('.card[data-job-id="' + CSS.escape(want) + '"]');
+      if (!card) {
+        /* Fall back to a looser name match — slugs can drift if a job
+           was renamed after the customer record was written. */
+        card = Array.prototype.slice.call(document.querySelectorAll('.card'))
+          .filter(function (c) {
+            var n = c.querySelector('.card-name');
+            return n && SFStore.slug(n.textContent) === want;
+          })[0];
+      }
+      if (!card) {
+        if (tries > 0) return setTimeout(function(){ attempt(tries - 1); }, 120);
+        if (window.toast) toast('That job is no longer on the board', 'ℹ️');
+        return;
+      }
+
+      var wrap = document.querySelector('.board-wrap');
+      if (wrap) {
+        var cr = card.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
+        wrap.scrollLeft += (cr.left - wr.left) - (wr.width / 2) + (cr.width / 2);
+      }
+      card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+
+      card.classList.add('sf-deep-hit');
+      setTimeout(function(){ card.classList.remove('sf-deep-hit'); }, 2600);
+
+      /* Open the detail panel for it. */
+      setTimeout(function(){ card.click(); }, 380);
+
+      /* Clean the URL so a refresh doesn't re-trigger the flash. */
+      history.replaceState({}, '', location.pathname);
+    }
+    setTimeout(function(){ attempt(12); }, 260);
+  })();
+
   (function restorePlacements() {
     if (!window.SFJobs) return;
     var saved = SFJobs.allPlaces();
@@ -2123,6 +2166,19 @@
      Runs after custom jobs are injected so both kinds are covered. */
   if (window.SFJobs) {
     document.querySelectorAll('.card').forEach(function (c) { SFJobs.ensureId(c); });
+
+    /* Seed each card's real due date from the shared store before
+       hydrating. Without this, opening a seeded job in the editor shows
+       "No due date" — and saving would quietly erase a date the card was
+       already displaying. */
+    if (window.SFStore) {
+      document.querySelectorAll('.card').forEach(function (c) {
+        if (c.getAttribute('data-due-iso')) return;
+        var rec = SFStore.get(c.getAttribute('data-job-id'));
+        if (rec && rec.due) c.setAttribute('data-due-iso', rec.due);
+      });
+    }
+
     SFJobs.hydrate('.card');
   }
 
@@ -2166,7 +2222,7 @@
     '    </div>',
     '    <div class="sf-row-2">',
     '      <div class="sf-field"><label class="sf-lbl">Job Value ($)</label><input id="nj-value" type="number" placeholder="e.g. 4800"></div>',
-    '      <div class="sf-field"><label class="sf-lbl">Due Date</label><input id="nj-due" type="text" placeholder="e.g. Aug 20"></div>',
+    '      <div class="sf-field"><label class="sf-lbl">Due Date</label><select id="nj-due"></select></div>',
     '    </div>',
     '    <div class="sf-row-2">',
     '      <div class="sf-field"><label class="sf-lbl">Job Type</label>',
@@ -2188,8 +2244,67 @@
 
   function $f(id) { return document.getElementById(id); }
 
+  /* ── Due-date picker ─────────────────────────────────────────────────
+     Due dates used to be free text ("Due Aug 5", "New today"), so
+     nothing could sort or recolour them and every overdue flag was
+     typed by hand. This builds a real day list — today through two
+     months out — and stores an ISO date behind each option. */
+  function buildDueOptions(sel) {
+    if (!sel || sel.dataset.built) return;
+    var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var start = (window.SFStore ? SFStore.today() : new Date());
+    var html = ['<option value="">No due date</option>'];
+
+    for (var i = 0; i <= 62; i++) {
+      var d = new Date(start.getTime());
+      d.setDate(d.getDate() + i);
+      var v = d.getFullYear() + '-' +
+              String(d.getMonth() + 1).padStart(2, '0') + '-' +
+              String(d.getDate()).padStart(2, '0');
+      var label = DAY[d.getDay()] + ' ' + MON[d.getMonth()] + ' ' + d.getDate();
+      if (i === 0) label += '  · today';
+      else if (i === 1) label += '  · tomorrow';
+      else if (i <= 13) label += '  · ' + i + ' days';
+      html.push('<option value="' + v + '">' + label + '</option>');
+    }
+    sel.innerHTML = html.join('');
+    sel.dataset.built = '1';
+  }
+
+  /* A card may carry an older free-text due ("Due Aug 5"). Map it onto
+     a real option so editing an untouched seeded job doesn't silently
+     wipe its date. */
+  function dueToISO(txt) {
+    if (!txt) return '';
+    var m = String(txt).match(/([A-Z][a-z]{2})\s+(\d{1,2})/);
+    if (!m) return '';
+    var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var mi = MON.indexOf(m[1]); if (mi < 0) return '';
+    var base = (window.SFStore ? SFStore.today() : new Date());
+    var yr = base.getFullYear();
+    if (mi < base.getMonth() - 6) yr += 1;
+    return yr + '-' + String(mi + 1).padStart(2,'0') + '-' + String(+m[2]).padStart(2,'0');
+  }
+
+  /* Render the chip text + colour from a real date. */
+  function dueLabel(isoStr) {
+    if (!isoStr) return { text: 'TBD', cls: '' };
+    var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var d = (window.SFStore ? SFStore.parseISO(isoStr) : null);
+    if (!d) return { text: 'TBD', cls: '' };
+    var t = (window.SFStore ? SFStore.today() : new Date());
+    var diff = Math.round((d - t) / 86400000);
+    var lab = MON[d.getMonth()] + ' ' + d.getDate();
+    if (diff < 0)   return { text: 'Overdue ' + lab, cls: 'overdue' };
+    if (diff === 0) return { text: 'Due today',      cls: 'soon' };
+    if (diff === 1) return { text: 'Due tomorrow',   cls: 'soon' };
+    if (diff <= 3)  return { text: 'Due ' + lab,     cls: 'soon' };
+    return { text: 'Due ' + lab, cls: '' };
+  }
+
   function clearForm() {
-    ['nj-name','nj-client','nj-value','nj-due','nj-step1','nj-step2']
+    ['nj-name','nj-client','nj-value','nj-step1','nj-step2']
       .forEach(function(id){ if ($f(id)) $f(id).value = ''; });
     if ($f('nj-priority')) $f('nj-priority').value = 'normal';
     if ($f('nj-col'))      $f('nj-col').value = 'new';
@@ -2218,7 +2333,9 @@
       $f('nj-priority').value = d.priority;
       $f('nj-col').value      = colKeyForSelect(editTarget.closest('.col'));
       $f('nj-value').value    = d.value;
-      $f('nj-due').value      = (d.due === 'TBD' ? '' : d.due);
+      buildDueOptions($f('nj-due'));
+      $f('nj-due').value = editTarget.getAttribute('data-due-iso')
+                        || dueToISO(d.due === 'TBD' ? '' : d.due);
       $f('nj-type').value     = d.type || 'outdoor';
       $f('nj-vendor').value   = editTarget.getAttribute('data-outsourced') || '';
       $f('nj-step1').value    = d.steps[0] || '';
@@ -2227,6 +2344,8 @@
       submitEl.textContent = 'Save Changes ✓';
     } else {
       clearForm();
+      buildDueOptions($f('nj-due'));
+      $f('nj-due').value = '';
       titleEl.textContent  = '＋ New Job';
       submitEl.textContent = 'Add Job →';
     }
@@ -2257,18 +2376,35 @@
       client:   $f('nj-client').value.trim() || name,
       priority: $f('nj-priority').value,
       value:    $f('nj-value').value || '',
-      due:      $f('nj-due').value.trim() || '',
+      due:      dueLabel($f('nj-due').value).text,
       type:     $f('nj-type').value,
       steps:    steps,
       _forceLabel: true
     };
     var vendor   = $f('nj-vendor').value;
     var stageKey = $f('nj-col').value;
+    var dueISO   = $f('nj-due').value;
+    var dueInfo  = dueLabel(dueISO);
+
+    /* Keep the real date on the element so reopening the modal
+       preselects it and the chip colour stays derived, not typed. */
+    function applyDue(card) {
+      if (dueISO) card.setAttribute('data-due-iso', dueISO);
+      else card.removeAttribute('data-due-iso');
+      var chip = card.querySelector('.card-due');
+      if (chip) {
+        chip.textContent = dueInfo.text;
+        chip.classList.remove('soon', 'overdue');
+        if (dueInfo.cls) chip.classList.add(dueInfo.cls);
+      }
+    }
 
     /* ── EDIT ──────────────────────────────────────────── */
     if (editTarget) {
       var card = editTarget;
       SFJobs.update(card, patch);
+      applyDue(card);
+      SFJobs.setDue(card, dueISO);
 
       if (vendor) card.setAttribute('data-outsourced', vendor);
       else card.removeAttribute('data-outsourced');
@@ -2287,7 +2423,7 @@
       var cj = customJobs.filter(function(j){ return String(j.id) === card.getAttribute('data-custom-id'); })[0];
       if (cj) {
         cj.name = patch.name; cj.client = patch.client; cj.priority = patch.priority;
-        cj.value = patch.value; cj.due = patch.due; cj.column = stageKey;
+        cj.value = patch.value; cj.due = patch.due; cj.dueISO = dueISO; cj.column = stageKey;
         cj.type = patch.type; cj.vendor = vendor; cj.steps = steps;
         try { localStorage.setItem(JOBS_KEY, JSON.stringify(customJobs)); } catch(e) {}
       }
@@ -2303,13 +2439,15 @@
     var job = {
       id: Date.now(),
       name: patch.name, client: patch.client, priority: patch.priority,
-      column: stageKey, value: patch.value, due: patch.due,
+      column: stageKey, value: patch.value, due: patch.due, dueISO: dueISO,
       type: patch.type, vendor: vendor, steps: steps
     };
     customJobs.push(job);
     try { localStorage.setItem(JOBS_KEY, JSON.stringify(customJobs)); } catch(e) {}
     var col = getColEl(job.column);
     var el = createCardEl(job);
+    applyDue(el);
+    SFJobs.setDue(el, dueISO);
     col.appendChild(el);
     updateColBadges(); updateJobCount();
     closeModal();

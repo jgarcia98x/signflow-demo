@@ -238,8 +238,7 @@
     <a href="index.html">Pipeline</a>
     <a href="schedule.html">Schedule</a>
     <a href="customers.html">Customers</a>
-    <a href="jobs.html">Jobs</a>
-    <a href="reports.html" class="active">Reports</a>
+    <a href="jobs.html" class="active">Jobs &amp; Reports</a>
     <a href="settings.html">Settings</a>
   </nav>
   <div class="header-right">
@@ -773,6 +772,30 @@
   table{max-width:100%;}
 }
 </style>
+<script>
+/* ── Embed mode ──────────────────────────────────────────────────────
+   reports.html?embed=1 is shown inside the Jobs & Reports tab. Hide the
+   chrome that the parent already provides, and report our height up so
+   the iframe can size itself (no nested scrollbar). */
+(function(){
+  if (new URLSearchParams(location.search).get('embed') !== '1') return;
+  document.documentElement.classList.add('sf-embed');
+  var st = document.createElement('style');
+  st.textContent =
+    '.sf-embed header{display:none !important;}' +
+    '.sf-embed body{background:transparent !important;}' +
+    '.sf-embed .sub-bar{padding-top:14px !important;}';
+  document.head.appendChild(st);
+
+  function ping(){
+    var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    parent.postMessage({ sfHeight: h }, '*');
+  }
+  window.addEventListener('load', function(){ ping(); setTimeout(ping, 500); setTimeout(ping, 1400); });
+  window.addEventListener('resize', ping);
+  new MutationObserver(ping).observe(document.body, {childList:true, subtree:true});
+})();
+</script>
 <script src="signflow-engine.js"></script>
 </body>
 </html>

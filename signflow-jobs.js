@@ -156,11 +156,49 @@
 
     getOverride: function (id) { return overrides[id] || null; },
 
-    /* Restore saved edits onto every card currently in the DOM. */
+    /* Store the real ISO due date for a card. Kept separate from the
+       display string so the chip text stays derived (and can re-colour
+       as a date approaches) rather than frozen at whatever was typed. */
+    setDue: function (card, isoStr) {
+      var id = ensureId(card);
+      overrides[id] = Object.assign({}, overrides[id] || {}, { dueISO: isoStr || '' });
+      save(K_OVERRIDE, overrides);
+      if (isoStr) card.setAttribute('data-due-iso', isoStr);
+      else card.removeAttribute('data-due-iso');
+      return id;
+    },
+
+    /* Restore saved edits onto every card currently in the DOM.
+       Due dates are re-derived from the stored ISO value rather than
+       replayed as text, so a card saved as "Due tomorrow" doesn't still
+       claim that a week later. */
     hydrate: function (selector) {
       document.querySelectorAll(selector || '.card').forEach(function (card) {
         var id = ensureId(card);
-        if (overrides[id]) applyToCard(card, overrides[id]);
+        var o = overrides[id];
+        if (!o) return;
+        applyToCard(card, o);
+
+        if (o.dueISO) {
+          card.setAttribute('data-due-iso', o.dueISO);
+          var chip = card.querySelector('.card-due');
+          if (chip && global.SFStore) {
+            var d = SFStore.parseISO(o.dueISO);
+            if (d) {
+              var diff = SFStore.daysBetween(SFStore.today(), d);
+              var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul',
+                         'Aug','Sep','Oct','Nov','Dec'];
+              var lab = MON[d.getMonth()] + ' ' + d.getDate();
+              chip.textContent = diff < 0   ? 'Overdue ' + lab
+                               : diff === 0 ? 'Due today'
+                               : diff === 1 ? 'Due tomorrow'
+                               : 'Due ' + lab;
+              chip.classList.remove('soon', 'overdue');
+              if (diff < 0) chip.classList.add('overdue');
+              else if (diff <= 3) chip.classList.add('soon');
+            }
+          }
+        }
       });
     },
 
