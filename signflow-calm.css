@@ -738,3 +738,32 @@ header{
 .card.urgent[data-outsourced]{ border-left-color: var(--calm-alert) !important; }
 .card.high[data-outsourced]{   border-left-color: #D9A441 !important; }
 .card.normal[data-outsourced]{ border-left-color: var(--calm-normal) !important; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCHEDULE CREW LABELS — stop truncating names
+   ───────────────────────────────────────────────────────────────────
+   The label column packs avatar + name + utilisation badge onto one
+   190px row, so every crew name ellipsised ("Mike Re…", "Dav…"). The
+   badge now sits on its own line under the role, which frees the full
+   width for the name and reads more calmly besides.
+   ═══════════════════════════════════════════════════════════════════ */
+.schedule-grid{ grid-template-columns: 212px repeat(5, 1fr) !important; }
+
+.crew-label{ flex-wrap: wrap !important; row-gap: 6px !important; }
+.crew-info{ flex: 1 1 auto !important; min-width: 0 !important; }
+.crew-name{
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.25 !important;
+}
+/* Badge drops to its own line, aligned under the text rather than the avatar. */
+.crew-label .crew-util{
+  flex: 0 0 auto !important;
+  margin-left: 44px !important;   /* avatar (34) + gap (10) */
+  align-self: flex-start !important;
+}
+
+@media (max-width: 1024px){
+  .schedule-grid{ grid-template-columns: 190px repeat(5, 1fr) !important; }
+}
