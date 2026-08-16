@@ -780,19 +780,62 @@
 (function(){
   if (new URLSearchParams(location.search).get('embed') !== '1') return;
   document.documentElement.classList.add('sf-embed');
+  /* This page is a 100vh flex column whose .page-content does the
+     scrolling. Inside an iframe that is wrong twice over: the body
+     never exceeds the viewport (so it measures as one screen tall),
+     and once the iframe grows, body height grows with it — the
+     measurement chases its own tail. Release the fixed height so the
+     document is its natural content height. */
   var st = document.createElement('style');
   st.textContent =
     '.sf-embed header{display:none !important;}' +
-    '.sf-embed body{background:transparent !important;}' +
+    '.sf-embed, .sf-embed body{' +
+      'height:auto !important; min-height:0 !important;' +
+      'overflow:visible !important; display:block !important;' +
+      'background:transparent !important;}' +
+    '.sf-embed .page-content{' +
+      'flex:none !important; overflow:visible !important; height:auto !important;}' +
     '.sf-embed .sub-bar{padding-top:14px !important;}';
   document.head.appendChild(st);
 
+  /* Report the tallest measure available. Charts animate in after load,
+     so a single early measurement under-reports and the last section
+     gets clipped. Re-measure on a few delays and keep watching. */
+  function measure(){
+    /* Bottom of the last real element, measured from the document top.
+       Deliberately not scrollHeight: that tracks the iframe we are
+       sizing, which feeds back into itself. */
+    var max = 0, kids = document.body.children;
+    for (var i = 0; i < kids.length; i++) {
+      var el = kids[i];
+      if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE') continue;
+      var cs = getComputedStyle(el);
+      /* Fixed/absolute overlays (toasts, notification panels) size
+         themselves to the viewport — which, in an iframe, is the very
+         height we are computing. Measuring them makes the frame grow
+         on every tick. Only flow content counts. */
+      if (cs.position === 'fixed' || cs.position === 'absolute') continue;
+      if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+      var r = el.getBoundingClientRect();
+      if (!r.height) continue;
+      var bottom = r.bottom + (window.scrollY || window.pageYOffset || 0);
+      if (bottom > max) max = bottom;
+    }
+    return Math.ceil(max);
+  }
+  var sent = 0;
   function ping(){
-    var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    var h = measure();
+    if (!h) return;
+    if (Math.abs(h - sent) < 8) return;   /* ignore sub-pixel churn */
+    sent = h;
     parent.postMessage({ sfHeight: h }, '*');
   }
-  window.addEventListener('load', function(){ ping(); setTimeout(ping, 500); setTimeout(ping, 1400); });
+  window.addEventListener('load', function(){
+    [0, 300, 800, 1500, 2500, 4000].forEach(function(d){ setTimeout(ping, d); });
+  });
   window.addEventListener('resize', ping);
+  if (window.ResizeObserver) new ResizeObserver(ping).observe(document.body);
   new MutationObserver(ping).observe(document.body, {childList:true, subtree:true});
 })();
 </script>

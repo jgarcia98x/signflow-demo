@@ -239,13 +239,30 @@
   </style>
 <link rel="stylesheet" href="signflow-calm.css">
 <script src="signflow-store.js"></script>
-<script src="signflow-winpatterns.js"></script>
+<script src="signflow-conversions.js"></script>
 <style>
   /* ── View switcher ─────────────────────────────────────────── */
+  /* The page is a fixed-height flex column with overflow hidden on
+     body, so only a designated child may scroll. Originally that was
+     .table-wrap. The new panes must own their own scrolling or their
+     content is simply clipped — the embedded Reports view is ~8000px
+     tall and was unreachable below the fold. */
   .view-switch{
     display:flex; gap:4px; padding:10px 24px 0;
     border-bottom:1px solid rgba(255,255,255,0.07);
+    flex-shrink:0; overflow-x:auto; scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
   }
+  .view-switch::-webkit-scrollbar{ display:none; }
+  .sub-bar{ flex-shrink:0; }
+
+  .sf-view{
+    flex:1 1 auto; min-height:0;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  /* Jobs keeps its inner scroller so the sticky table header still
+     behaves; the pane itself must not double-scroll. */
+  #view-jobs{ display:flex; flex-direction:column; overflow:hidden; }
   .vs-tab{
     padding:9px 16px; font-size:12.5px; font-weight:600; cursor:pointer;
     color:rgba(255,255,255,0.45); border-bottom:2px solid transparent;
@@ -255,8 +272,15 @@
   .vs-tab:hover{ color:rgba(255,255,255,0.75); background:rgba(255,255,255,0.03); }
   .vs-tab.active{ color:#fff; border-bottom-color:#5B8FC7; }
 
-  /* ── Win Patterns ──────────────────────────────────────────── */
-  .wp-wrap{ padding:20px 24px 40px; }
+  /* ── Smart Conversions ──────────────────────────────────────────── */
+  .wp-wrap{ padding:20px 24px 56px; }
+  #view-reports{ padding:0 24px 56px; }
+  @media (max-width:820px){
+    .wp-wrap{ padding:16px 14px 48px; }
+    #view-reports{ padding:0 14px 48px; }
+    .view-switch{ padding:8px 14px 0; }
+    .wp-kpis{ grid-template-columns:1fr 1fr; }
+  }
   .wp-note{
     display:flex; gap:11px; align-items:flex-start;
     background:rgba(217,164,65,.16);
@@ -346,11 +370,11 @@
   </div>
 </header>
 
-<!-- ══ VIEW SWITCHER (Jobs / Reports / Win Patterns) ═══════════ -->
+<!-- ══ VIEW SWITCHER (Jobs / Reports / Smart Conversions) ═══════════ -->
 <div class="view-switch">
   <div class="vs-tab active" data-view="jobs">📋 All Jobs</div>
   <div class="vs-tab" data-view="reports">📊 Reports</div>
-  <div class="vs-tab" data-view="wins">🏆 Win Patterns</div>
+  <div class="vs-tab" data-view="wins">⚡ Smart Conversions</div>
 </div>
 
 <!-- ══ SUB BAR ═══════════════════════════════════════════════════ -->
@@ -401,10 +425,11 @@
      it. ?embed=1 tells reports.html to drop its header and nav. -->
 <div class="sf-view" id="view-reports" style="display:none;">
   <iframe id="reports-frame" title="Reports"
-          style="width:100%;border:0;background:transparent;min-height:1200px;"></iframe>
+          scrolling="no"
+          style="width:100%;border:0;background:transparent;height:600px;display:block;"></iframe>
 </div>
 
-<!-- ══ VIEW: WIN PATTERNS ══════════════════════════════════════ -->
+<!-- ══ VIEW: SMART CONVERSIONS ══════════════════════════════════════ -->
 <div class="sf-view" id="view-wins" style="display:none;">
   <div class="wp-wrap" id="wp-wrap"></div>
 </div>
@@ -654,7 +679,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════
-   VIEW SWITCHING + WIN PATTERNS
+   VIEW SWITCHING + SMART CONVERSIONS
    Jobs and Reports are one tab now. Reports is embedded rather than
    inlined so there is still exactly one copy of that chart code.
    ═══════════════════════════════════════════════════════════════════ */
@@ -690,15 +715,18 @@
     t.addEventListener('click', function () { show(t.getAttribute('data-view')); });
   });
 
-  /* Let the iframe size itself so there is no nested scrollbar. */
+  /* Let the iframe size itself so there is no nested scrollbar.
+     The height is set absolutely, never grown, so a stale large value
+     cannot strand a screen of empty space below the report. */
   window.addEventListener('message', function (e) {
-    if (e.data && e.data.sfHeight) {
-      var f = document.getElementById('reports-frame');
-      if (f) f.style.height = (e.data.sfHeight + 40) + 'px';
-    }
+    if (!e.data || !e.data.sfHeight) return;
+    var f = document.getElementById('reports-frame');
+    if (!f) return;
+    var h = Math.max(320, Math.round(e.data.sfHeight) + 48);
+    f.style.height = h + 'px';
   });
 
-  /* ── Win Patterns render ────────────────────────────────────── */
+  /* ── Smart Conversions render ────────────────────────────────────── */
   function bar(pct, thin) {
     /* 0% must render as an empty track. A minimum-width nub made a
        segment that has never won look like it sometimes does. */
@@ -708,7 +736,7 @@
   }
 
   function segmentCard(title, sub, rows) {
-    var SOLID = (window.SFWinPatterns && SFWinPatterns.SOLID_N) || 8;
+    var SOLID = (window.SFConversions && SFConversions.SOLID_N) || 8;
     var body = rows.map(function (r) {
       /* Two tiers, matching the banner: under MIN_N is too thin to
          report on, under SOLID_N is a lean rather than a finding. */
@@ -734,7 +762,7 @@
   var rendered = false;
   function renderWins() {
     if (rendered) return;
-    var W = window.SFWinPatterns, S = window.SFStore;
+    var W = window.SFConversions, S = window.SFStore;
     if (!W || !S) return;
     var a = W.analyse();
     var wrap = document.getElementById('wp-wrap');
@@ -811,7 +839,7 @@
     return wins.slice(0, 8).map(function (r) {
       return '<div class="wp-row"><div class="wp-row-top">'
         + '<span class="wp-row-name">' + r.name + '</span>'
-        + '<span class="wp-row-meta">' + r.days + 'd · ' + window.SFWinPatterns.money(r.value) + '</span>'
+        + '<span class="wp-row-meta">' + r.days + 'd · ' + window.SFConversions.money(r.value) + '</span>'
         + '</div>' + bar(Math.round((1 - r.days / max) * 100) || 4) + '</div>';
     }).join('');
   }

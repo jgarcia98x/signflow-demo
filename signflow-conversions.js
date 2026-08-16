@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   signflow-winpatterns.js — "Win Patterns"
+   signflow-conversions.js — "Smart Conversions"
    ───────────────────────────────────────────────────────────────────────
    Answers one question for Peter: which jobs actually close, and which
    close fast? Everything here is computed from SFStore records — no
@@ -211,7 +211,7 @@
     if (!out.length) out.push({
       icon: '📭',
       text: 'Not enough closed jobs yet to call a pattern.',
-      action: 'Win Patterns needs about ' + MIN_N + ' closed jobs per segment.'
+      action: 'Smart Conversions needs about ' + MIN_N + ' closed jobs per segment.'
     });
 
     return out;
@@ -219,7 +219,7 @@
 
   function cap(s) { return String(s).charAt(0).toUpperCase() + String(s).slice(1); }
 
-  global.SFWinPatterns = {
+  global.SFConversions = {
     MIN_N: MIN_N, SOLID_N: SOLID_N,
     analyse: analyse,
     insights: insights,
