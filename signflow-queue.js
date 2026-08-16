@@ -59,8 +59,33 @@
     var live = C.liveScores();
 
     /* Rank by the same score Smart Conversions uses, so the two tools
-       can never disagree about which job matters. */
+       can never disagree about which job matters — then let the install
+       date override it.
+
+       Expected value alone answers "which job is worth most?", which is
+       the wrong question for a Monday morning. A $58k job installing in
+       six weeks does not need attention today; an $8k job installing
+       Tuesday does. A shop that misses install dates loses the customer
+       regardless of how well the job was scored.
+
+       So urgency is a tier, not a weighting. Value only breaks ties
+       inside a tier. That keeps both facts legible — Peter can see it
+       is first because of the date, not because of some blended number
+       he cannot argue with. */
+    function tier(r) {
+      if (r.dueState === 'overdue')  return 0;   // already late
+      if (r.dueState === 'imminent') return 1;   // installs within 3 days
+      if (r.tight)                   return 2;   // not enough runway left
+      if (r.dueState === 'soon')     return 3;   // installs this week
+      return 4;                                  // has runway, or no date set
+    }
+
     var ranked = live.all.slice().sort(function (a, b) {
+      var ta = tier(a), tb = tier(b);
+      if (ta !== tb) return ta - tb;
+      /* Inside the same urgency tier, soonest install wins; a job with
+         no date set cannot jump ahead of one with a real deadline. */
+      if (ta <= 3 && a.daysToDue !== b.daysToDue) return a.daysToDue - b.daysToDue;
       return b.expected - a.expected;
     });
 
@@ -105,6 +130,7 @@
          work — they compete for nothing. */
       trueParallel: officeJobs.length + waiting.length,
       all: ranked,
+      live: live,
       stalling: live.stalling
     };
   }
@@ -134,6 +160,21 @@
   }
 
   function money(n) { return '$' + Number(n || 0).toLocaleString('en-US'); }
+
+  /* A short, honest date chip. Renders nothing when no date is set —
+     an absent deadline is not a deadline of "someday". */
+  function dueTag(r) {
+    if (r.daysToDue === null) return '';
+    var c, t;
+    /* "22d late" and "2d" must not be told apart by colour alone —
+       same chip, opposite meaning is a real misread risk, and colour
+       is the one channel some people do not have. Spell out tense. */
+    if (r.dueState === 'overdue')       { c = '#E2726B'; t = Math.abs(r.daysToDue) + 'd late'; }
+    else if (r.dueState === 'imminent') { c = '#D9A441'; t = 'in ' + r.daysToDue + 'd'; }
+    else if (r.dueState === 'soon')     { c = 'rgba(255,255,255,0.5)'; t = 'in ' + r.daysToDue + 'd'; }
+    else return '';
+    return '<span style="color:' + c + ';font-weight:700;margin-right:6px;">' + t + '</span>';
+  }
 
   function item(r, opts) {
     opts = opts || {};
@@ -187,6 +228,65 @@
     var q = global.SFQueue.build();
     var html = '';
 
+    /* ── Install dates: the hardest fact in the whole tool ──────
+       Peter types these himself, so they are counted, never inferred.
+       Placed above capacity because a job going late matters more than
+       how many crew are free. */
+    var L = q.live;
+    if (L.late.length || L.thisWeek.length) {
+      var lines = [];
+      L.late.forEach(function (r) {
+        lines.push('<strong>' + esc(r.name) + '</strong> — install date passed '
+          + Math.abs(r.daysToDue) + 'd ago');
+      });
+      L.thisWeek.forEach(function (r) {
+        lines.push('<strong>' + esc(r.name) + '</strong> — installs in '
+          + r.daysToDue + 'd' + (r.stage === 'Install' ? '' : ', still in ' + r.stage));
+      });
+      var late = L.late.length;
+      html += callout(
+        late ? 'rgba(194,69,63,0.09)' : 'rgba(217,164,65,0.07)',
+        late ? 'rgba(194,69,63,0.28)' : 'rgba(217,164,65,0.22)',
+        late ? '#E2726B' : '#D9A441',
+        (late ? '🚨 ' + late + ' PAST ITS INSTALL DATE'
+              : '📅 ' + L.thisWeek.length + ' INSTALLING THIS WEEK'),
+        lines.slice(0, 4).join('<br>'),
+        'From the due dates you set. These drive the order below.');
+    }
+
+    /* Runway warning — hedged, because the pace figures behind it are a
+       prior rather than Peter's own measured history. */
+    /* Only warn where it is actionable: a job already past its date is
+       covered above, and a job whose runway is only slightly tight is
+       within the noise of a prior-based estimate. Requires a real
+       shortfall (>25% over the time available) and caps the list, so
+       this stays a warning rather than wallpaper. */
+    var runway = L.deadlineRisk.filter(function (r) {
+      return r.needDays > r.daysToDue * 1.25 && r.daysToDue >= 0;
+    });
+    /* If this fires on a large share of the board, the honest reading
+       is that the built-in pace figures do not match this shop — not
+       that most jobs are doomed. Say that instead of crying wolf.
+       Disappears on its own once real history replaces the priors. */
+    var datedN = L.dated.length;
+    if (datedN >= 4 && runway.length / datedN > 0.4) {
+      html += callout('rgba(255,255,255,0.04)', 'rgba(255,255,255,0.12)',
+        'rgba(255,255,255,0.6)',
+        'ℹ️ TIMELINE ESTIMATES LOOK OFF',
+        runway.length + ' of ' + datedN + ' dated jobs would miss their install '
+          + 'date at the pace this tool assumes.',
+        'That usually means the assumed pace is wrong, not the dates. These '
+          + 'become accurate once there is enough of your own stage history.');
+    } else if (runway.length) {
+      html += callout('rgba(217,164,65,0.05)', 'rgba(217,164,65,0.18)', '#D9A441',
+        '⏳ ' + runway.length + ' MAY NOT LEAVE ENOUGH TIME',
+        runway.slice(0, 3).map(function (r) {
+          return '<strong>' + esc(r.name) + '</strong> — ' + r.stagesLeft + ' stage'
+            + (r.stagesLeft > 1 ? 's' : '') + ' to go, ' + r.daysToDue + 'd left';
+        }).join('<br>'),
+        'Based on typical pace per stage, not your measured history yet.');
+    }
+
     /* ── Capacity, from the grid Peter edits ── */
     if (q.parallelNow > 1) {
       html += callout('rgba(249,168,37,0.08)', 'rgba(249,168,37,0.25)', '#F9A825',
@@ -231,14 +331,18 @@
     q.today.forEach(function (r, i) {
       html += item(r, {
         num: String(i + 1),
-        badge: '<span class="qi-seq">' + money(r.expected) + '</span>',
+        badge: '<span class="qi-seq">' + dueTag(r) + money(r.expected) + '</span>',
         style: i ? 'margin-top:6px;' : ''
       });
     });
 
     /* ── Gone quiet: same source as Smart Conversions ── */
-    if (q.stalling.length) {
-      var s0 = q.stalling[0];
+    /* A job already listed above must not reappear here — the same
+       card twice reads as two separate pieces of work. */
+    var shownIds = q.today.map(function (r) { return r.id; });
+    var quiet = q.stalling.filter(function (r) { return shownIds.indexOf(r.id) === -1; });
+    if (quiet.length) {
+      var s0 = quiet[0];
       html += '<div style="margin-top:10px;">' + item(s0, {
         num: '❄️',
         numColor: '#4FC3F7',

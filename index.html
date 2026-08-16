@@ -3376,6 +3376,15 @@
     display:flex !important; flex:0 0 auto; align-items:center;
     margin-left:8px;  /* guarantees a gutter even when a title wraps full-width */
   }
+  /* Install-date chip + value + action button together overflowed the
+     sidebar and squeezed titles to five wrapped lines. Give the row two
+     lines instead of one: name and figures on top, action beneath. The
+     button then has the full width and nothing is clipped. */
+  .ai-sidebar .qi-row{ flex-wrap:wrap !important; row-gap:8px; }
+  .ai-sidebar .qi-info{ flex:1 1 100%; min-width:0; }
+  .ai-sidebar .qi-badge-wrap{ margin-left:auto !important; }
+  .ai-sidebar .sfq-actions{ flex:0 0 100% !important; margin:0 !important; }
+  .ai-sidebar .sfq-btn{ width:100%; justify-content:center; }
   .ai-sidebar .qi-seq{
     display:inline-block !important;
     font-size:11px !important; font-weight:700 !important;

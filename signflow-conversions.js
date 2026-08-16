@@ -299,6 +299,48 @@
       var noSource = !j.source;
       if (noSource) reasons.push({ good: false, txt: 'no lead source recorded' });
 
+      /* ── The install date ───────────────────────────────────────
+         Deliberately NOT folded into `score`. Score answers "will this
+         close?"; the install date answers "when must it be done?".
+         They are different questions and a job can be low-likelihood
+         but urgent, or a safe bet with months of runway. Blending them
+         into one number would hide exactly the case Peter cares about:
+         a sold job about to be late.
+
+         `due` is a date Peter sets himself, so days-to-install is
+         counted, never estimated. */
+      var daysToDue = null, dueState = 'none';
+      if (j.due) {
+        daysToDue = S.daysBetween(S.today(), S.parseISO(j.due));
+        if (daysToDue < 0)       dueState = 'overdue';
+        else if (daysToDue <= 3) dueState = 'imminent';
+        else if (daysToDue <= 7) dueState = 'soon';
+        else                     dueState = 'ok';
+      }
+
+      /* Is there realistically time left to finish? This compares the
+         remaining stages against typical pace. Those norms are a prior,
+         not Peter's measured history, so the wording stays hedged
+         ("may not leave time") and it never overrides the real,
+         countable fact of the date itself. */
+      var stagesLeft = Math.max(0, S.WIN_INDEX - si);
+      /* Only the time still ahead. Charging the full norm for the
+         current stage double-counts the days already spent in it and
+         made almost every job look doomed. */
+      var needDays = Math.max(0, (norms[j.stage] || 14) - inStage);
+      for (var k = si + 1; k < S.WIN_INDEX; k++) needDays += (norms[S.STAGES[k]] || 14);
+      var tight = (daysToDue !== null && daysToDue >= 0 && stagesLeft > 0 && needDays > daysToDue);
+
+      if (dueState === 'overdue') {
+        reasons.push({ good: false, txt: 'install date passed ' + Math.abs(daysToDue) + 'd ago' });
+      } else if (dueState === 'imminent') {
+        reasons.push({ good: false, txt: 'installs in ' + daysToDue + 'd' });
+      } else if (tight) {
+        reasons.push({ good: false,
+          txt: stagesLeft + ' stage' + (stagesLeft > 1 ? 's' : '') + ' left, ~'
+             + needDays + 'd of work, ' + daysToDue + 'd until install' });
+      }
+
       return {
         id: j.id, name: j.name, client: j.client, value: j.value || 0,
         stage: j.stage, source: j.source || '', type: j.type,
@@ -306,6 +348,8 @@
         inStage: inStage, norm: norm, overdueBy: overdueBy,
         stalled: stalled, noSource: noSource, reasons: reasons,
         basis: basis,
+        due: j.due || null, daysToDue: daysToDue, dueState: dueState,
+        tight: tight, needDays: needDays, stagesLeft: stagesLeft,
         /* What a win here is worth, weighted by likelihood. */
         expected: Math.round((j.value || 0) * (Math.max(3, Math.min(97, Math.round(score))) / 100))
       };
@@ -316,11 +360,23 @@
                          .sort(function (x, y) { return y.overdueBy - x.overdueBy; });
     var missing = scored.filter(function (r) { return r.noSource; });
 
+    /* Deadline view, sorted by how soon. Overdue first, then imminent. */
+    var dated = scored.filter(function (r) { return r.daysToDue !== null; })
+                      .sort(function (x, y) { return x.daysToDue - y.daysToDue; });
+    var late     = dated.filter(function (r) { return r.dueState === 'overdue'; });
+    var thisWeek = dated.filter(function (r) {
+      return r.dueState === 'imminent' || r.dueState === 'soon'; });
+    var atRisk   = dated.filter(function (r) {
+      return r.tight && r.dueState !== 'overdue'; });
+    var noDate   = scored.filter(function (r) { return r.daysToDue === null; });
+
     return {
       all: scored,
       focus: byExpected.slice(0, 5),
       stalling: stalling,
       missingSource: missing,
+      dated: dated, late: late, thisWeek: thisWeek,
+      deadlineRisk: atRisk, noDate: noDate,
       openValue: scored.reduce(function (t, r) { return t + r.value; }, 0),
       expectedValue: scored.reduce(function (t, r) { return t + r.expected; }, 0),
       confidentBasis: scored.some(function (r) { return r.basis > 0; })
