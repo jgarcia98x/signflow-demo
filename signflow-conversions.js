@@ -257,12 +257,37 @@
     return null;
   }
 
+  /* Cold and lost jobs, for outreach. Kept here so Slow Season and the
+     Customers page read the same list the queue deliberately excludes. */
+  function dormant() {
+    var S = global.SFStore;
+    return S.all().filter(function (j) {
+      return (j.priority === 'cold' || j.priority === 'lost')
+        && !S.isWon(j) && j.stage !== 'Complete';
+    }).map(function (j) {
+      var last = j.entered || j.started || null;
+      return {
+        id: j.id, name: j.name, client: j.client, value: j.value || 0,
+        stage: j.stage, source: j.source || '', type: j.type,
+        lost: j.priority === 'lost',
+        silentDays: last ? S.daysBetween(S.parseISO(last), S.today()) : null
+      };
+    }).sort(function (x, y) { return (y.value || 0) - (x.value || 0); });
+  }
+
   function liveScores(a) {
     var S = global.SFStore;
     a = a || analyse();
     var norms = stageNorms();
+    /* Cold and lost jobs are NOT open work. Leaving cold in this pool
+       ranked a 22-day-silent lead as the #1 thing to do today and
+       counted it as an install running late — while the same job sat in
+       Slow Season Outreach. A dead lead cannot be both the top priority
+       and a re-engagement candidate. Cold/lost belong to outreach; the
+       queue is for jobs that are actually moving. */
     var open = S.all().filter(function (j) {
-      return !S.isWon(j) && j.priority !== 'lost' && j.stage !== 'Complete';
+      return !S.isWon(j) && j.stage !== 'Complete'
+        && j.priority !== 'lost' && j.priority !== 'cold';
     });
 
     var scored = open.map(function (j) {
@@ -376,6 +401,7 @@
 
     return {
       all: scored,
+      dormant: dormant(),
       focus: byExpected.slice(0, 5),
       stalling: stalling,
       missingSource: missing,
@@ -392,6 +418,7 @@
     analyse: analyse,
     insights: insights,
     liveScores: liveScores,
+    dormant: dormant,
     valueBand: valueBand,
     money: money,
     median: median

@@ -6,9 +6,13 @@
   <title>SignFlow — Job Pipeline</title>
   <!-- Drag layer + job persistence must exist before the inline board
        scripts run, so they load here rather than at the foot of the page. -->
-  <script src="signflow-store.js?v=202608152344"></script>
-<script src="signflow-dnd.js?v=202608152344"></script>
-  <script src="signflow-jobs.js?v=202608152344"></script>
+  <script src="signflow-store.js?v=202608160139"></script>
+<script src="signflow-dnd.js?v=202608160139"></script>
+  <script src="signflow-jobs.js?v=202608160139"></script>
+  <!-- Must load before the inline page script: Slow Season Outreach reads
+       SFConversions.dormant(). It used to sit after the inline block, so
+       dormant() was undefined and the sidebar silently rendered empty. -->
+  <script src="signflow-conversions.js?v=202608160139"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1272,7 +1276,10 @@
 <!-- ══ SUB BAR ══════════════════════════════════════════════════ -->
 <div class="sub-bar">
   <div class="sub-bar-title">Job Pipeline</div>
-  <div class="job-count">2 new · 11 active · 2 cold · 1 lost</div>
+  <!-- Cold/lost are no longer on the board; they live in Slow Season
+       Outreach and on the Customers page. updateJobCount() recomputes
+       this from the DOM on load, so it stays honest as cards move. -->
+  <div class="job-count">2 new · 11 active</div>
   <input class="search-box" type="text" placeholder="🔍  Search jobs…" />
   <button id="sf-density-toggle" type="button" aria-pressed="true" title="Card density — At a glance">
     <span class="sfd-track"><span class="sfd-knob"></span></span>
@@ -1381,44 +1388,10 @@
       </div>
 
       <!-- ❄️ Cold -->
-      <div class="card cold" data-job-type="outdoor">
-        <div class="card-status-badge cold-badge">❄️ Cold — 22 days silent</div>
-        <div class="card-name">Bricktown Brewery — Outdoor Sign</div>
-        <div class="card-client">Bricktown Craft Brewing</div>
-        <div class="card-row">
-          <span class="priority-label normal">⚪ Normal</span>
-          <span class="card-due">Quote Jul 12</span>
-        </div>
-        <div class="card-row">
-          <div></div>
-          <div class="card-value muted">$8,600</div>
-        </div>
-        <div class="card-notified">📨 Last contact 22 days ago — no reply</div>
-        <div class="card-steps">
-          <label class="step-item"><input type="checkbox"> Follow-up call / text today</label>
-          <label class="step-item"><input type="checkbox"> Re-send quote with expiry note</label>
-        </div>
-      </div>
+
 
       <!-- ✕ Lost -->
-      <div class="card lost" data-job-type="outdoor">
-        <div class="card-status-badge lost-badge">✕ Lost — Client withdrew</div>
-        <div class="card-name">Valley Fresh Grocery — Storefront</div>
-        <div class="card-client">Valley Fresh Foods</div>
-        <div class="card-row">
-          <span class="priority-label normal">⚪ Normal</span>
-          <span class="card-due">Quote Jun 28</span>
-        </div>
-        <div class="card-row">
-          <div></div>
-          <div class="card-value muted">$14,300</div>
-        </div>
-        <div class="card-notified">❌ Client selected another vendor Jul 30</div>
-        <div class="card-steps">
-          <label class="step-item"><input type="checkbox"> Send thank-you + stay-in-touch note</label>
-          <label class="step-item"><input type="checkbox"> Add to 6-month follow-up list</label>
-        </div>
-      </div>
+
 
     </div>
 
@@ -1832,7 +1805,10 @@
     if (!countEl) return;
     var total = document.querySelectorAll('.card').length;
     var newI  = (document.querySelectorAll('.col') [0] || {querySelectorAll:function(){return[];}}).querySelectorAll('.card').length;
-    countEl.textContent = newI + ' new · ' + (total - newI) + ' active';
+    var dz = (window.SFConversions && window.SFConversions.dormant)
+      ? window.SFConversions.dormant().length : 0;
+    countEl.textContent = newI + ' new · ' + (total - newI) + ' active'
+      + (dz ? ' · ' + dz + ' dormant' : '');
   }
 
   /* ── Drag and Drop ────────────────────────────────────────
@@ -1955,7 +1931,10 @@
       var matchFilter = true;
       if (currentFilter === 'parallel')  matchFilter = text.includes('parallel') || !!card.querySelector('[class*="parallel"]');
       if (currentFilter === 'week')      matchFilter = !!card.querySelector('.card-due.soon');
-      if (currentFilter === 'cold')      matchFilter = card.classList.contains('cold') || card.classList.contains('lost');
+      /* Cold/lost no longer live on the board — they moved to Slow Season
+         Outreach and the Customers page. The pill scrolls there instead of
+         filtering a column that no longer holds them. */
+      if (currentFilter === 'cold')      matchFilter = false;
       card.style.display = (matchSearch && matchFilter) ? '' : 'none';
     });
   }
@@ -1975,7 +1954,12 @@
       var t = pill.textContent.trim().toLowerCase();
       if      (t.includes('parallel')) currentFilter = 'parallel';
       else if (t.includes('week'))     currentFilter = 'week';
-      else if (t.includes('cold'))     currentFilter = 'cold';
+      else if (t.includes('cold'))     {
+        currentFilter = 'all';
+        var ss = document.getElementById('slow-season-list');
+        if (ss) ss.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.querySelectorAll('.filter-pill').forEach(function(p){ p.classList.remove('active'); });
+      }
       else                             currentFilter = 'all';
       applyFilters();
     });
@@ -2611,25 +2595,35 @@
   var ssList = document.getElementById('slow-season-list');
   var ssCount = document.getElementById('outreach-count');
   var sendAllBtn = document.getElementById('send-all-followups');
-  var coldLostCards = Array.from(document.querySelectorAll('.board .card.cold, .board .card.lost'));
+  /* Read from the store, not the board. Cold/lost cards were removed from
+     the pipeline, so scraping .card.cold would now find nothing — and
+     scraping the DOM was always the wrong source of truth anyway. */
+  var coldLostCards = [];
+  /* Fail loudly. A silent [] here renders "no outreach to do", which is
+     the same lie an empty Smart Queue told. If the engine is missing,
+     say so on screen. */
+  var dormantJobs = [];
+  if (window.SFConversions && window.SFConversions.dormant) {
+    dormantJobs = window.SFConversions.dormant();
+  } else if (document.getElementById('slow-season-list')) {
+    document.getElementById('slow-season-list').innerHTML =
+      '<div style="color:#E2726B;font-size:11px;padding:8px;">'
+      + 'Outreach engine failed to load — this list is not empty, it is broken.'
+      + '</div>';
+  }
 
-  if (ssList && coldLostCards.length) {
-    ssCount.textContent = coldLostCards.length + ' job' + (coldLostCards.length > 1 ? 's' : '');
-    if (coldLostCards.length > 1) sendAllBtn.style.display = 'block';
+  if (ssList && dormantJobs.length) {
+    var dollars = dormantJobs.reduce(function(t, d){ return t + (d.value || 0); }, 0);
+    ssCount.textContent = dormantJobs.length + ' job' + (dormantJobs.length > 1 ? 's' : '')
+      + (dollars ? ' · $' + dollars.toLocaleString() + ' dormant' : '');
+    if (dormantJobs.length > 1) sendAllBtn.style.display = 'block';
 
-    coldLostCards.forEach(function(card) {
-      var nameEl = card.querySelector('.card-name');
-      var valEl  = card.querySelector('.card-value');
-      var badgeEl= card.querySelector('.card-status-badge');
-      if (!nameEl) return;
-
-      var jobName = nameEl.textContent.trim();
+    dormantJobs.forEach(function(d) {
+      var jobName = d.name;
       var cardId  = jobName.replace(/[^a-z0-9]/gi,'-').toLowerCase();
-      var isLost  = card.classList.contains('lost');
-      var days = 0;
-      if (badgeEl) { var dm = badgeEl.textContent.match(/(\d+)\s+days/); if (dm) days = parseInt(dm[1]); }
-      if (!days) { var notEl = card.querySelector('.card-notified'); if (notEl) days = daysAgo(parseCardDate(notEl.textContent)); }
-      var val = valEl && !valEl.classList.contains('muted') ? valEl.textContent.trim() : '';
+      var isLost  = d.lost;
+      var days    = d.silentDays == null ? 0 : d.silentDays;
+      var val     = d.value ? '$' + d.value.toLocaleString() : '';
 
       var item = document.createElement('div');
       item.className = 'ss-item' + (isLost ? ' lost-item' : '');
@@ -2664,10 +2658,8 @@
   }
 
   sendAllBtn && sendAllBtn.addEventListener('click', function() {
-    coldLostCards.forEach(function(card) {
-      var nameEl = card.querySelector('.card-name');
-      if (!nameEl) return;
-      var cardId = nameEl.textContent.trim().replace(/[^a-z0-9]/gi,'-').toLowerCase();
+    dormantJobs.forEach(function(d) {
+      var cardId = d.name.replace(/[^a-z0-9]/gi,'-').toLowerCase();
       sentFollowups[cardId] = Date.now();
     });
     try { localStorage.setItem(FOLLOWUP_KEY, JSON.stringify(sentFollowups)); } catch(x) {}
@@ -3411,10 +3403,9 @@
   /* calmer parallel grouping: soften the indented connector items */
   .ai-sidebar .queue-item[style*="border-left"]{ background:rgba(217,164,65,0.05); border-radius:0 10px 10px 0; }
 </style>
-<link rel="stylesheet" href="signflow-calm.css?v=202608152344">
-<script src="signflow-conversions.js?v=202608152344"></script>
-<script src="signflow-queue.js?v=202608152344"></script>
-<script src="signflow-engine.js?v=202608152344"></script>
+<link rel="stylesheet" href="signflow-calm.css?v=202608160139">
+<script src="signflow-queue.js?v=202608160139"></script>
+<script src="signflow-engine.js?v=202608160139"></script>
 
 </body>
 </html>
