@@ -339,6 +339,71 @@
     border:1px solid rgba(217,164,65,.3); border-radius:5px;
     padding:1px 5px; margin-left:6px; white-space:nowrap;
   }
+  /* ── Actionable rows ───────────────────────────────────────── */
+  .wp-job{
+    display:block; text-decoration:none; color:inherit;
+    padding:10px 11px; margin-bottom:7px; border-radius:9px;
+    background:rgba(255,255,255,0.035);
+    border:1px solid rgba(255,255,255,0.07);
+    transition:background .15s, border-color .15s, transform .12s;
+  }
+  .wp-job:last-child{ margin-bottom:0; }
+  .wp-job:hover{
+    background:rgba(91,143,199,0.10); border-color:rgba(91,143,199,0.42);
+    transform:translateX(2px);
+  }
+  .wp-job-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .wp-job-name{ font-size:12.5px; font-weight:650; }
+  .wp-job-meta{ font-size:10.5px; color:rgba(255,255,255,.45); margin-top:3px; }
+
+  .wp-score{
+    font-size:11px; font-weight:800; padding:2px 7px; border-radius:6px;
+    white-space:nowrap; flex-shrink:0;
+  }
+  .wp-score.hot { color:#7FD1A0; background:rgba(90,190,130,.14); border:1px solid rgba(90,190,130,.34); }
+  .wp-score.warm{ color:#E2B457; background:rgba(217,164,65,.13); border:1px solid rgba(217,164,65,.32); }
+  .wp-score.cool{ color:rgba(255,255,255,.55); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); }
+
+  .wp-why-row{ display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+  .wp-why{
+    font-size:9.5px; font-weight:600; padding:1px 6px; border-radius:5px;
+    white-space:nowrap;
+  }
+  .wp-why.up  { color:#7FD1A0; background:rgba(90,190,130,.10); }
+  .wp-why.down{ color:#E2A0A0; background:rgba(210,90,90,.10); }
+  .wp-why-none{ font-size:9.5px; color:rgba(255,255,255,.3); }
+
+  .wp-late{
+    font-size:11px; font-weight:800; color:#E2A0A0;
+    background:rgba(210,90,90,.13); border:1px solid rgba(210,90,90,.3);
+    padding:2px 7px; border-radius:6px; white-space:nowrap; flex-shrink:0;
+  }
+  .wp-empty{ font-size:11.5px; color:rgba(255,255,255,.45); padding:4px 0 2px; }
+  .wp-foot{
+    font-size:10.5px; color:rgba(255,255,255,.42);
+    margin-top:10px; padding-top:9px; border-top:1px solid rgba(255,255,255,.07);
+  }
+  .wp-gap-txt{ font-size:11.5px; line-height:1.55; color:rgba(255,255,255,.6); margin-bottom:10px; }
+  .wp-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .wp-chip{
+    display:inline-block; font-size:10.5px; padding:3px 9px; border-radius:20px;
+    background:rgba(91,143,199,.13); border:1px solid rgba(91,143,199,.32);
+    color:rgba(255,255,255,.8);
+  }
+  .wp-chips .wp-job{ display:inline-block; padding:0; margin:0; background:none; border:none; }
+  .wp-chips .wp-job:hover{ transform:none; background:none; }
+  .wp-chips .wp-job:hover .wp-chip{ background:rgba(91,143,199,.26); }
+
+  .wp-hist-head{
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px;
+    color:rgba(255,255,255,.4); margin:26px 0 12px;
+    padding-top:16px; border-top:1px solid rgba(255,255,255,.08);
+  }
+  .wp-hist-head span{
+    text-transform:none; letter-spacing:0; font-weight:500;
+    color:rgba(255,255,255,.28); margin-left:7px;
+  }
+
   .wp-insight{
     display:flex; gap:11px; align-items:flex-start; padding:11px 0;
     border-bottom:1px solid rgba(255,255,255,0.06);
@@ -759,10 +824,13 @@
          + '<div class="wp-card-sub">' + sub + '</div>' + body + '</div>';
   }
 
+  /* Hoisted: the card builders below live outside renderWins and need
+     these too. They were previously locals, so the helpers threw. */
+  var W = null, S = null;
   var rendered = false;
   function renderWins() {
     if (rendered) return;
-    var W = window.SFConversions, S = window.SFStore;
+    W = window.SFConversions; S = window.SFStore;
     if (!W || !S) return;
     var a = W.analyse();
     var wrap = document.getElementById('wp-wrap');
@@ -803,7 +871,14 @@
         }).join('')
       + '</div>';
 
-    wrap.innerHTML = note + kpis + ins
+    var live = W.liveScores(a);
+
+    wrap.innerHTML = note + kpis
+      + focusCard(live)
+      + stallCard(live)
+      + gapCard(live)
+      + ins
+      + '<div class="wp-hist-head">Track record <span>what has already closed</span></div>'
       + '<div class="wp-grid"><div>'
       + segmentCard('By lead source', 'Where the work comes from', a.bySource)
       + segmentCard('By job size', 'Value band', a.byBand)
@@ -823,6 +898,93 @@
   function archivedCount() {
     var S = window.SFStore;
     return S ? (S.SEED_CLOSED.length + S.SEED_LOST.length) : 0;
+  }
+
+  /* ── Actionable cards ────────────────────────────────────────────
+     Win rates are history. These three answer "so what do I do now?",
+     and every row links straight to the job on the board. */
+
+  function jobLink(r, inner) {
+    return '<a class="wp-job" href="index.html?job=' + encodeURIComponent(r.id) + '">'
+         + inner + '</a>';
+  }
+
+  function scoreDot(score) {
+    var cls = score >= 60 ? 'hot' : (score >= 35 ? 'warm' : 'cool');
+    return '<span class="wp-score ' + cls + '">' + score + '%</span>';
+  }
+
+  function reasonBits(r) {
+    if (!r.reasons.length) return '<span class="wp-why-none">no strong signal either way</span>';
+    return r.reasons.slice(0, 3).map(function (x) {
+      return '<span class="wp-why ' + (x.good ? 'up' : 'down') + '">'
+           + (x.good ? '▲ ' : '▼ ') + x.txt + '</span>';
+    }).join('');
+  }
+
+  function focusCard(live) {
+    if (!live.focus.length) {
+      return card('Where to spend your week', 'Nothing open right now',
+        '<div class="wp-empty">No open jobs on the board.</div>');
+    }
+    var rows = live.focus.map(function (r) {
+      return jobLink(r,
+        '<div class="wp-job-top">'
+      +   '<span class="wp-job-name">' + esc(r.name) + '</span>'
+      +   scoreDot(r.score)
+      + '</div>'
+      + '<div class="wp-job-meta">' + r.stage + ' · ' + W.money(r.value)
+      +   ' · <b>' + W.money(r.expected) + '</b> weighted</div>'
+      + '<div class="wp-why-row">' + reasonBits(r) + '</div>');
+    }).join('');
+    return card('Where to spend your week',
+      'Open jobs ranked by value × likelihood — best call first',
+      rows
+      + '<div class="wp-foot">' + W.money(live.expectedValue) + ' weighted from '
+      + W.money(live.openValue) + ' open</div>');
+  }
+
+  function stallCard(live) {
+    if (!live.stalling.length) {
+      return card('Going quiet', 'Jobs sitting longer than usual',
+        '<div class="wp-empty">✓ Nothing stalled — every job is moving on schedule.</div>');
+    }
+    var rows = live.stalling.slice(0, 6).map(function (r) {
+      return jobLink(r,
+        '<div class="wp-job-top">'
+      +   '<span class="wp-job-name">' + esc(r.name) + '</span>'
+      +   '<span class="wp-late">+' + r.overdueBy + 'd</span>'
+      + '</div>'
+      + '<div class="wp-job-meta">' + r.inStage + ' days in ' + r.stage
+      +   ' · usually ' + r.norm + 'd · ' + W.money(r.value) + '</div>');
+    }).join('');
+    return card('Going quiet',
+      live.stalling.length + ' job' + (live.stalling.length > 1 ? 's' : '')
+      + ' sitting longer than your usual pace', rows);
+  }
+
+  function gapCard(live) {
+    if (!live.missingSource.length) return '';
+    var names = live.missingSource.slice(0, 8).map(function (r) {
+      return jobLink(r, '<span class="wp-chip">' + esc(r.name) + '</span>');
+    }).join('');
+    return card('Improve these numbers',
+      live.missingSource.length + ' open job'
+      + (live.missingSource.length > 1 ? 's have' : ' has') + ' no lead source',
+      '<div class="wp-gap-txt">Lead source is the strongest predictor here, and it '
+      + 'is the one thing only you can record. Set it on these and every number '
+      + 'above gets sharper.</div><div class="wp-chips">' + names + '</div>');
+  }
+
+  function card(title, sub, body) {
+    return '<div class="wp-card"><div class="wp-card-title">' + title + '</div>'
+         + '<div class="wp-card-sub">' + sub + '</div>' + body + '</div>';
+  }
+
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
+    });
   }
 
   function kpi(label, val, sub) {

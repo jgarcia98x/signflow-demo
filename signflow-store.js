@@ -154,7 +154,7 @@
     var edits = lsGet(LS_JOBS, {});
     var out = SEED.map(function (j) {
       var id = slug(j.name);
-      var rec = Object.assign({ id: id, seeded: true, source: SOURCES[id] || 'Web' }, j);
+      var rec = Object.assign({ id: id, seeded: true, source: SOURCES[id] || '' }, j);
       if (edits[id]) Object.assign(rec, edits[id]);
       rec.dueDate = parseISO(rec.due);
       return rec;
@@ -162,7 +162,10 @@
     /* Jobs Peter created himself */
     Object.keys(edits).forEach(function (id) {
       if (edits[id] && edits[id].__new && !out.some(function (r) { return r.id === id; })) {
-        var rec = Object.assign({ id: id, seeded: false, source: 'Web' }, edits[id]);
+        /* Was hardcoded to 'Web', which quietly invented data: every job
+           Peter added counted as a web lead whether it was or not. Now
+           unset unless he actually recorded a source. */
+        var rec = Object.assign({ id: id, seeded: false, source: '' }, edits[id]);
         rec.dueDate = parseISO(rec.due);
         out.push(rec);
       }
@@ -184,8 +187,11 @@
   }
 
   function createJob(rec) {
-    var id = slug(rec.name || ('job-' + Date.now()));
-    update(id, Object.assign({ __new: true }, rec));
+    /* Honour an explicit id. The board de-duplicates cards that share a
+       name ("acme-sign-1"), and if the store re-derives the slug instead
+       the two disagree — the record then belongs to no card on screen. */
+    var id = rec.id || slug(rec.name || ('job-' + Date.now()));
+    update(id, Object.assign({ __new: true }, rec, { id: id }));
     return id;
   }
 

@@ -2225,6 +2225,22 @@
     '      <div class="sf-field"><label class="sf-lbl">Due Date</label><select id="nj-due"></select></div>',
     '    </div>',
     '    <div class="sf-row-2">',
+    '      <div class="sf-field"><label class="sf-lbl">Lead Source</label>',
+    '        <select id="nj-source">',
+    '          <option value="">— Not recorded —</option>',
+    '          <option value="Referral">🤝 Referral</option>',
+    '          <option value="Repeat">🔁 Repeat customer</option>',
+    '          <option value="Web">🌐 Web / search</option>',
+    '          <option value="Walk-in">🚶 Walk-in</option>',
+    '          <option value="Cold call">📞 Cold call</option>',
+    '          <option value="Truck/Sign">🚚 Saw our truck / sign</option>',
+    '          <option value="Social">📱 Social media</option>',
+    '          <option value="Other">• Other</option>',
+    '        </select></div>',
+    '      <div class="sf-field"><label class="sf-lbl">Referred By / Notes</label>',
+    '        <input id="nj-refby" type="text" placeholder="e.g. Titan Auto sent them"></div>',
+    '    </div>',
+    '    <div class="sf-row-2">',
     '      <div class="sf-field"><label class="sf-lbl">Job Type</label>',
     '        <select id="nj-type"><option value="outdoor">☀️ Outdoor</option><option value="indoor">🏠 Indoor</option></select></div>',
     '      <div class="sf-field"><label class="sf-lbl">Vendor / Outsourced</label>',
@@ -2304,8 +2320,9 @@
   }
 
   function clearForm() {
-    ['nj-name','nj-client','nj-value','nj-step1','nj-step2']
+    ['nj-name','nj-client','nj-value','nj-step1','nj-step2','nj-refby']
       .forEach(function(id){ if ($f(id)) $f(id).value = ''; });
+    if ($f('nj-source'))   $f('nj-source').value = '';
     if ($f('nj-priority')) $f('nj-priority').value = 'normal';
     if ($f('nj-col'))      $f('nj-col').value = 'new';
     if ($f('nj-type'))     $f('nj-type').value = 'outdoor';
@@ -2314,6 +2331,13 @@
 
   /* Map a column element to the modal's stage <option> value. */
   var STAGE_KEYS = ['new','quote','approved','production','install','invoice'];
+
+  /* The board's column keys and the store's stage names are not the
+     same vocabulary; Smart Conversions reads the store's. */
+  var STORE_STAGE = {
+    'new':'New Inquiry', 'quote':'Quote', 'approved':'Approval',
+    'production':'Fabrication', 'install':'Install', 'invoice':'Complete'
+  };
   function colKeyForSelect(col) {
     if (!col) return 'new';
     var cols = Array.prototype.slice.call(document.querySelectorAll('.col'));
@@ -2337,6 +2361,13 @@
       $f('nj-due').value = editTarget.getAttribute('data-due-iso')
                         || dueToISO(d.due === 'TBD' ? '' : d.due);
       $f('nj-type').value     = d.type || 'outdoor';
+      /* Lead source lives on the card once set; seeded jobs carry theirs
+         in the store, so fall back to that rather than showing blank. */
+      var srcRec = (window.SFStore && SFStore.get(editTarget.getAttribute('data-job-id'))) || null;
+      $f('nj-source').value = editTarget.getAttribute('data-source')
+                           || (srcRec && srcRec.source) || '';
+      $f('nj-refby').value  = editTarget.getAttribute('data-refby')
+                           || (srcRec && srcRec.refBy) || '';
       $f('nj-vendor').value   = editTarget.getAttribute('data-outsourced') || '';
       $f('nj-step1').value    = d.steps[0] || '';
       $f('nj-step2').value    = d.steps[1] || '';
@@ -2381,10 +2412,26 @@
       steps:    steps,
       _forceLabel: true
     };
+    var source = $f('nj-source').value;
+    var refBy  = $f('nj-refby').value.trim();
     var vendor   = $f('nj-vendor').value;
     var stageKey = $f('nj-col').value;
     var dueISO   = $f('nj-due').value;
     var dueInfo  = dueLabel(dueISO);
+
+    /* Lead source is the one field Smart Conversions cannot infer.
+       It was previously hardcoded to 'Web' for every job Peter added,
+       which meant his own work could never change the analysis. */
+    function applySource(card) {
+      if (source) card.setAttribute('data-source', source);
+      else card.removeAttribute('data-source');
+      if (refBy) card.setAttribute('data-refby', refBy);
+      else card.removeAttribute('data-refby');
+      if (window.SFStore) {
+        SFStore.update(card.getAttribute('data-job-id'),
+                       { source: source || '', refBy: refBy || '' });
+      }
+    }
 
     /* Keep the real date on the element so reopening the modal
        preselects it and the chip colour stays derived, not typed. */
@@ -2409,6 +2456,11 @@
       if (vendor) card.setAttribute('data-outsourced', vendor);
       else card.removeAttribute('data-outsourced');
 
+      /* Lead source drives Smart Conversions. Persist it on the card and
+         in the shared store so the analysis reflects Peter's own jobs
+         rather than only the seeded history. */
+      applySource(card);
+
       /* Stage change from the dropdown moves the card. */
       var destCol = getColEl(stageKey);
       var srcCol  = card.closest('.col');
@@ -2425,6 +2477,7 @@
         cj.name = patch.name; cj.client = patch.client; cj.priority = patch.priority;
         cj.value = patch.value; cj.due = patch.due; cj.dueISO = dueISO; cj.column = stageKey;
         cj.type = patch.type; cj.vendor = vendor; cj.steps = steps;
+        cj.source = source; cj.refBy = refBy;
         try { localStorage.setItem(JOBS_KEY, JSON.stringify(customJobs)); } catch(e) {}
       }
 
@@ -2444,9 +2497,34 @@
     };
     customJobs.push(job);
     try { localStorage.setItem(JOBS_KEY, JSON.stringify(customJobs)); } catch(e) {}
+    job.source = source; job.refBy = refBy;
     var col = getColEl(job.column);
     var el = createCardEl(job);
+
+    /* The card needs its slug id before anything can be written against
+       it, and the pipeline's own customJobs array is not visible to
+       SFStore — so a job added here never reached Smart Conversions at
+       all. Register it properly, then attach the details. */
+    var newId = SFJobs.ensureId(el);
+    if (window.SFStore) {
+      SFStore.createJob({
+        id:       newId,
+        name:     patch.name,
+        client:   patch.client,
+        stage:    STORE_STAGE[stageKey] || 'New Inquiry',
+        type:     patch.type,
+        value:    patch.value ? Number(patch.value) : null,
+        priority: patch.priority,
+        due:      dueISO || null,
+        source:   source || '',
+        refBy:    refBy || '',
+        started:  SFStore.iso(SFStore.today()),
+        entered:  SFStore.iso(SFStore.today())
+      });
+    }
+
     applyDue(el);
+    applySource(el);
     SFJobs.setDue(el, dueISO);
     col.appendChild(el);
     updateColBadges(); updateJobCount();

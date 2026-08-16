@@ -219,10 +219,120 @@
 
   function cap(s) { return String(s).charAt(0).toUpperCase() + String(s).slice(1); }
 
+  /* ═════════════════════════════════════════════════════════════════
+     FORWARD VIEW — the part Peter can actually act on.
+
+     Win rates for jobs already closed are history. What matters on a
+     Monday morning is which of the jobs on the board right now deserve
+     the next phone call. This scores every open job against the shop's
+     own track record and flags the ones going quiet.
+
+     Deliberately not a black box: every score comes with the reasons
+     that produced it, so Peter can disagree with it.
+     ═════════════════════════════════════════════════════════════════ */
+
+  /* Typical days spent in each stage by jobs that went on to win.
+     Used to decide when an open job has gone quiet. */
+  function stageNorms() {
+    var S = global.SFStore, h = S.history(), norms = {};
+    /* Real transitions first, if any have been logged. */
+    h.forEach(function (t) {
+      if (!t.from) return;
+      (norms[t.from] = norms[t.from] || []).push(t);
+    });
+    /* Fallback: a plain expectation per stage. Quotes go stale fastest,
+       fabrication legitimately takes weeks. */
+    return {
+      'New Inquiry': 5, 'Quote': 10, 'Design': 12, 'Approval': 14,
+      'Fabrication': 21, 'Install': 7, 'Complete': 999
+    };
+  }
+
+  function segLookup(list, name) {
+    for (var i = 0; i < list.length; i++) if (list[i].name === name) return list[i];
+    return null;
+  }
+
+  function liveScores(a) {
+    var S = global.SFStore;
+    a = a || analyse();
+    var norms = stageNorms();
+    var open = S.all().filter(function (j) {
+      return !S.isWon(j) && j.priority !== 'lost' && j.stage !== 'Complete';
+    });
+
+    var scored = open.map(function (j) {
+      var reasons = [], score = a.rate || 50, basis = 0;
+
+      /* Blend in each segment we have real confidence in. */
+      [[segLookup(a.bySource, j.source), 'source', j.source],
+       [segLookup(a.byType, j.type), 'type', cap(j.type || '')],
+       [segLookup(a.byBand, valueBand(j.value)), 'size', valueBand(j.value)]
+      ].forEach(function (pair) {
+        var seg = pair[0];
+        if (!seg || !seg.confident) return;
+        score = (score + seg.rate) / 2;
+        basis++;
+        if (seg.rate >= (a.rate + 10)) reasons.push({ good: true,  txt: pair[2] + ' converts at ' + seg.rate + '%' });
+        else if (seg.rate <= (a.rate - 10)) reasons.push({ good: false, txt: pair[2] + ' converts at ' + seg.rate + '%' });
+      });
+
+      /* Progress: further down the pipeline is genuinely closer to won. */
+      var si = S.STAGES.indexOf(j.stage);
+      var progress = si / S.WIN_INDEX;
+      score = score * (0.72 + 0.28 * Math.min(1, progress));
+      if (si >= S.STAGES.indexOf('Approval')) reasons.push({ good: true, txt: 'past Approval' });
+
+      /* Stalling: quiet jobs decay, and that is the actionable bit. */
+      var inStage = S.daysInStage(j) || 0;
+      var norm = norms[j.stage] || 14;
+      var overdueBy = inStage - norm;
+      var stalled = overdueBy > 0;
+      if (stalled) {
+        score = score * Math.max(0.45, 1 - (overdueBy / (norm * 2)));
+        reasons.push({ good: false,
+          txt: inStage + 'd in ' + j.stage + ' (usual ' + norm + 'd)' });
+      }
+
+      /* No lead source recorded is itself worth surfacing — it is the
+         one field that makes the whole analysis better. */
+      var noSource = !j.source;
+      if (noSource) reasons.push({ good: false, txt: 'no lead source recorded' });
+
+      return {
+        id: j.id, name: j.name, client: j.client, value: j.value || 0,
+        stage: j.stage, source: j.source || '', type: j.type,
+        score: Math.max(3, Math.min(97, Math.round(score))),
+        inStage: inStage, norm: norm, overdueBy: overdueBy,
+        stalled: stalled, noSource: noSource, reasons: reasons,
+        basis: basis,
+        /* What a win here is worth, weighted by likelihood. */
+        expected: Math.round((j.value || 0) * (Math.max(3, Math.min(97, Math.round(score))) / 100))
+      };
+    });
+
+    var byExpected = scored.slice().sort(function (x, y) { return y.expected - x.expected; });
+    var stalling = scored.filter(function (r) { return r.stalled; })
+                         .sort(function (x, y) { return y.overdueBy - x.overdueBy; });
+    var missing = scored.filter(function (r) { return r.noSource; });
+
+    return {
+      all: scored,
+      focus: byExpected.slice(0, 5),
+      stalling: stalling,
+      missingSource: missing,
+      openValue: scored.reduce(function (t, r) { return t + r.value; }, 0),
+      expectedValue: scored.reduce(function (t, r) { return t + r.expected; }, 0),
+      confidentBasis: scored.some(function (r) { return r.basis > 0; })
+    };
+  }
+
   global.SFConversions = {
     MIN_N: MIN_N, SOLID_N: SOLID_N,
     analyse: analyse,
     insights: insights,
+    liveScores: liveScores,
+    valueBand: valueBand,
     money: money,
     median: median
   };
