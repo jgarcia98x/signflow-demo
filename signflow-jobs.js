@@ -1,3 +1,7 @@
+/*! SignFlow — Copyright (c) 2026 Jordan Garcia. All rights reserved.
+ *  Proprietary and confidential. Public visibility of this file is for
+ *  demonstration hosting only and grants no rights. See LICENSE.
+ */
 /* ═══════════════════════════════════════════════════════════════
    SignFlow — Job persistence layer
    ───────────────────────────────────────────────────────────────
