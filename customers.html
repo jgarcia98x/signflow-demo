@@ -956,7 +956,7 @@
     <div class="stat-val green">$328,450</div>
     <div class="stat-label">Active Pipeline</div>
   </div>
-  <div class="stats-meta">Garcia Sign &amp; Electric, Joliet IL · Last updated: just now</div>
+  <div class="stats-meta">Apex Build Co, Chicago IL · Last updated: just now</div>
 </div>
 
 <script>
@@ -1185,16 +1185,16 @@
      fallback so the buttons always do something real rather than
      pretending. */
   var CONTACTS = {
-    "Kohl's Corporation":        { phone:'+18155551204', email:'facilities@kohls-example.com' },
-    'Heritage Community Bank':   { phone:'+18155559871', email:'ops@heritagebank-example.com' },
-    'Summit Tech Park LLC':      { phone:'+18155553360', email:'pm@summittech-example.com' },
-    'La Paloma Group':           { phone:'+18155557742', email:'manager@lapaloma-example.com' },
-    'Prairie Wind Self Storage': { phone:'+18155552218', email:'office@prairiewind-example.com' },
-    'The Village Tap':           { phone:'+18155556690', email:'owner@villagetap-example.com' },
-    'Northside Fitness':         { phone:'+18155554417', email:'gm@northsidefit-example.com' },
-    'Walgreens (National)':      { phone:'+18005559300', email:'signage@walgreens-example.com' },
-    'Main St. Restaurant Group': { phone:'+18155558123', email:'info@mainstgroup-example.com' },
-    'Riverside Automotive':      { phone:'+18155550072', email:'service@riversideauto-example.com' }
+    "Kohl's Corporation":        { phone:'+18155551204', email:'facilities@kohls.com' },
+    'Heritage Community Bank':   { phone:'+18155559871', email:'ops@heritagebank.com' },
+    'Summit Tech Park LLC':      { phone:'+18155553360', email:'pm@summittech.com' },
+    'La Paloma Group':           { phone:'+18155557742', email:'manager@lapaloma.com' },
+    'Prairie Wind Self Storage': { phone:'+18155552218', email:'office@prairiewind.com' },
+    'The Village Tap':           { phone:'+18155556690', email:'owner@villagetap.com' },
+    'Northside Fitness':         { phone:'+18155554417', email:'gm@northsidefit.com' },
+    'Walgreens (National)':      { phone:'+18005559300', email:'signage@walgreens.com' },
+    'Main St. Restaurant Group': { phone:'+18155558123', email:'info@mainstgroup.com' },
+    'Riverside Automotive':      { phone:'+18155550072', email:'service@riversideauto.com' }
   };
 
   window.sfContact = function(kind, name){
@@ -1211,7 +1211,7 @@
       if (!c.email) return toast('No email on file for ' + name, 'ℹ️');
       toast('Opening mail…', '✉️');
       location.href = 'mailto:' + c.email +
-        '?subject=' + encodeURIComponent('U.S. Electric — your sign project');
+        '?subject=' + encodeURIComponent('Apex Build Co — your project');
     }
   };
 
@@ -1280,7 +1280,7 @@
 
   /* ── Avatar ────────────────────────────────────────────── */
   var av = document.querySelector('.avatar');
-  if (av) av.addEventListener('click', function(){ toast('Peter Garcia — U.S. Electric, Joliet IL','👤'); });
+  if (av) av.addEventListener('click', function(){ toast('Jordan Garcia — Apex Build Co, Chicago IL','👤'); });
 
   /* ── Nudge card buttons ────────────────────────────────── */
   document.querySelectorAll('.nudge-btn').forEach(function(btn) {

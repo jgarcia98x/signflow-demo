@@ -50,7 +50,7 @@
      pinning the clock keeps overdue/soon colouring stable rather than
      drifting as real time passes. Swap to `new Date()` when this is
      wired to live data. */
-  var TODAY = new Date(2026, 7, 3);   /* Aug 3 2026, month is 0-based */
+  var TODAY = new Date();   /* live clock — always current */
 
   function today() { return new Date(TODAY.getTime()); }
 
@@ -86,21 +86,21 @@
      is when the job landed in its current stage; `started` is when it
      first appeared as a New Inquiry. */
   var SEED = [
-    { name:"Kohl's #0394 — Pylon Reface",       client:"Kohl's Corporation",        stage:'Install',     type:'outdoor', value:19500, due:'2026-08-04', priority:'urgent', started:'2026-06-18', entered:'2026-08-01' },
-    { name:'Heritage Bank — Branch Refresh',     client:'Heritage Community Bank',   stage:'Fabrication', type:'indoor',  value:58000, due:'2026-08-08', priority:'urgent', started:'2026-06-02', entered:'2026-07-28' },
-    { name:'Summit Tech Park — Monument Sign',   client:'Summit Tech Park LLC',      stage:'Fabrication', type:'outdoor', value:41000, due:'2026-08-08', priority:'urgent', started:'2026-06-10', entered:'2026-07-25' },
-    { name:'La Paloma Restaurant — Exterior',    client:'La Paloma Group',           stage:'Install',     type:'outdoor', value:11200, due:'2026-08-05', priority:'high',   started:'2026-07-08', entered:'2026-08-02' },
-    { name:'Prairie Wind Storage — Exterior',    client:'Prairie Wind Self Storage', stage:'Approval',    type:'outdoor', value:22100, due:'2026-08-07', priority:'normal', started:'2026-06-28', entered:'2026-07-30' },
-    { name:'Village Tap — Blade Sign',           client:'The Village Tap',           stage:'Approval',    type:'outdoor', value:9200,  due:'2026-08-01', priority:'urgent', started:'2026-06-20', entered:'2026-07-18' },
-    { name:'Northside Gym — Vehicle Wrap',       client:'Northside Fitness',         stage:'Fabrication', type:'indoor',  value:6400,  due:'2026-08-06', priority:'high',   started:'2026-07-12', entered:'2026-07-29' },
-    { name:'Walgreens #4712 — Façade',           client:'Walgreens (National)',      stage:'Fabrication', type:'outdoor', value:24800, due:'2026-08-12', priority:'normal', started:'2026-06-05', entered:'2026-07-22' },
-    { name:'Downtown Diner — Channel Letters',   client:'Main St. Restaurant Group', stage:'Quote',       type:'indoor',  value:7200,  due:'2026-08-10', priority:'high',   started:'2026-07-25', entered:'2026-07-27' },
-    { name:'Riverside Auto — Pylon Sign',        client:'Riverside Automotive',      stage:'Quote',       type:'outdoor', value:18400, due:'2026-08-05', priority:'urgent', started:'2026-07-20', entered:'2026-07-24' },
-    { name:'Westside Fitness',                   client:'Westside Fitness',          stage:'New Inquiry', type:'indoor',  value:null,  due:null,         priority:'normal', started:'2026-08-03', entered:'2026-08-03' },
-    { name:'Joliet Tire & Auto',                 client:'Walk-in',                   stage:'New Inquiry', type:'outdoor', value:null,  due:null,         priority:'normal', started:'2026-08-01', entered:'2026-08-01' },
-    { name:'Bricktown Brewery — Outdoor Sign',   client:'Bricktown Craft Brewing',   stage:'Quote',       type:'outdoor', value:8600,  due:'2026-07-12', priority:'cold',   started:'2026-05-30', entered:'2026-06-14' },
-    { name:'Valley Fresh Grocery — Storefront',  client:'Valley Fresh Foods',        stage:'Quote',       type:'outdoor', value:14300, due:'2026-06-28', priority:'lost',   started:'2026-05-12', entered:'2026-05-28' },
-    { name:'Speedway #1188 — LED Retrofit',      client:'Speedway LLC',              stage:'Complete',    type:'indoor',  value:34100, due:'2026-07-30', priority:'done',   started:'2026-05-20', entered:'2026-07-26' }
+    { name:"Kohl's #0394 — Pylon Reface",       client:"Kohl's Corporation",        stage:'Install',     type:'outdoor', value:19500, due:'2026-08-17', priority:'urgent', started:'2026-07-01', entered:'2026-08-14' },
+    { name:'Heritage Bank — Branch Refresh',     client:'Heritage Community Bank',   stage:'Fabrication', type:'indoor',  value:58000, due:'2026-08-21', priority:'urgent', started:'2026-06-15', entered:'2026-08-10' },
+    { name:'Summit Tech Park — Monument Sign',   client:'Summit Tech Park LLC',      stage:'Fabrication', type:'outdoor', value:41000, due:'2026-08-21', priority:'urgent', started:'2026-06-23', entered:'2026-08-07' },
+    { name:'La Paloma Restaurant — Exterior',    client:'La Paloma Group',           stage:'Install',     type:'outdoor', value:11200, due:'2026-08-18', priority:'high',   started:'2026-07-21', entered:'2026-08-15' },
+    { name:'Prairie Wind Storage — Exterior',    client:'Prairie Wind Self Storage', stage:'Approval',    type:'outdoor', value:22100, due:'2026-08-20', priority:'normal', started:'2026-07-11', entered:'2026-08-12' },
+    { name:'Village Tap — Blade Sign',           client:'The Village Tap',           stage:'Approval',    type:'outdoor', value:9200,  due:'2026-08-14', priority:'urgent', started:'2026-07-03', entered:'2026-07-31' },
+    { name:'Northside Gym — Vehicle Wrap',       client:'Northside Fitness',         stage:'Fabrication', type:'indoor',  value:6400,  due:'2026-08-19', priority:'high',   started:'2026-07-25', entered:'2026-08-11' },
+    { name:'Walgreens #4712 — Façade',           client:'Walgreens (National)',      stage:'Fabrication', type:'outdoor', value:24800, due:'2026-08-25', priority:'normal', started:'2026-06-18', entered:'2026-08-04' },
+    { name:'Downtown Diner — Channel Letters',   client:'Main St. Restaurant Group', stage:'Quote',       type:'indoor',  value:7200,  due:'2026-08-23', priority:'high',   started:'2026-08-07', entered:'2026-08-09' },
+    { name:'Riverside Auto — Pylon Sign',        client:'Riverside Automotive',      stage:'Quote',       type:'outdoor', value:18400, due:'2026-08-18', priority:'urgent', started:'2026-08-02', entered:'2026-08-06' },
+    { name:'Westside Fitness',                   client:'Westside Fitness',          stage:'New Inquiry', type:'indoor',  value:null,  due:null,         priority:'normal', started:'2026-08-16', entered:'2026-08-16' },
+    { name:'Joliet Tire & Auto',                 client:'Walk-in',                   stage:'New Inquiry', type:'outdoor', value:null,  due:null,         priority:'normal', started:'2026-08-14', entered:'2026-08-14' },
+    { name:'Bricktown Brewery — Outdoor Sign',   client:'Bricktown Craft Brewing',   stage:'Quote',       type:'outdoor', value:8600,  due:'2026-07-25', priority:'cold',   started:'2026-06-12', entered:'2026-06-27' },
+    { name:'Valley Fresh Grocery — Storefront',  client:'Valley Fresh Foods',        stage:'Quote',       type:'outdoor', value:14300, due:'2026-07-11', priority:'lost',   started:'2026-05-25', entered:'2026-06-10' },
+    { name:'Speedway #1188 — LED Retrofit',      client:'Speedway LLC',              stage:'Complete',    type:'indoor',  value:34100, due:'2026-08-12', priority:'done',   started:'2026-06-02', entered:'2026-08-08' }
   ];
 
   /* Closed jobs from earlier in the year. The live board only shows
@@ -108,28 +108,28 @@
      say anything about which jobs convert — two won jobs is not a
      pattern. These are explicitly seeded/archived. */
   var SEED_CLOSED = [
-    { name:'Fairview Dental — Monument',    client:'Fairview Dental Group',  type:'outdoor', value:16800, priority:'normal', started:'2026-05-02', won:'2026-05-27', source:'Referral' },
-    { name:'Metro Storage — Wayfinding',    client:'Metro Storage Partners', type:'outdoor', value:12400, priority:'normal', started:'2026-04-18', won:'2026-05-20', source:'Repeat' },
-    { name:'Oakbrook Salon — Window',       client:'Oakbrook Salon',         type:'indoor',  value:3200,  priority:'normal', started:'2026-05-14', won:'2026-06-16', source:'Web' },
-    { name:'Titan Auto Group — Pylon',      client:'Titan Auto Group',       type:'outdoor', value:47500, priority:'high',   started:'2026-03-28', won:'2026-05-04', source:'Referral' },
-    { name:'Lakeshore Cafe — Blade',        client:'Lakeshore Cafe',         type:'outdoor', value:5400,  priority:'normal', started:'2026-05-22', won:'2026-06-09', source:'Walk-in' },
-    { name:'Pinnacle Dental — Channel Ltr', client:'Pinnacle Dental',        type:'indoor',  value:21300, priority:'normal', started:'2026-04-06', won:'2026-05-12', source:'Referral' },
-    { name:'Grove Market — Facade',         client:'Grove Market',           type:'outdoor', value:28900, priority:'high',   started:'2026-03-15', won:'2026-05-01', source:'Repeat' },
-    { name:'Cedar Vet Clinic — Monument',   client:'Cedar Veterinary',       type:'outdoor', value:9800,  priority:'normal', started:'2026-05-08', won:'2026-06-25', source:'Web' },
-    { name:'Redline Fitness — Wall Wrap',   client:'Redline Fitness',        type:'indoor',  value:7600,  priority:'normal', started:'2026-06-01', won:'2026-07-14', source:'Web' },
-    { name:'Harbor Point — Directory',      client:'Harbor Point Mgmt',      type:'indoor',  value:31200, priority:'high',   started:'2026-03-02', won:'2026-04-21', source:'Repeat' }
+    { name:'Fairview Dental — Monument',    client:'Fairview Dental Group',  type:'outdoor', value:16800, priority:'normal', started:'2026-05-15', won:'2026-06-09', source:'Referral' },
+    { name:'Metro Storage — Wayfinding',    client:'Metro Storage Partners', type:'outdoor', value:12400, priority:'normal', started:'2026-05-01', won:'2026-06-02', source:'Repeat' },
+    { name:'Oakbrook Salon — Window',       client:'Oakbrook Salon',         type:'indoor',  value:3200,  priority:'normal', started:'2026-05-27', won:'2026-06-29', source:'Web' },
+    { name:'Titan Auto Group — Pylon',      client:'Titan Auto Group',       type:'outdoor', value:47500, priority:'high',   started:'2026-04-10', won:'2026-05-17', source:'Referral' },
+    { name:'Lakeshore Cafe — Blade',        client:'Lakeshore Cafe',         type:'outdoor', value:5400,  priority:'normal', started:'2026-06-04', won:'2026-06-22', source:'Walk-in' },
+    { name:'Pinnacle Dental — Channel Ltr', client:'Pinnacle Dental',        type:'indoor',  value:21300, priority:'normal', started:'2026-04-19', won:'2026-05-25', source:'Referral' },
+    { name:'Grove Market — Facade',         client:'Grove Market',           type:'outdoor', value:28900, priority:'high',   started:'2026-03-28', won:'2026-05-14', source:'Repeat' },
+    { name:'Cedar Vet Clinic — Monument',   client:'Cedar Veterinary',       type:'outdoor', value:9800,  priority:'normal', started:'2026-05-21', won:'2026-07-08', source:'Web' },
+    { name:'Redline Fitness — Wall Wrap',   client:'Redline Fitness',        type:'indoor',  value:7600,  priority:'normal', started:'2026-06-14', won:'2026-07-27', source:'Web' },
+    { name:'Harbor Point — Directory',      client:'Harbor Point Mgmt',      type:'indoor',  value:31200, priority:'high',   started:'2026-03-15', won:'2026-05-04', source:'Repeat' }
   ];
 
   /* Jobs that died. Without these, conversion rate is meaningless —
      you cannot compute a win rate from winners alone. */
   var SEED_LOST = [
-    { name:'Brightway Cleaners — Sign',   client:'Brightway Cleaners',  type:'outdoor', value:6200,  started:'2026-04-10', lost:'2026-05-18', source:'Web' },
-    { name:'Copper Kettle — Channel Ltr', client:'Copper Kettle Pub',   type:'indoor',  value:11400, started:'2026-04-22', lost:'2026-06-02', source:'Web' },
-    { name:'Sunset Motors — Pylon',       client:'Sunset Motors',       type:'outdoor', value:38000, started:'2026-03-19', lost:'2026-05-30', source:'Cold call' },
-    { name:'Ridgeway Apartments — Entry', client:'Ridgeway Property',   type:'outdoor', value:15600, started:'2026-04-28', lost:'2026-06-20', source:'Web' },
-    { name:'Basil & Vine — Window',       client:'Basil & Vine Bistro', type:'indoor',  value:2900,  started:'2026-05-16', lost:'2026-06-11', source:'Walk-in' },
-    { name:'Northgate Plaza — Monument',  client:'Northgate Plaza LLC', type:'outdoor', value:52000, started:'2026-02-24', lost:'2026-05-08', source:'Cold call' },
-    { name:'Quick Lube 5 — Wall Sign',    client:'Quick Lube Express',  type:'outdoor', value:4800,  started:'2026-05-30', lost:'2026-07-02', source:'Cold call' }
+    { name:'Brightway Cleaners — Sign',   client:'Brightway Cleaners',  type:'outdoor', value:6200,  started:'2026-04-23', lost:'2026-05-31', source:'Web' },
+    { name:'Copper Kettle — Channel Ltr', client:'Copper Kettle Pub',   type:'indoor',  value:11400, started:'2026-05-05', lost:'2026-06-15', source:'Web' },
+    { name:'Sunset Motors — Pylon',       client:'Sunset Motors',       type:'outdoor', value:38000, started:'2026-04-01', lost:'2026-06-12', source:'Cold call' },
+    { name:'Ridgeway Apartments — Entry', client:'Ridgeway Property',   type:'outdoor', value:15600, started:'2026-05-11', lost:'2026-07-03', source:'Web' },
+    { name:'Basil & Vine — Window',       client:'Basil & Vine Bistro', type:'indoor',  value:2900,  started:'2026-05-29', lost:'2026-06-24', source:'Walk-in' },
+    { name:'Northgate Plaza — Monument',  client:'Northgate Plaza LLC', type:'outdoor', value:52000, started:'2026-03-09', lost:'2026-05-21', source:'Cold call' },
+    { name:'Quick Lube 5 — Wall Sign',    client:'Quick Lube Express',  type:'outdoor', value:4800,  started:'2026-06-12', lost:'2026-07-15', source:'Cold call' }
   ];
 
   /* Lead source for open jobs — needed to compare which channels

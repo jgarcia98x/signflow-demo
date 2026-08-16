@@ -41,7 +41,7 @@
       var id=this.jobId(card);
       if(!store[id]){
         var when=txt(card,'.card-notified')||'';
-        store[id]=[{type:'stage', text:'Job created', ts:Date.now()-86400000*2, actor:'Peter G.', seed:true}];
+        store[id]=[{type:'stage', text:'Job created', ts:Date.now()-86400000*2, actor:'J. Garcia', seed:true}];
         persist();
       }
       return store[id];
@@ -49,7 +49,7 @@
     add:function(card, type, text){
       var id=this.jobId(card);
       if(!store[id]) this.get(card);
-      store[id].push({type:type, text:text, ts:Date.now(), actor:'Peter G.'});
+      store[id].push({type:type, text:text, ts:Date.now(), actor:'J. Garcia'});
       persist();
       return store[id];
     },
@@ -60,7 +60,7 @@
         var cls=(['stage','note','action','impact'].indexOf(it.type)>=0)?it.type:'';
         return '<div class="dp-fitem"><div class="dp-fdot '+cls+'"></div>'
           +'<div class="dp-ftext">'+esc(it.text)
-          +'<div class="dp-fmeta">'+esc(relTime(it.ts))+' · '+esc(it.actor||'Peter G.')+'</div>'
+          +'<div class="dp-fmeta">'+esc(relTime(it.ts))+' · '+esc(it.actor||'J. Garcia')+'</div>'
           +'</div></div>';
       }).join('') || '<div style="font-size:11px;color:rgba(255,255,255,0.3);">No activity yet</div>';
     }
@@ -165,8 +165,8 @@
   /* ── F4: Resource availability ────────────────────────────────── */
   var RES_KEY='sf_resources_v1';
   var CREW=['Mike Reyes','Dave Kowalski','Sarah Mitchell','Install Crew A'];
-  var CREW_ROLE={'Mike Reyes':'Lead Installer','Dave Kowalski':'Electrician / Installer','Sarah Mitchell':'Project Manager','Install Crew A':'Install Team'};
-  var VENDORS=['Midwest Steel Fab','Precision Wide-Format','Joliet Permits Office'];
+  var CREW_ROLE={'Mike Reyes':'Lead Installer','Dave Kowalski':'Lead / Installer','Sarah Mitchell':'Project Manager','Install Crew A':'Install Team'};
+  var VENDORS=['Midwest Steel Fab','Midwest Supply Co','City Permits Office'];
   var DAYS=['Mon','Tue','Wed','Thu','Fri'];
   var CYCLE=['free','partial','busy'];
   var CYCLE_COLOR={free:'#5FA97A',partial:'#D9A441',busy:'#C2453F'};
