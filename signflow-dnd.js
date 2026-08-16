@@ -49,6 +49,12 @@
       '.sf-dragging,.sf-dragging *{cursor:grabbing!important;}',
       '.sf-dragging{-webkit-user-select:none;user-select:none;',
       '  -webkit-touch-callout:none;}',
+      /* iOS pops a selection magnifier / callout on long-press. That
+         fires during our 220ms hold and steals the gesture, so it has
+         to be suppressed BEFORE the drag starts, not once .sf-dragging
+         lands — by then the hold has already been hijacked. */
+      '.sf-drag-item{-webkit-touch-callout:none!important;',
+      '  -webkit-user-select:none!important;user-select:none!important;}',
       /* Only suppress native gestures while a drag is genuinely live, so
          the board scrolls normally the rest of the time. */
       '.sf-dragging *{touch-action:none!important;}'
@@ -241,6 +247,7 @@
       if (cancelSel && closestMatch(e.target, cancelSel, el)) return;  // let controls work
 
       pending = { el: el, x: e.clientX, y: e.clientY, touch: e.pointerType === 'touch', id: e.pointerId };
+      el.classList.add('sf-drag-item');
 
       if (pending.touch) {
         holdTimer = setTimeout(function () {
@@ -301,6 +308,20 @@
       pending = null;
     }
 
+    /* ── The iOS fix ────────────────────────────────────────────
+       Safari ignores preventDefault() on pointermove for the purposes
+       of scrolling. If the page is going to stop scrolling mid-drag,
+       it must be a non-passive touchmove handler that says so —
+       otherwise Safari commits the gesture to a scroll and fires
+       pointercancel, which killed every drag on iPad.
+
+       Only prevents while a drag is genuinely engaged, so ordinary
+       scrolling of the board is untouched. */
+    function onTouchMove(ev) {
+      if (st) ev.preventDefault();
+    }
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+
     document.addEventListener('pointerdown', onDown, true);
     document.addEventListener('pointermove', onMove, { passive: false });
     document.addEventListener('pointerup', onUp);
@@ -313,6 +334,7 @@
       document.removeEventListener('pointermove', onMove);
       document.removeEventListener('pointerup', onUp);
       document.removeEventListener('pointercancel', onCancel);
+      document.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('blur', onCancel);
     }};
   }
