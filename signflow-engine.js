@@ -106,6 +106,14 @@
       var row=item.querySelector('.sfq-actions')||item; row.appendChild(chip);
     }
   }
+  /* The queue is now rendered from data (signflow-queue.js). Whenever it
+     redraws, the action buttons and Why? toggles must be re-attached to
+     the new nodes — otherwise the buttons silently stop working. */
+  window.SFQueueRefresh = function(){
+    try { initSmartQueue(); } catch(e){}
+    try { initWhyToggles(); } catch(e){}
+  };
+
   function initSmartQueue(){
     var items=[].slice.call(document.querySelectorAll('.ai-sidebar .queue-item'));
     items.forEach(function(item){
