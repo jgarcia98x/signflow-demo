@@ -328,12 +328,22 @@
     '.sf-hint-sep span{font-size:9.5px;text-transform:uppercase;',
     '  letter-spacing:0.8px;font-weight:700;color:rgba(255,255,255,0.34)}',
     '.sf-hint-tools{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}',
-    '.sf-hint-tool{display:flex;align-items:baseline;gap:7px;',
+    /*  Grid, not flex: an inline wrap left the description's second line
+        starting under the bold name, giving a ragged edge. A 3-column grid
+        (icon / name / where) keeps every continuation line aligned. */
+    '.sf-hint-tool{display:grid;grid-template-columns:auto auto 1fr;',
+    '  align-items:baseline;column-gap:7px;',
     '  background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.07);',
     '  border-radius:9px;padding:8px 11px;font-size:11.5px;line-height:1.45}',
-    '.sf-hint-tic{flex:0 0 auto;font-size:11px}',
-    '.sf-hint-tn{flex:0 0 auto;font-weight:700;color:rgba(255,255,255,0.93)}',
+    '.sf-hint-tic{font-size:11px}',
+    '.sf-hint-tn{font-weight:700;color:rgba(255,255,255,0.93);white-space:nowrap}',
     '.sf-hint-tw{color:rgba(255,255,255,0.50);min-width:0}',
+    /*  Narrow phones: stack the description under the name so neither the
+        name nor the text is squeezed into a two-word column. */
+    '@media(max-width:400px){',
+    '  .sf-hint-tool{grid-template-columns:auto 1fr}',
+    '  .sf-hint-tw{grid-column:2;margin-top:2px}',
+    '}',
     '.sf-hint-ic{flex:0 0 34px;height:34px;border-radius:10px;',
     '  background:rgba(211,47,47,0.16);border:1px solid rgba(211,47,47,0.28);',
     '  display:flex;align-items:center;justify-content:center;font-size:16px}',
