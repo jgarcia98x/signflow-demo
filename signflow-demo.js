@@ -255,10 +255,17 @@
     '    line-height:1!important;flex:0 0 auto!important}',
     '  header.sf-hdr-anchor .date-chip{display:none!important}',
 
-    /*  New Job moved next to Filters: right-aligned on the sub-bar row. */
-    '  .btn-new.sf-newmoved{order:7!important;margin-left:auto!important;',
-    '    height:40px!important;padding:0 14px!important;font-size:13px!important;',
-    '    white-space:nowrap!important;flex:0 0 auto!important}',
+    /*  New Job sits beside Filters. Ordering them as loose flex siblings put
+        New Job on its own row (margin-left:auto forced a wrap), so both are
+        wrapped in a real .sf-actionrow element instead — one row, guaranteed,
+        with Filters left and New Job filling the remainder. */
+    '  .sf-actionrow{order:6!important;display:flex!important;width:100%!important;',
+    '    gap:10px!important;align-items:center!important;margin-top:2px!important}',
+    '  .sf-actionrow #sf-ftoggle{flex:0 0 auto!important;margin:0!important}',
+    '  .sf-actionrow .btn-new{flex:1 1 auto!important;height:40px!important;',
+    '    padding:0 16px!important;font-size:13px!important;white-space:nowrap!important;',
+    '    margin:0!important;display:inline-flex!important;align-items:center!important;',
+    '    justify-content:center!important;max-width:none!important}',
 
     /*  Boot veil — covers the unscaled-board flash (see initVeil). */
     '  #sf-veil{position:fixed;inset:0;z-index:99999;display:flex;',
@@ -362,12 +369,18 @@
 
     /* On phones the primary action belongs beside the filter control, at
        thumb height, rather than in the header where it crowded the bell.
+       Both go inside one .sf-actionrow so they can never wrap apart.
        Moved (not cloned) so there is only ever one New Job button. */
+    var actionRow = null;
     if (isPhone && sub) {
+      actionRow = document.createElement('div');
+      actionRow.className = 'sf-actionrow';
+      sub.appendChild(actionRow);
+      actionRow.appendChild(btn);
       var newBtn = document.querySelector('header .btn-new');
       if (newBtn) {
         newBtn.classList.add('sf-newmoved');
-        sub.appendChild(newBtn);
+        actionRow.appendChild(newBtn);
       }
     }
 
@@ -403,7 +416,9 @@
       if (e.target.closest('.filter-pill')) setTimeout(paint, 30);
     });
 
-    tray.parentNode.insertBefore(btn, tray);
+    /* On phones the button already lives in .sf-actionrow beside New Job;
+       moving it next to the tray here would undo that pairing. */
+    if (!actionRow) tray.parentNode.insertBefore(btn, tray);
   }
 
   /* ── 3c. Boot veil ───────────────────────────────────────────────────
