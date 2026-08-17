@@ -242,12 +242,17 @@
 
     /*  Bell docked to the true top-right corner, on the logo band above the
         nav tabs. Absolute inside the header so it cannot crowd anything. */
-    '  header.sf-hdr-anchor{position:relative!important}',
-    '  #sf-bell.sf-bell-corner{position:absolute!important;top:8px!important;',
-    '    right:12px!important;width:38px!important;height:38px!important;',
-    '    margin:0!important;z-index:60!important}',
-    /*  Keep the logo/date clear of the docked bell. */
-    '  header.sf-hdr-anchor .logo{padding-right:52px!important}',
+    /*  The logo band is only 41px tall, so a 38px bell at top:8 spilled 5-11px
+        into the nav tabs. Give the band room and size the bell to fit inside
+        it, keeping the tap target at 34px. */
+    '  header.sf-hdr-anchor{position:relative!important;padding-top:6px!important}',
+    '  header.sf-hdr-anchor .logo{padding-right:56px!important;',
+    '    min-height:40px!important;display:flex!important;align-items:center!important}',
+    '  #sf-bell.sf-bell-corner{position:absolute!important;top:5px!important;',
+    '    right:12px!important;width:34px!important;height:34px!important;',
+    '    min-height:0!important;max-height:34px!important;padding:0!important;',
+    '    margin:0!important;z-index:60!important;font-size:15px!important;',
+    '    line-height:1!important;flex:0 0 auto!important}',
     '  header.sf-hdr-anchor .date-chip{display:none!important}',
 
     /*  New Job moved next to Filters: right-aligned on the sub-bar row. */
