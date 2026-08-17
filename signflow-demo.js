@@ -862,7 +862,26 @@
   }
 
   /* ── 6. Schedule skeletons ──────────────────────────────────────── */
+  /* DISABLED 2026-08-17. Kept for the record rather than deleted, because the
+     reasoning matters.
+
+     This blanked every schedule block into a shimmering placeholder and
+     captioned it "Schedule loads once your jobs are in the system". Nothing
+     ever loads — the shimmer runs forever. That is precisely the invented
+     loading state the honest-tooling standard bans; it was a fake-progress
+     indicator wearing a different hat, and I wrote it.
+
+     It also made the tab worthless: drag-and-drop, live conflict detection
+     and the new detail panel all operate on blocks whose contents had been
+     thrown away, so the page advertised three working features and showed
+     none of them.
+
+     The real blocks carry the same job names the pipeline seeds (6 of 9
+     resolve to an SFStore job), so showing them is both more honest and more
+     useful than pretending to load. */
   function skeletonize() {
+    return;
+    /* eslint-disable no-unreachable */
     if (PATH.indexOf('schedule') === -1) return;
     var sk = document.createElement('style');
     sk.textContent =
