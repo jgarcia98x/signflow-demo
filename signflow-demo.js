@@ -222,6 +222,11 @@
     '  border-radius:28px;overflow:hidden;',
     '  box-shadow:0 4px 24px rgba(0,0,0,.7)}',
     '#sf-zpill.visible{display:flex}',
+    /* Docked (phone) variant — inline under the board, never overlapping */
+    '@media(max-width:700px){',
+    '  #sf-zpill.visible{display:inline-flex;position:static!important;',
+    '    transform:none!important}',
+    '}',
     '#sf-zpill button{background:none;border:none;color:#fff;',
     '  font-size:23px;line-height:1;width:54px;height:48px;',
     '  display:flex;align-items:center;justify-content:center;',
@@ -352,20 +357,23 @@
     pill.append(btnOut, lbl, btnIn);
     document.body.appendChild(pill);
 
-    /* The pill was landing on top of .stats-bar (measured 164x50px overlap).
-       Sit it directly above whatever fixed furniture is at the bottom. */
-    requestAnimationFrame(function () {
-      var below = 8;
-      var sb = document.querySelector('.stats-bar');
-      if (sb) {
-        var r = sb.getBoundingClientRect();
-        /* only count it if it's actually pinned near the bottom */
-        if (r.bottom > window.innerHeight - 120) below += r.height;
-      }
-      var bn = document.getElementById('sf-banner');
-      if (bn) below += bn.offsetHeight;
-      pill.style.bottom = 'calc(' + below + 'px + env(safe-area-inset-bottom,0px))';
-    });
+    /* The pill floated ON TOP of the board columns, obscuring cards.
+       Don't float it at all on phones — dock it inline directly beneath
+       the board so it can never cover content. */
+    if (isPhone) {
+      pill.style.position = 'static';
+      pill.style.transform = 'none';
+      pill.style.margin = '10px auto 2px';
+      pill.style.bottom = 'auto';
+      if (wrap.parentNode) wrap.parentNode.insertBefore(pill, wrap.nextSibling);
+    } else {
+      requestAnimationFrame(function () {
+        var below = 8;
+        var bn = document.getElementById('sf-banner');
+        if (bn) below += bn.offsetHeight;
+        pill.style.bottom = 'calc(' + below + 'px + env(safe-area-inset-bottom,0px))';
+      });
+    }
 
     function apply(v) {
       z = Math.round(Math.min(MAX, Math.max(MIN, v)) * 100) / 100;
