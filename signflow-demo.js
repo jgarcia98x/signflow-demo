@@ -269,7 +269,9 @@
     var wcs = getComputedStyle(wrap);
     pad = (parseFloat(wcs.paddingLeft) || 0) + (parseFloat(wcs.paddingRight) || 0);
 
-    var STEP = 0.08, MIN = 0.2, MAX = 1;
+    /* MIN was 0.20 but the pipeline needs 0.195 to fit all 7 columns on a
+       390px phone — the clamp itself was the last 6px of scroll. */
+    var STEP = 0.08, MIN = 0.14, MAX = 1;
     var LS = 'sf_bz6_' + PATH.replace(/\W/g, ''), LSV = LS + '_vpw';
     var vpw = window.innerWidth, nat = { w: 1, h: 1 }, z = 1;
 
