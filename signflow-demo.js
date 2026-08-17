@@ -418,23 +418,26 @@
      literally what the zoom pass is doing.                              */
   function initVeil() {
     if (!isPhone) return;
-    /* Styles are already up from the <head> bootstrap (this file loads at
-       end of body, ~149ms — too late; the board paints at ~93ms). Attach the
-       veil element to documentElement, which exists during parse. */
-    var v = document.createElement('div');
-    v.id = 'sf-veil';
-    v.innerHTML =
-      '<div class="sf-veil-in">' +
-        '<div class="sf-veil-mark">' +
-          '<span class="sf-vb" style="--i:0"></span>' +
-          '<span class="sf-vb" style="--i:1"></span>' +
-          '<span class="sf-vb" style="--i:2"></span>' +
-          '<span class="sf-vb" style="--i:3"></span>' +
-        '</div>' +
-        '<div class="sf-veil-t">SignFlow</div>' +
-        '<div class="sf-veil-s">Arranging your board</div>' +
-      '</div>';
-    document.documentElement.appendChild(v);
+    /* The veil is created by the <head> bootstrap, because this file loads at
+       end of body and always lost the race against the board's first paint.
+       Adopt that element; only build one if the bootstrap didn't run. */
+    var v = document.getElementById('sf-veil');
+    if (!v) {
+      v = document.createElement('div');
+      v.id = 'sf-veil';
+      v.innerHTML =
+        '<div class="sf-veil-in">' +
+          '<div class="sf-veil-mark">' +
+            '<span class="sf-vb" style="--i:0"></span>' +
+            '<span class="sf-vb" style="--i:1"></span>' +
+            '<span class="sf-vb" style="--i:2"></span>' +
+            '<span class="sf-vb" style="--i:3"></span>' +
+          '</div>' +
+          '<div class="sf-veil-t">SignFlow</div>' +
+          '<div class="sf-veil-s">Arranging your board</div>' +
+        '</div>';
+      document.documentElement.appendChild(v);
+    }
 
     var done = false;
     function lift() {
