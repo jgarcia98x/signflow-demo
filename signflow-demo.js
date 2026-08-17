@@ -74,8 +74,23 @@
   function initBoardZoom() {
     if (!window.matchMedia('(pointer:coarse)').matches) return;
 
-    var board = document.querySelector('.board');
-    var wrap  = document.querySelector('.board-wrap');
+    /* Detect the zoomable target + its scroll wrapper per page */
+    var board, wrap;
+    var path = window.location.pathname;
+
+    if (path.indexOf('schedule') !== -1) {
+      board = document.querySelector('.schedule-grid');
+      wrap  = document.querySelector('.schedule-wrap');
+    } else if (path.indexOf('customers') !== -1) {
+      board = document.querySelector('.cust-table');
+      wrap  = document.querySelector('.list-pane') ||
+              document.querySelector('.main-content');
+    } else {
+      /* Pipeline (index.html) and any other page with a board */
+      board = document.querySelector('.board');
+      wrap  = document.querySelector('.board-wrap');
+    }
+
     if (!board || !wrap) return;
 
     /* Remove constraints that fight zoom */
