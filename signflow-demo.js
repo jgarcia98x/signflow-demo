@@ -157,12 +157,22 @@
     '@media(max-width:700px){#sf-banner .note{display:none}}',
     '@keyframes sfp{0%,100%{opacity:1}50%{opacity:.35}}',
 
-    /* --- THE Customers bug. .main-content becomes a column flex on mobile;
-           .list-pane has flex:1 while .ai-sidebar (CREW & VENDOR) claims
-           max-height:45vh. Result: the customer list collapses to a sliver
-           and the crew panel appears to "cover" it. Let content define
-           height and let the PAGE scroll, not two fighting panes. --- */
+    /* --- THE Customers bug + THE scroll bug.
+           The app shell is body{display:flex;height:100vh;overflow:hidden}
+           with inner panes doing the scrolling. .list-pane had flex:1 while
+           .ai-sidebar claimed 45vh, starving the customer list.
+           My earlier fix released the panes to height:auto but left the body
+           clipped at 100vh — so Customers ended up with 4418px of content
+           inside a 664px hidden box and NOTHING could scroll.
+           Correct fix: release the whole shell to natural document flow on
+           phones so the PAGE scrolls. --- */
     '@media(max-width:700px){',
+    '  html{height:auto!important;overflow-y:visible!important}',
+    '  body{',
+    '    height:auto!important;min-height:100vh!important;',
+    '    overflow-y:visible!important;overflow-x:hidden!important}',
+    /*  Keep the header reachable while the page scrolls */
+    '  header{position:sticky!important;top:0;z-index:60}',
     '  .main-content{',
     '    flex-direction:column!important;',
     '    overflow:visible!important;height:auto!important;',
@@ -171,6 +181,11 @@
     '    flex:none!important;overflow:visible!important;',
     '    max-height:none!important;height:auto!important;',
     '    display:block!important;padding:14px 14px 8px!important}',
+    /*  reports.html scrolls in #page-content (measured 3706px inside 455px).
+        Release it too or the page scroll has nothing to do. */
+    '  .page-content{',
+    '    flex:none!important;overflow-y:visible!important;',
+    '    height:auto!important;max-height:none!important}',
     '  .board-wrap{max-height:none!important}',
     '  .ai-sidebar{',
     '    flex:none!important;width:100%!important;',
@@ -210,6 +225,32 @@
     '  .sub-bar{flex-wrap:wrap!important;row-gap:8px}',
     '  .time-tabs{flex-wrap:wrap}',
     '  .date-chip,.header-sep{display:none!important}',
+    '}',
+
+    /* --- Sub-bar crowding on Reports & Customers.
+           Both cram title + subtitle + count + tabs + export/search into one
+           flex row that has margin-left:auto children fighting for space.
+           Give it a clean two-row grid on phones. --- */
+    '@media(max-width:700px){',
+    '  .sub-bar{',
+    '    display:flex!important;flex-wrap:wrap!important;',
+    '    align-items:center!important;',
+    '    column-gap:10px!important;row-gap:9px!important;',
+    '    padding:10px 14px!important}',
+    '  .sub-bar-title{width:100%;order:1;font-size:15px!important}',
+    '  .sub-bar-sub,.cust-count{',
+    '    order:2;font-size:11px!important;opacity:.7;',
+    '    margin:0!important;white-space:nowrap}',
+    /*  Anything that used margin-left:auto must stop pulling on a wrapped row */
+    '  .time-tabs{order:3;margin-left:0!important;width:100%;gap:5px!important}',
+    '  .time-tab{flex:1;justify-content:center;display:flex;align-items:center;',
+    '    min-height:36px;font-size:12px}',
+    '  .export-btn{order:4;margin-left:0!important;min-height:36px;',
+    '    display:inline-flex;align-items:center}',
+    '  .search-box{order:5;width:100%!important;min-height:38px;',
+    '    box-sizing:border-box}',
+    '  #sf-ftoggle{order:6}',
+    '  .filter-pills{order:7;width:100%}',
     '}',
 
     /* --- Zoom pill --- */
@@ -266,7 +307,14 @@
     }
     paint();
 
-    /* Expanded by default (per requirement) */
+    /* Closed by default on phones/tablets; the button carries an active
+       count so nothing is hidden silently. */
+    if (window.innerWidth <= 1024) {
+      tray.classList.add('collapsed');
+      btn.classList.add('collapsed');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+
     btn.addEventListener('click', function () {
       var collapsed = tray.classList.toggle('collapsed');
       btn.classList.toggle('collapsed', collapsed);
@@ -332,7 +380,7 @@
     /* MIN was 0.20 but the pipeline needs 0.195 to fit all 7 columns on a
        390px phone — the clamp itself was the last 6px of scroll. */
     var STEP = 0.08, MIN = 0.14, MAX = 1;
-    var LS = 'sf_bz6_' + PATH.replace(/\W/g, ''), LSV = LS + '_vpw';
+    var LS = 'sf_bz7_' + PATH.replace(/\W/g, ''), LSV = LS + '_vpw';
     var vpw = window.innerWidth, nat = { w: 1, h: 1 }, z = 1;
 
     function measure() {
@@ -341,10 +389,19 @@
       nat.h = el.scrollHeight || el.offsetHeight || 1;
     }
     function calcDefault() {
-      /* -2px safety: rounding zoom UP to 2dp can re-introduce a few px of
-         scroll (measured 6px left over after the padding fix). */
+      /* -2px safety: rounding zoom UP to 2dp can re-introduce a few px. */
       var avail = vpw - pad - 2;
-      var raw = isPhone ? (avail / nat.w) : ((avail * 0.8) / (nat.w / 7 * 2.5));
+      var raw;
+      if (PATH.indexOf('schedule') !== -1) {
+        raw = isPhone ? (avail / nat.w) : ((avail * 0.8) / (nat.w / 7 * 2.5));
+      } else {
+        /* Pipeline: show N columns. All 7 on a 390px phone meant ~55px per
+           column and illegible cards, so default to 4 and let pinch/± reach
+           the rest. colCount measured from the DOM, not assumed. */
+        var cols = document.querySelectorAll('.board .col').length || 7;
+        var target = isPhone ? 4 : 2.5;
+        raw = avail / (nat.w / cols * target);
+      }
       return Math.max(MIN, Math.min(MAX, Math.floor(raw * 100) / 100));
     }
 
