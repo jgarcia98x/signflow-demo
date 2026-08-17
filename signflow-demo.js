@@ -846,6 +846,14 @@
         if (sb && window.innerWidth < 700) {
           sb.style.paddingBottom = (parseFloat(getComputedStyle(sb).paddingBottom) || 8) + h + 'px';
         }
+        /* Body padding isn't enough on the pipeline: the fixed banner still
+           covered the Smart Queue header by a measured 13px, because that
+           header is the last thing in a naturally-flowing phone layout.
+           Pad the sidebar's final block too. */
+        if (window.innerWidth < 700) {
+          var side = document.querySelector('.ai-sidebar');
+          if (side) side.style.paddingBottom = (h + 10) + 'px';
+        }
       });
       document.querySelectorAll('.stats-meta').forEach(function (el) {
         if (el.textContent.indexOf('Apex Build Co') !== -1)
