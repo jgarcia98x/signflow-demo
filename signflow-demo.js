@@ -260,12 +260,17 @@
         wrapped in a real .sf-actionrow element instead — one row, guaranteed,
         with Filters left and New Job filling the remainder. */
     '  .sf-actionrow{order:6!important;display:flex!important;width:100%!important;',
-    '    gap:10px!important;align-items:center!important;margin-top:2px!important}',
-    '  .sf-actionrow #sf-ftoggle{flex:0 0 auto!important;margin:0!important}',
-    '  .sf-actionrow .btn-new{flex:1 1 auto!important;height:40px!important;',
+    '    gap:10px!important;align-items:center!important;margin-top:2px!important;',
+    '    flex:0 0 100%!important}',
+    '  .sf-actionrow #sf-ftoggle{flex:0 0 auto!important;margin:0!important;order:1!important}',
+    /*  A page rule was resetting order to 0, which put New Job BEFORE Filters
+        and stacked both at x=14. Needs the extra .sf-subwrap specificity. */
+    '  .sf-subwrap .sf-actionrow .btn-new,.sf-actionrow .btn-new.sf-newmoved{',
+    '    order:2!important;flex:1 1 auto!important;height:40px!important;',
     '    padding:0 16px!important;font-size:13px!important;white-space:nowrap!important;',
     '    margin:0!important;display:inline-flex!important;align-items:center!important;',
-    '    justify-content:center!important;max-width:none!important}',
+    '    justify-content:center!important;max-width:none!important;',
+    '    position:static!important;width:auto!important}',
 
     /*  Boot veil — covers the unscaled-board flash (see initVeil). */
     '  #sf-veil{position:fixed;inset:0;z-index:99999;display:flex;',
