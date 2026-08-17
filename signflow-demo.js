@@ -143,6 +143,98 @@
     });
   }
 
+  /* ── 4. Schedule tab: replace hardcoded job blocks with skeletons ── */
+  function skeletonizeSchedule() {
+    var isSchedule = window.location.pathname.indexOf('schedule') !== -1;
+    if (!isSchedule) return;
+
+    /* Inject skeleton CSS */
+    var sk = document.createElement('style');
+    sk.textContent = [
+      '@keyframes sf-shimmer {',
+      '  0%   { background-position: -400px 0; }',
+      '  100% { background-position:  400px 0; }',
+      '}',
+      '.sf-skel {',
+      '  border-radius: 4px;',
+      '  background: linear-gradient(90deg,',
+      '    rgba(255,255,255,0.06) 25%,',
+      '    rgba(255,255,255,0.14) 50%,',
+      '    rgba(255,255,255,0.06) 75%);',
+      '  background-size: 800px 100%;',
+      '  animation: sf-shimmer 1.6s infinite linear;',
+      '}',
+      '.sf-skel-name  { height:11px; width:72%; margin-bottom:6px; }',
+      '.sf-skel-detail{ height:9px;  width:54%; margin-bottom:5px; }',
+      '.sf-skel-time  { height:8px;  width:40%; }',
+      '.sf-skel-empty {',
+      '  display:flex; align-items:center; justify-content:center;',
+      '  height:100%; min-height:52px;',
+      '  font-size:11px; color:rgba(255,255,255,0.2);',
+      '  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;',
+      '}',
+    ].join('\n');
+    document.head.appendChild(sk);
+
+    /* Replace each job-block's inner content */
+    document.querySelectorAll('.job-block').forEach(function (block, i) {
+      /* Preserve background colour — it shows which crew the block belongs to */
+      block.style.opacity = '0.7';
+      block.innerHTML =
+        '<div class="sf-skel sf-skel-name"></div>' +
+        '<div class="sf-skel sf-skel-detail"></div>' +
+        '<div class="sf-skel sf-skel-time"></div>';
+    });
+
+    /* Replace empty cells (cells with no job-block) with a subtle placeholder */
+    document.querySelectorAll('.sched-cell:not(:has(.job-block))').forEach(function (cell) {
+      if (cell.querySelector('.sf-skel-empty')) return;
+      var ph = document.createElement('div');
+      ph.className = 'sf-skel-empty';
+      ph.textContent = '—';
+      cell.appendChild(ph);
+    });
+
+    /* Update the AI summary strip if present */
+    var aiStrip = document.querySelector('.sched-ai, .ai-schedule-note, .schedule-insight');
+    if (aiStrip) {
+      aiStrip.innerHTML =
+        '<span style="color:rgba(255,255,255,0.35);font-size:12px;">' +
+        '✦ Schedule optimisation loads once your jobs are in the system' +
+        '</span>';
+    }
+  }
+
+  function inject() {
+    document.body.appendChild(wm);
+    skeletonizeSchedule();
+
+    /* ── 3. Personalised banner (only when ?demo= set) ─────────────── */
+    if (demoFor) {
+      var banner = document.createElement('div');
+      banner.id = 'sf-demo-banner';
+      banner.innerHTML =
+        '<div class="sf-banner-dot"></div>' +
+        '<span class="sf-banner-label">Confidential demo &nbsp;·&nbsp; Prepared for</span>' +
+        '<span class="sf-banner-name">' + escHtml(demoFor) + '</span>' +
+        '<span class="sf-banner-note">Not for distribution</span>';
+      document.body.appendChild(banner);
+
+      /* Also update any footer company-name elements */
+      document.querySelectorAll('.stats-meta').forEach(function (el) {
+        if (el.textContent.indexOf('Apex Build Co') !== -1) {
+          el.textContent = el.textContent.replace('Apex Build Co', 'Demo for ' + demoFor);
+        }
+      });
+    }
+  }
+
+  function escHtml(s) {
+    return s.replace(/[&<>"']/g, function (c) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inject);
   } else {
