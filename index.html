@@ -1662,21 +1662,29 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
            and four invented callouts that never changed. -->
       <div id="sf-queue-computed"></div>
 
-      <!-- ── SLOW SEASON OUTREACH ── -->
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:rgba(79,195,247,0.85);">❄️ Slow Season Outreach</div>
-          <div style="font-size:9px;color:var(--text-dim);" id="outreach-count"></div>
+      <!-- ── OUTREACH LIVES IN SMART NUDGE ──────────────────────────────
+           Slow Season Outreach used to render here, which split one job
+           across two tools: Smart Queue answered "what work do I do today"
+           and then, underneath, "who should I call". Chasing a cold quote is
+           not today's work order — it is a follow-up, which is exactly what
+           Smart Nudge is for. Every outreach list now lives there so there
+           is one place to look and the two tools cannot disagree.
+
+           The elements below are kept as empty hooks because index.html's
+           follow-up code still queries them; it no-ops cleanly when they are
+           absent from view, and the pointer keeps the feature discoverable
+           instead of just vanishing. -->
+      <div id="sf-outreach-moved" style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:rgba(79,195,247,0.85);margin-bottom:6px;">❄️ Cold quotes &amp; follow-ups</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.50);line-height:1.55;">
+          Outreach moved to <strong style="color:rgba(255,255,255,0.80);">Smart Nudge</strong>
+          so this queue stays a work order.
+          <a href="customers.html" style="color:rgba(79,195,247,0.95);text-decoration:none;font-weight:700;">Open Smart Nudge →</a>
         </div>
-        <div id="slow-season-list"></div>
-        <button id="send-all-followups" style="
-          display:none;width:100%;margin-top:8px;
-          background:rgba(79,195,247,0.12);border:1px solid rgba(79,195,247,0.35);
-          border-radius:7px;color:rgba(79,195,247,0.90);font-size:10px;font-weight:700;
-          padding:6px;cursor:pointer;letter-spacing:0.2px;transition:background .15s;">
-          📬 Queue All Follow-ups
-        </button>
       </div>
+      <div id="slow-season-list" hidden></div>
+      <span id="outreach-count" hidden></span>
+      <button id="send-all-followups" hidden></button>
 
     </div>
   </div>
