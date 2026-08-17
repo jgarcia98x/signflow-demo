@@ -394,6 +394,22 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
        days, so the week reads as Mon–Sun without implying Sat/Sun capacity
        that doesn't exist. Weekend installs happen, so the columns are real
        and bookable — they're just off by default. */
+    /* Brief wiggle to show a block is grabbable, used by Assign Job. */
+    @keyframes sfNudge {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-3px); }
+      40% { transform: translateX(3px); }
+      60% { transform: translateX(-2px); }
+      80% { transform: translateX(2px); }
+    }
+    .job-block.sf-nudge {
+      animation: sfNudge 0.5s ease 2;
+      outline: 2px solid rgba(255,255,255,0.5);
+      outline-offset: 1px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .job-block.sf-nudge { animation: none; }
+    }
     .day-header.weekend-header { background: rgba(255,255,255,0.015); }
     .day-header.weekend-header .day-name { color: rgba(255,255,255,0.42); }
     .day-header.weekend-header .day-date { color: rgba(255,255,255,0.32); }
@@ -1155,8 +1171,24 @@ var todayBtn = document.querySelector('.today-btn');
 if (todayBtn) todayBtn.addEventListener('click', function() { toast('Viewing current week'); });
 
 // ── Assign Job button ─────────────────────────────────────
+/* Was: toast('Job assignment coming soon — use Pipeline to move jobs').
+   Moving this button next to Filters puts it at thumb height on phones, so a
+   "coming soon" dead end there is worse than none. Assignment already works
+   by dragging (SFDnD on .job-block → .day-cell), so point at the mechanism
+   that exists instead of apologising for one that doesn't. */
 var assignBtn = document.querySelector('.btn-assign');
-if (assignBtn) assignBtn.addEventListener('click', function() { toast('Job assignment coming soon — use Pipeline to move jobs'); });
+if (assignBtn) assignBtn.addEventListener('click', function() {
+  /* This page's toast() takes one argument — a second emoji arg is silently
+     dropped, so it goes in the string. */
+  toast('\u270B Drag any job block onto a crew member\u2019s day to assign it');
+  /* Nudge the grid so the affordance is visible, not just described. */
+  var jb = document.querySelector('.job-block');
+  if (jb) {
+    jb.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    jb.classList.add('sf-nudge');
+    setTimeout(function () { jb.classList.remove('sf-nudge'); }, 1400);
+  }
+});
 
 // ── Avatar ────────────────────────────────────────────────
 var avatar = document.querySelector('.avatar');

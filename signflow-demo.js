@@ -282,12 +282,55 @@
     '  .sf-actionrow #sf-ftoggle{flex:0 0 auto!important;margin:0!important;order:1!important}',
     /*  A page rule was resetting order to 0, which put New Job BEFORE Filters
         and stacked both at x=14. Needs the extra .sf-subwrap specificity. */
-    '  .sf-subwrap .sf-actionrow .btn-new,.sf-actionrow .btn-new.sf-newmoved{',
+    '  .sf-subwrap .sf-actionrow .btn-new,.sf-actionrow .btn-new.sf-newmoved,',
+    '  .sf-subwrap .sf-actionrow .btn-assign,.sf-actionrow .btn-assign.sf-newmoved{',
     '    order:2!important;flex:1 1 auto!important;height:40px!important;',
     '    padding:0 16px!important;font-size:13px!important;white-space:nowrap!important;',
     '    margin:0!important;display:inline-flex!important;align-items:center!important;',
     '    justify-content:center!important;max-width:none!important;',
     '    position:static!important;width:auto!important}',
+
+    /*  First-visit hint sheet (see initHint). iOS-style: dimmed backdrop,
+        rounded sheet rising from the bottom, grab handle, single action.
+        Not inside the phone-only media query — tablets get it too. */
+    '#sf-hint{position:fixed;inset:0;z-index:99998;display:flex;',
+    '  align-items:flex-end;justify-content:center;',
+    '  background:rgba(0,0,0,0);backdrop-filter:blur(0px);',
+    '  -webkit-backdrop-filter:blur(0px);',
+    '  transition:background .26s ease,backdrop-filter .26s ease;',
+    '  pointer-events:none}',
+    '#sf-hint.sf-hint-in{background:rgba(0,0,0,0.5);backdrop-filter:blur(3px);',
+    '  -webkit-backdrop-filter:blur(3px);pointer-events:auto}',
+    '#sf-hint.sf-hint-out{background:rgba(0,0,0,0);backdrop-filter:blur(0px);',
+    '  -webkit-backdrop-filter:blur(0px);pointer-events:none}',
+    '.sf-hint-sheet{width:100%;max-width:460px;box-sizing:border-box;',
+    '  background:rgba(32,22,26,0.92);backdrop-filter:blur(24px) saturate(160%);',
+    '  -webkit-backdrop-filter:blur(24px) saturate(160%);',
+    '  border:1px solid rgba(255,255,255,0.10);border-bottom:0;',
+    '  border-radius:20px 20px 0 0;padding:9px 20px calc(20px + env(safe-area-inset-bottom));',
+    '  box-shadow:0 -12px 40px rgba(0,0,0,0.45);',
+    '  transform:translateY(102%);transition:transform .3s cubic-bezier(.32,.72,0,1);',
+    '  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}',
+    '#sf-hint.sf-hint-in .sf-hint-sheet{transform:translateY(0)}',
+    '#sf-hint.sf-hint-out .sf-hint-sheet{transform:translateY(102%)}',
+    '.sf-hint-grip{width:36px;height:4px;border-radius:2px;',
+    '  background:rgba(255,255,255,0.20);margin:0 auto 14px}',
+    '.sf-hint-t{font-size:19px;font-weight:700;color:#fff;',
+    '  letter-spacing:-0.2px;margin-bottom:14px;text-align:center}',
+    '.sf-hint-row{display:flex;gap:13px;align-items:flex-start;margin-bottom:13px}',
+    '.sf-hint-ic{flex:0 0 34px;height:34px;border-radius:10px;',
+    '  background:rgba(211,47,47,0.16);border:1px solid rgba(211,47,47,0.28);',
+    '  display:flex;align-items:center;justify-content:center;font-size:16px}',
+    '.sf-hint-rt{font-size:14px;font-weight:600;color:rgba(255,255,255,0.94);',
+    '  margin-bottom:2px}',
+    '.sf-hint-rd{font-size:12.5px;line-height:1.45;color:rgba(255,255,255,0.55)}',
+    '.sf-hint-ok{width:100%;height:46px;margin-top:5px;border:0;',
+    '  border-radius:13px;background:#d32f2f;color:#fff;font-size:15px;',
+    '  font-weight:650;letter-spacing:0.1px;cursor:pointer;',
+    '  font-family:inherit;-webkit-tap-highlight-color:transparent}',
+    '.sf-hint-ok:active{background:#b52626}',
+    '@media(prefers-reduced-motion:reduce){',
+    '  .sf-hint-sheet{transition:none}#sf-hint{transition:none}}',
 
     /*  Boot veil — covers the unscaled-board flash (see initVeil). */
     '  #sf-veil{position:fixed;inset:0;z-index:99999;display:flex;',
@@ -407,7 +450,10 @@
       actionRow.className = 'sf-actionrow';
       sub.appendChild(actionRow);
       actionRow.appendChild(btn);
-      var newBtn = document.querySelector('header .btn-new');
+      /* Each page's primary action: New Job on pipeline/jobs/customers,
+         Assign Job on schedule. Same treatment — the header is where it
+         crowded the bell. */
+      var newBtn = document.querySelector('header .btn-new, header .btn-assign');
       if (newBtn) {
         newBtn.classList.add('sf-newmoved');
         actionRow.appendChild(newBtn);
@@ -846,6 +892,7 @@
     skeletonize();
 
     initSubbarVisibility();
+    initHint();
 
     /* The bell is injected by signflow-engine.js, which may not have run
        yet. Poll briefly rather than assuming it exists. */
@@ -894,6 +941,83 @@
           el.textContent = el.textContent.replace('Apex Build Co', 'Demo for ' + demoFor);
       });
     }
+  }
+
+  /* ── 3h. First-visit hint sheet ───────────────────────────────────────
+     Drag-and-drop and the detail panel are invisible affordances: a cold
+     prospect on a phone has no reason to guess that a job card can be
+     dragged between stages or tapped open. One iOS-style sheet on first
+     visit, then never again.
+
+     Copy is per-page and states only what that page actually does. Verified
+     by measurement, not assumption:
+       - Pipeline  : SFDnD.init({item:'.card', container:'.col'}) AND tapping
+                     a card opens #detail-panel (confirmed class 'open').
+       - Schedule  : SFDnD.init({item:'.job-block', container:'.day-cell'})
+                     but there is NO detail panel — tapping a block opens
+                     nothing. Claiming "tap for details" here would be a lie.
+     Hence two different bodies rather than one blanket claim. */
+  var HINTS = {
+    index: {
+      title: 'Two things to try',
+      rows: [
+        ['✋', 'Drag a job', 'Move any card between stages — Quote, Design, Fabrication, Install.'],
+        ['👆', 'Tap for details', 'Opens the full job: contact, value, timeline, notes.']
+      ]
+    },
+    schedule: {
+      title: 'Try dragging a job',
+      rows: [
+        ['✋', 'Reassign by dragging', 'Drag any job block to another crew member or day.'],
+        ['⚠', 'Conflicts update live', 'Double-bookings are flagged the moment you drop.']
+      ]
+    }
+  };
+
+  function initHint() {
+    if (!isTouch) return;
+
+    var key = PATH.indexOf('schedule') !== -1 ? 'schedule'
+            : (PATH.indexOf('index') !== -1 || PATH === '/' || PATH === '') ? 'index'
+            : null;
+    if (!key) return;
+
+    var LS = 'sf_hint_' + key;
+    try { if (localStorage.getItem(LS)) return; } catch (e) {}
+
+    var h = HINTS[key];
+
+    var wrap = document.createElement('div');
+    wrap.id = 'sf-hint';
+    wrap.innerHTML =
+      '<div class="sf-hint-sheet" role="dialog" aria-modal="true" aria-label="' + h.title + '">'
+      + '<div class="sf-hint-grip"></div>'
+      + '<div class="sf-hint-t">' + h.title + '</div>'
+      + h.rows.map(function (r) {
+          return '<div class="sf-hint-row"><div class="sf-hint-ic">' + r[0] + '</div>'
+            + '<div><div class="sf-hint-rt">' + r[1] + '</div>'
+            + '<div class="sf-hint-rd">' + r[2] + '</div></div></div>';
+        }).join('')
+      + '<button class="sf-hint-ok" type="button">Got it</button>'
+      + '</div>';
+    document.body.appendChild(wrap);
+
+    function close() {
+      wrap.classList.add('sf-hint-out');
+      try { localStorage.setItem(LS, '1'); } catch (e) {}
+      setTimeout(function () { if (wrap.parentNode) wrap.remove(); }, 260);
+    }
+    wrap.querySelector('.sf-hint-ok').addEventListener('click', close);
+    /* Tapping the dimmed backdrop dismisses, as on iOS. */
+    wrap.addEventListener('click', function (e) {
+      if (e.target === wrap) close();
+    });
+
+    /* Show only after the veil has lifted and the board has settled —
+       otherwise the sheet animates over a still-scaling layout. */
+    requestAnimationFrame(function () {
+      setTimeout(function () { wrap.classList.add('sf-hint-in'); }, 340);
+    });
   }
 
   /* The veil exists to hide the unscaled-board flash, so it must paint
