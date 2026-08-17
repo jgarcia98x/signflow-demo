@@ -221,7 +221,12 @@
     '    border-top:1px solid rgba(255,255,255,.08);',
     '    scrollbar-width:none}',
     '  nav::-webkit-scrollbar{display:none}',
-    '  nav a{flex-shrink:0!important;white-space:nowrap}',
+    '  nav a{flex-shrink:0!important;white-space:nowrap!important;',
+    '    overflow:visible!important;text-overflow:clip!important}',
+    /*  The last tab was clipped because the scroll row had no end padding —
+        nothing wrong with the tab itself, the row just ended flush. */
+    '  nav{padding-right:14px!important}',
+    '  nav:after{content:"";flex:0 0 6px}',
     '  .sub-bar{flex-wrap:wrap!important;row-gap:8px}',
     '  .time-tabs{flex-wrap:wrap}',
     '  .date-chip,.header-sep{display:none!important}',
@@ -232,11 +237,13 @@
            flex row that has margin-left:auto children fighting for space.
            Give it a clean two-row grid on phones. --- */
     '@media(max-width:700px){',
-    '  .sub-bar{',
+    '  .sub-bar,.sf-subwrap{',
     '    display:flex!important;flex-wrap:wrap!important;',
     '    align-items:center!important;',
     '    column-gap:10px!important;row-gap:9px!important;',
-    '    padding:10px 14px!important}',
+    '    padding:10px 14px!important;',
+    '    height:auto!important;min-height:0!important;',
+    '    overflow:visible!important}',
     '  .sub-bar-title{width:100%;order:1;font-size:15px!important}',
     '  .sub-bar-sub,.cust-count{',
     '    order:2;font-size:11px!important;opacity:.7;',
@@ -284,6 +291,11 @@
 
   /* ── 4. Collapsible filter tray ─────────────────────────────────── */
   function initFilters() {
+    /* Reports has no .filter-pills, so anything that must apply there
+       (sub-bar de-crowding) has to happen before the early return. */
+    var sub = document.querySelector('.sub-bar');
+    if (sub && isPhone) sub.classList.add('sf-subwrap');
+
     var tray = document.querySelector('.filter-pills');
     if (!tray) return;
     tray.classList.add('sf-ftray');
