@@ -1,6 +1,6 @@
 /*! SignFlow Demo Guard — personalized links + screenshot watermark
  *  Usage: append ?demo=Company+Name to any page URL
- *  e.g.  https://jgarcia98x.github.io/signflow-mockups/?demo=Eclipse+Awning
+ *  e.g.  https://jgarcia98x.github.io/signflow-demo/?demo=Eclipse+Awning
  */
 (function () {
   'use strict';
@@ -24,328 +24,206 @@
     });
   }
 
-  /* ── 2. Watermark overlay (always on — subtle during use, visible in screenshots) */
-  var wm = document.createElement('div');
-  wm.id = 'sf-demo-watermark';
-  var wmLabel = demoFor ? 'CONFIDENTIAL · ' + demoFor.toUpperCase() : 'CONFIDENTIAL DEMO';
-  /* Tile the label by repeating it across a wide string */
-  var tile = (wmLabel + '          ').repeat(6);
-  /* Build ~12 rows to cover any viewport height */
-  var rows = '';
-  for (var i = 0; i < 14; i++) {
-    rows += '<div class="sf-wm-row" style="margin-top:' + (i * 80) + 'px">' +
-      '<span>' + tile + '</span>' +
-      '</div>';
-  }
-  wm.innerHTML = rows;
-
+  /* ── 2. Watermark + banner styles ───────────────────────────────── */
   var style = document.createElement('style');
   style.textContent = [
     '#sf-demo-watermark {',
-    '  position: fixed;',
-    '  top: 0; left: 0;',
+    '  position: fixed; top: 0; left: 0;',
     '  width: 100vw; height: 100vh;',
-    '  pointer-events: none;',
-    '  z-index: 99998;',
-    '  overflow: hidden;',
-    '  transform: rotate(-28deg);',
-    '  transform-origin: 50% 50%;',
-    '  opacity: 0.045;',   /* subtle: visible in screenshots, unobtrusive live */
+    '  pointer-events: none; z-index: 99998; overflow: hidden;',
+    '  transform: rotate(-28deg); transform-origin: 50% 50%;',
+    '  opacity: 0.045;',
     '}',
-    '.sf-wm-row {',
-    '  position: absolute;',
-    '  white-space: nowrap;',
-    '  left: -60%;',
-    '  width: 220%;',
-    '}',
+    '.sf-wm-row { position: absolute; white-space: nowrap; left: -60%; width: 220%; }',
     '.sf-wm-row span {',
     '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;',
-    '  font-size: 18px;',
-    '  font-weight: 700;',
-    '  letter-spacing: 0.18em;',
-    '  color: #fff;',
-    '  user-select: none;',
-    '  -webkit-user-select: none;',
+    '  font-size: 18px; font-weight: 700; letter-spacing: 0.18em; color: #fff;',
+    '  user-select: none; -webkit-user-select: none;',
     '}',
-    /* Personalised banner */
     '#sf-demo-banner {',
-    '  position: fixed;',
-    '  bottom: 0; left: 0; right: 0;',
-    '  z-index: 99999;',
-    '  background: rgba(15,15,20,0.92);',
-    '  backdrop-filter: blur(8px);',
+    '  position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;',
+    '  background: rgba(15,15,20,0.92); backdrop-filter: blur(8px);',
     '  -webkit-backdrop-filter: blur(8px);',
     '  border-top: 1px solid rgba(211,47,47,0.5);',
-    '  padding: 8px 20px;',
-    '  display: flex;',
-    '  align-items: center;',
-    '  gap: 10px;',
+    '  padding: 8px 20px; display: flex; align-items: center; gap: 10px;',
     '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;',
-    '  font-size: 12px;',
-    '  pointer-events: none;',
+    '  font-size: 12px; pointer-events: none;',
     '}',
     '#sf-demo-banner .sf-banner-dot {',
-    '  width: 7px; height: 7px;',
-    '  border-radius: 50%;',
-    '  background: #d32f2f;',
-    '  flex-shrink: 0;',
-    '  animation: sf-pulse 2s ease-in-out infinite;',
+    '  width: 7px; height: 7px; border-radius: 50%; background: #d32f2f;',
+    '  flex-shrink: 0; animation: sf-pulse 2s ease-in-out infinite;',
     '}',
-    '#sf-demo-banner .sf-banner-label {',
-    '  color: rgba(255,255,255,0.55);',
-    '  text-transform: uppercase;',
-    '  letter-spacing: 0.08em;',
-    '}',
-    '#sf-demo-banner .sf-banner-name {',
-    '  color: #fff;',
-    '  font-weight: 600;',
-    '  letter-spacing: 0.04em;',
-    '}',
-    '#sf-demo-banner .sf-banner-note {',
-    '  margin-left: auto;',
-    '  color: rgba(255,255,255,0.3);',
-    '  font-size: 11px;',
-    '}',
-    '@keyframes sf-pulse {',
-    '  0%,100%{ opacity:1; }',
-    '  50%{ opacity:0.35; }',
-    '}',
+    '#sf-demo-banner .sf-banner-label { color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.08em; }',
+    '#sf-demo-banner .sf-banner-name  { color: #fff; font-weight: 600; letter-spacing: 0.04em; }',
+    '#sf-demo-banner .sf-banner-note  { margin-left: auto; color: rgba(255,255,255,0.3); font-size: 11px; }',
+    '@keyframes sf-pulse { 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }',
   ].join('\n');
-
   document.head.appendChild(style);
 
-  function inject() {
-    document.body.appendChild(wm);
-
-    /* ── 3. Personalised banner (only when ?demo= set) ─────────────── */
-    if (demoFor) {
-      var banner = document.createElement('div');
-      banner.id = 'sf-demo-banner';
-      banner.innerHTML =
-        '<div class="sf-banner-dot"></div>' +
-        '<span class="sf-banner-label">Confidential demo &nbsp;·&nbsp; Prepared for</span>' +
-        '<span class="sf-banner-name">' + escHtml(demoFor) + '</span>' +
-        '<span class="sf-banner-note">Not for distribution</span>';
-      document.body.appendChild(banner);
-
-      /* Also update any footer company-name elements */
-      document.querySelectorAll('.stats-meta').forEach(function (el) {
-        if (el.textContent.indexOf('Apex Build Co') !== -1) {
-          el.textContent = el.textContent.replace('Apex Build Co', 'Demo for ' + demoFor);
-        }
-      });
-    }
-  }
-
-  function escHtml(s) {
-    return s.replace(/[&<>"']/g, function (c) {
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
-  }
-
-  /* ── 4. Board zoom control (mobile / touch only) ────────────────── */
+  /* ── 3. Board zoom control (touch devices only) ─────────────────── */
   function initBoardZoom() {
-    /* Only on touch/mobile — pointer:coarse covers all phones and iPads */
-    var isTouch = window.matchMedia('(pointer:coarse)').matches;
-    if (!isTouch) return;
-
+    if (!window.matchMedia('(pointer:coarse)').matches) return;
     var board = document.querySelector('.board');
-    var wrap  = document.querySelector('.board-wrap');
-    if (!board || !wrap) return;
+    if (!board) return;
 
-    /* Compute a sensible default zoom so ~2 columns are visible */
-    var COL_WIDTH = 190; /* px, unzoomed */
-    var NUM_COLS  = document.querySelectorAll('.col').length || 7;
-    var vpw       = window.innerWidth;
-    var defaultZ  = Math.min(1, Math.max(0.42, (vpw * 0.88) / (COL_WIDTH * 2.2)));
-    defaultZ = Math.round(defaultZ * 100) / 100;
+    /* Board geometry */
+    var COL_W   = 200;   /* touch layer sets min-width:200px */
+    var NUM_COL = Math.max(1, document.querySelectorAll('.col').length || 7);
+    var GAP     = 12;
+    var PAD     = 28;
+    var boardW  = COL_W * NUM_COL + GAP * (NUM_COL - 1) + PAD;
 
-    var ZOOM_MIN = 0.38, ZOOM_MAX = 1.0, ZOOM_STEP = 0.1;
-    var LS_KEY = 'sf_board_zoom';
-    var z = parseFloat(localStorage.getItem(LS_KEY)) || defaultZ;
-    z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
+    var vpw     = window.innerWidth;
+    var isPhone = vpw < 700;
+
+    /* Phone: fit ALL columns on screen from the start.
+       iPad: show ~2.5 columns comfortably. */
+    function calcDefault(w) {
+      var phone = w < 700;
+      return Math.round(Math.min(1, Math.max(0.20,
+        phone
+          ? w / boardW                              /* all cols visible */
+          : (w * 0.82) / (COL_W * 2.5)             /* ~2.5 cols on iPad */
+      )) * 100) / 100;
+    }
+
+    var ZOOM_MIN = 0.20, ZOOM_MAX = 1.0, ZOOM_STEP = 0.08;
+    var LS_KEY   = 'sf_board_zoom_v3';
+    var LS_VPW   = 'sf_board_zoom_v3_vpw';
+
+    /* Only restore saved zoom if screen width hasn't changed significantly */
+    var saved   = parseFloat(localStorage.getItem(LS_KEY));
+    var savedVpw= parseFloat(localStorage.getItem(LS_VPW));
+    var z = (saved && Math.abs(savedVpw - vpw) < 40)
+              ? Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, saved))
+              : calcDefault(vpw);
+
+    /* Pill CSS — position:fixed so it never moves during scroll */
+    var css = document.createElement('style');
+    css.textContent = [
+      '#sf-zoom-pill {',
+      '  position: fixed;',
+      '  bottom: 64px;',        /* clears demo banner */
+      '  left: 50%;',
+      '  transform: translateX(-50%);',
+      '  z-index: 9990;',
+      '  display: flex; align-items: center;',
+      '  background: rgba(12,10,10,0.92);',
+      '  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);',
+      '  border: 1px solid rgba(255,255,255,0.15);',
+      '  border-radius: 26px; overflow: hidden;',
+      '  box-shadow: 0 4px 20px rgba(0,0,0,0.65);',
+      '  user-select: none;',
+      '}',
+      '#sf-zoom-pill button {',
+      '  background: none; border: none; color: #fff;',
+      '  font-size: 22px; line-height: 1;',
+      '  width: 52px; height: 48px;',
+      '  display: flex; align-items: center; justify-content: center;',
+      '  cursor: pointer;',
+      '  -webkit-tap-highlight-color: transparent; touch-action: manipulation;',
+      '  transition: opacity 0.12s, background 0.1s;',
+      '}',
+      '#sf-zoom-pill button:active { background: rgba(255,255,255,0.09); }',
+      '#sf-zoom-lbl {',
+      '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;',
+      '  font-size: 12px; font-weight: 700;',
+      '  color: rgba(255,255,255,0.75); letter-spacing: 0.05em;',
+      '  min-width: 50px; text-align: center;',
+      '  border-left: 1px solid rgba(255,255,255,0.1);',
+      '  border-right: 1px solid rgba(255,255,255,0.1);',
+      '}',
+    ].join('\n');
+    document.head.appendChild(css);
+
+    /* Build pill and append to body — fixed to viewport, not a scroll container */
+    var pill   = document.createElement('div');
+    pill.id    = 'sf-zoom-pill';
+    var btnOut = document.createElement('button');
+    btnOut.textContent = '−'; btnOut.setAttribute('aria-label', 'Zoom out');
+    var lbl    = document.createElement('span');
+    lbl.id     = 'sf-zoom-lbl';
+    var btnIn  = document.createElement('button');
+    btnIn.textContent = '+'; btnIn.setAttribute('aria-label', 'Zoom in');
+    pill.appendChild(btnOut); pill.appendChild(lbl); pill.appendChild(btnIn);
+    document.body.appendChild(pill);
 
     function applyZoom(val) {
       z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(val * 100) / 100));
       board.style.zoom = z;
       localStorage.setItem(LS_KEY, z);
-      zoomOut.style.opacity = z <= ZOOM_MIN ? '0.35' : '1';
-      zoomIn.style.opacity  = z >= ZOOM_MAX ? '0.35' : '1';
-      /* label: show "overview" at min, percentage otherwise */
-      var pct = Math.round(z * 100);
-      zoomLabel.textContent = z <= ZOOM_MIN ? 'Overview' : pct + '%';
+      localStorage.setItem(LS_VPW, vpw);
+      btnOut.style.opacity = z <= ZOOM_MIN + 0.01 ? '0.28' : '1';
+      btnIn.style.opacity  = z >= ZOOM_MAX - 0.01 ? '0.28' : '1';
+      lbl.textContent = (z <= ZOOM_MIN + 0.01) ? 'All' : Math.round(z * 100) + '%';
     }
 
-    /* Inject CSS for zoom controls */
-    var zs = document.createElement('style');
-    zs.textContent = [
-      '#sf-zoom-ctrl {',
-      '  position: sticky;',
-      '  bottom: 12px;',
-      '  left: 0;',
-      '  z-index: 200;',
-      '  display: flex;',
-      '  align-items: center;',
-      '  gap: 0;',
-      '  width: fit-content;',
-      '  margin: 8px 0 0 12px;',
-      '  background: rgba(15,12,12,0.88);',
-      '  backdrop-filter: blur(10px);',
-      '  -webkit-backdrop-filter: blur(10px);',
-      '  border: 1px solid rgba(255,255,255,0.13);',
-      '  border-radius: 22px;',
-      '  overflow: hidden;',
-      '  box-shadow: 0 2px 12px rgba(0,0,0,0.5);',
-      '}',
-      '#sf-zoom-ctrl button {',
-      '  background: none;',
-      '  border: none;',
-      '  color: #fff;',
-      '  font-size: 18px;',
-      '  width: 42px;',
-      '  height: 36px;',
-      '  cursor: pointer;',
-      '  display: flex;',
-      '  align-items: center;',
-      '  justify-content: center;',
-      '  -webkit-tap-highlight-color: transparent;',
-      '  touch-action: manipulation;',
-      '  transition: opacity 0.15s;',
-      '}',
-      '#sf-zoom-label {',
-      '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;',
-      '  font-size: 11px;',
-      '  font-weight: 600;',
-      '  color: rgba(255,255,255,0.7);',
-      '  letter-spacing: 0.04em;',
-      '  min-width: 52px;',
-      '  text-align: center;',
-      '  user-select: none;',
-      '}',
-    ].join('\n');
-    document.head.appendChild(zs);
-
-    /* Build the control */
-    var ctrl = document.createElement('div');
-    ctrl.id = 'sf-zoom-ctrl';
-
-    var zoomOut   = document.createElement('button');
-    zoomOut.textContent = '−';
-    zoomOut.setAttribute('aria-label', 'Zoom out');
-
-    var zoomLabel = document.createElement('span');
-    zoomLabel.id = 'sf-zoom-label';
-
-    var zoomIn    = document.createElement('button');
-    zoomIn.textContent = '+';
-    zoomIn.setAttribute('aria-label', 'Zoom in');
-
-    ctrl.appendChild(zoomOut);
-    ctrl.appendChild(zoomLabel);
-    ctrl.appendChild(zoomIn);
-
-    zoomOut.addEventListener('click', function() { applyZoom(z - ZOOM_STEP); });
-    zoomIn.addEventListener('click',  function() { applyZoom(z + ZOOM_STEP); });
-
-    /* Insert below the board (inside board-wrap, after board div) */
-    wrap.appendChild(ctrl);
-
-    /* Apply initial zoom */
+    btnOut.addEventListener('click', function () { applyZoom(z - ZOOM_STEP); });
+    btnIn.addEventListener('click',  function () { applyZoom(z + ZOOM_STEP); });
     applyZoom(z);
 
-    /* Reset default on orientation change */
-    window.addEventListener('orientationchange', function() {
-      setTimeout(function() {
-        var newDefault = Math.min(1, Math.max(0.42,
-          (window.innerWidth * 0.88) / (COL_WIDTH * 2.2)));
-        if (!localStorage.getItem(LS_KEY)) applyZoom(newDefault);
-      }, 300);
+    /* Recompute on orientation change */
+    window.addEventListener('orientationchange', function () {
+      setTimeout(function () {
+        vpw = window.innerWidth;
+        applyZoom(calcDefault(vpw));
+      }, 350);
     });
   }
 
-  /* ── 5. Schedule tab: replace hardcoded job blocks with skeletons ── */
+  /* ── 4. Schedule tab skeleton cards ─────────────────────────────── */
   function skeletonizeSchedule() {
-    var isSchedule = window.location.pathname.indexOf('schedule') !== -1;
-    if (!isSchedule) return;
-
-    /* Inject skeleton CSS */
+    if (window.location.pathname.indexOf('schedule') === -1) return;
     var sk = document.createElement('style');
     sk.textContent = [
-      '@keyframes sf-shimmer {',
-      '  0%   { background-position: -400px 0; }',
-      '  100% { background-position:  400px 0; }',
-      '}',
-      '.sf-skel {',
-      '  border-radius: 4px;',
-      '  background: linear-gradient(90deg,',
-      '    rgba(255,255,255,0.06) 25%,',
-      '    rgba(255,255,255,0.14) 50%,',
-      '    rgba(255,255,255,0.06) 75%);',
-      '  background-size: 800px 100%;',
-      '  animation: sf-shimmer 1.6s infinite linear;',
-      '}',
-      '.sf-skel-name  { height:11px; width:72%; margin-bottom:6px; }',
-      '.sf-skel-detail{ height:9px;  width:54%; margin-bottom:5px; }',
-      '.sf-skel-time  { height:8px;  width:40%; }',
-      '.sf-skel-empty {',
-      '  display:flex; align-items:center; justify-content:center;',
-      '  height:100%; min-height:52px;',
-      '  font-size:11px; color:rgba(255,255,255,0.2);',
-      '  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;',
-      '}',
+      '@keyframes sf-shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}',
+      '.sf-skel{border-radius:4px;background:linear-gradient(90deg,rgba(255,255,255,0.06) 25%,rgba(255,255,255,0.14) 50%,rgba(255,255,255,0.06) 75%);background-size:800px 100%;animation:sf-shimmer 1.6s infinite linear}',
+      '.sf-skel-name{height:11px;width:72%;margin-bottom:6px}',
+      '.sf-skel-dtl{height:9px;width:54%;margin-bottom:5px}',
+      '.sf-skel-time{height:8px;width:40%}',
     ].join('\n');
     document.head.appendChild(sk);
-
-    /* Replace each job-block's inner content */
-    document.querySelectorAll('.job-block').forEach(function (block, i) {
-      /* Preserve background colour — it shows which crew the block belongs to */
-      block.style.opacity = '0.7';
-      block.innerHTML =
-        '<div class="sf-skel sf-skel-name"></div>' +
-        '<div class="sf-skel sf-skel-detail"></div>' +
-        '<div class="sf-skel sf-skel-time"></div>';
+    document.querySelectorAll('.job-block').forEach(function (b) {
+      b.style.opacity = '0.65';
+      b.innerHTML = '<div class="sf-skel sf-skel-name"></div><div class="sf-skel sf-skel-dtl"></div><div class="sf-skel sf-skel-time"></div>';
     });
-
-    /* Replace empty cells (cells with no job-block) with a subtle placeholder */
-    document.querySelectorAll('.sched-cell:not(:has(.job-block))').forEach(function (cell) {
-      if (cell.querySelector('.sf-skel-empty')) return;
-      var ph = document.createElement('div');
-      ph.className = 'sf-skel-empty';
-      ph.textContent = '—';
-      cell.appendChild(ph);
-    });
-
-    /* Update the AI summary strip if present */
-    var aiStrip = document.querySelector('.sched-ai, .ai-schedule-note, .schedule-insight');
-    if (aiStrip) {
-      aiStrip.innerHTML =
-        '<span style="color:rgba(255,255,255,0.35);font-size:12px;">' +
-        '✦ Schedule optimisation loads once your jobs are in the system' +
-        '</span>';
-    }
+    var ai = document.querySelector('.sched-ai, .ai-schedule-note, .schedule-insight');
+    if (ai) ai.innerHTML = '<span style="color:rgba(255,255,255,0.35);font-size:12px">✦ Schedule loads once your jobs are in the system</span>';
   }
 
+  /* ── Main inject ─────────────────────────────────────────────────── */
   function inject() {
+    /* Watermark */
+    var wm = document.createElement('div');
+    wm.id  = 'sf-demo-watermark';
+    var label = demoFor ? 'CONFIDENTIAL · ' + demoFor.toUpperCase() : 'CONFIDENTIAL DEMO';
+    var tile  = (label + '          ').repeat(6);
+    var rows  = '';
+    for (var i = 0; i < 14; i++) {
+      rows += '<div class="sf-wm-row" style="margin-top:' + (i * 80) + 'px"><span>' + tile + '</span></div>';
+    }
+    wm.innerHTML = rows;
     document.body.appendChild(wm);
+
+    /* Zoom */
     initBoardZoom();
+
+    /* Schedule skeletons */
     skeletonizeSchedule();
 
-    /* ── 3. Personalised banner (only when ?demo= set) ─────────────── */
+    /* Personalised banner */
     if (demoFor) {
       var banner = document.createElement('div');
-      banner.id = 'sf-demo-banner';
+      banner.id  = 'sf-demo-banner';
       banner.innerHTML =
         '<div class="sf-banner-dot"></div>' +
         '<span class="sf-banner-label">Confidential demo &nbsp;·&nbsp; Prepared for</span>' +
         '<span class="sf-banner-name">' + escHtml(demoFor) + '</span>' +
         '<span class="sf-banner-note">Not for distribution</span>';
       document.body.appendChild(banner);
-
-      /* Also update any footer company-name elements */
       document.querySelectorAll('.stats-meta').forEach(function (el) {
-        if (el.textContent.indexOf('Apex Build Co') !== -1) {
+        if (el.textContent.indexOf('Apex Build Co') !== -1)
           el.textContent = el.textContent.replace('Apex Build Co', 'Demo for ' + demoFor);
-        }
       });
     }
   }
@@ -356,9 +234,8 @@
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', inject);
-  } else {
-    inject();
-  }
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', inject)
+    : inject();
+
 })();
