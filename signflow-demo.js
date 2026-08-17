@@ -352,6 +352,41 @@
     tray.parentNode.insertBefore(btn, tray);
   }
 
+  /* ── 4a. Smart Queue must be expanded AND reachable on the pipeline ── */
+  function initQueueFirst() {
+    if (PATH.indexOf('customers') !== -1 || PATH.indexOf('schedule') !== -1) return;
+
+    /* The app persists a collapsed queue in localStorage['sf_queue'] and
+       collapses it via html.queue-collapsed. A prospect must always see the
+       headline feature, so force it open. */
+    try { localStorage.setItem('sf_queue', 'open'); } catch (_) {}
+    document.documentElement.classList.remove('queue-collapsed');
+
+    if (!isPhone) return;
+
+    /* Smart Queue lives inside .ai-sidebar but AFTER the crew/vendor block,
+       so on a phone it rendered at y=1018 — expanded but far off-screen.
+       Move its header + list to the top of the sidebar. */
+    var sb = document.querySelector('.ai-sidebar');
+    if (!sb) return;
+
+    var head = Array.prototype.filter.call(
+      sb.querySelectorAll('.sidebar-header'),
+      function (h) { return /smart queue/i.test(h.textContent || ''); }
+    )[0];
+    if (!head) return;
+
+    var group = [head];
+    var n = head.nextElementSibling;
+    /* Collect siblings up to the next section header */
+    while (n && !(n.classList && n.classList.contains('sidebar-header'))) {
+      group.push(n);
+      n = n.nextElementSibling;
+    }
+    /* Insert before the first child so Smart Queue leads the sidebar */
+    group.reverse().forEach(function (el) { sb.insertBefore(el, sb.firstChild); });
+  }
+
   /* ── 4b. Collapse the crew/vendor sidebar on phones ─────────────── */
   function initAiPanel() {
     if (!isPhone) return;
@@ -568,6 +603,7 @@
     document.body.appendChild(wm);
 
     initFilters();
+    initQueueFirst();
     initAiPanel();
     initZoom();
     skeletonize();
