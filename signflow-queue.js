@@ -25,23 +25,45 @@
   'use strict';
 
   var RES_KEY = 'sf_resources_v1';   /* shared with signflow-engine.js */
-  var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+
+  /* Week shape comes from the store so queue and grid cannot disagree.
+     Read lazily via a function: SFStore may not have executed yet at the
+     time this module body runs, and capturing it here would freeze an
+     undefined. */
+  function days() {
+    var S = global.SFStore;
+    return (S && S.DAYS) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  }
+  function dayDefault(d) {
+    var S = global.SFStore;
+    return (S && S.defaultAvail) ? S.defaultAvail(d) : 'free';
+  }
 
   function resState() {
     try { return JSON.parse(localStorage.getItem(RES_KEY) || '{}'); }
     catch (e) { return {}; }
   }
 
+  function availOf(st, who, day) {
+    var v = (st[who] || {})[day];
+    return v || dayDefault(day);
+  }
+
   /* Crew rows only — vendors are not Peter's capacity. */
   var CREW = ['Mike Reyes', 'Dave Kowalski', 'Sarah Mitchell', 'Install Crew A'];
 
-  /* Days where at least one crew member is not busy. This is the honest
-     basis for "these can run together": real capacity, edited by Peter. */
+  /* Days where at least one crew member is available. The honest basis for
+     "these can run together": real capacity, edited by hand.
+
+     A day counts only if someone is 'free' or 'partial'. 'busy' means
+     booked; 'off' means not a working day — weekends default to 'off', so
+     Sat/Sun add capacity only once somebody is explicitly marked in. */
   function freeDays() {
     var st = resState();
-    return DAYS.filter(function (d) {
+    return days().filter(function (d) {
       return CREW.some(function (c) {
-        return ((st[c] || {})[d] || 'free') !== 'busy';
+        var v = availOf(st, c, d);
+        return v !== 'busy' && v !== 'off';
       });
     });
   }
@@ -145,7 +167,8 @@
     var maxFree = 0;
     free.forEach(function (day) {
       var n = CREW.filter(function (c) {
-        return ((st[c] || {})[day] || 'free') !== 'busy';
+        var v = availOf(st, c, day);
+        return v !== 'busy' && v !== 'off';
       }).length;
       if (n > maxFree) maxFree = n;
     });
@@ -200,7 +223,7 @@
     needsCrew: needsCrew,
     atVendor: atVendor,
     CREW: CREW,
-    DAYS: DAYS
+    DAYS: days()
   };
 })(window);
 
@@ -358,15 +381,22 @@
 
       html += callout('rgba(249,168,37,0.08)', 'rgba(249,168,37,0.25)', '#F9A825',
         '⚡ ' + q.parallelNow + ' JOBS CAN RUN AT THE SAME TIME',
-        '<strong>' + onSite + '</strong> need someone on site'
-          + (liftN ? ' (' + liftN + ' need a lift)' : '')
-          + ', and <strong>' + q.maxFreeCrew + ' of ' + global.SFQueue.CREW.length
-          + '</strong> crew are free on '
-          + (q.freeDays.length ? q.freeDays.join(', ') : 'no days this week')
-          + '. Only those compete for each other.<br>'
-          + '<strong>' + atVend + '</strong> outsourced to a vendor and '
-          + '<strong>' + offOnly + '</strong> office-only — those run alongside, '
-          + 'using none of your crew.',
+        /* Was "Only those compete for each other" — too abstract. State the
+           bottleneck as a plain sentence: what the limit is, and why the
+           other jobs do not count against it. */
+        '<strong>' + onSite + '</strong> job' + (onSite === 1 ? '' : 's')
+          + ' need your crew on site'
+          + (liftN ? ', ' + liftN + ' of them a lift' : '')
+          + '. You have <strong>' + q.maxFreeCrew + ' of '
+          + global.SFQueue.CREW.length + '</strong> crew open '
+          + (q.freeDays.length ? 'on ' + q.freeDays.join(', ') : 'no days this week')
+          + ', so you can run <strong>' + q.parallelNow
+          + '</strong> of them at once.<br>'
+          + 'The other <strong>' + (atVend + offOnly) + '</strong> don\'t tie up '
+          + 'your crew at all — <strong>' + atVend + '</strong> '
+          + (atVend === 1 ? 'is' : 'are') + ' at a vendor and <strong>'
+          + offOnly + '</strong> ' + (offOnly === 1 ? 'is' : 'are')
+          + ' office work — so they move in parallel for free.',
         'From "Needs on site" and "Vendor / outsourced" on each job, plus your '
           + 'crew availability grid — change any of them and this updates.');
     } else if (q.freeDays.length === 0) {

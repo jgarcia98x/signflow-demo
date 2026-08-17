@@ -284,7 +284,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
     .schedule-grid {
       display: grid;
-      grid-template-columns: 190px repeat(5, 1fr);
+      grid-template-columns: 190px repeat(7, 1fr);
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
@@ -390,6 +390,21 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     .day-cell:last-child { border-right: none; }
     .day-cell.last-row { border-bottom: none; }
     .day-cell.today-col { background: rgba(211,47,47,0.04); }
+    /* Weekend columns: visibly present but clearly not standard working
+       days, so the week reads as Mon–Sun without implying Sat/Sun capacity
+       that doesn't exist. Weekend installs happen, so the columns are real
+       and bookable — they're just off by default. */
+    .day-header.weekend-header { background: rgba(255,255,255,0.015); }
+    .day-header.weekend-header .day-name { color: rgba(255,255,255,0.42); }
+    .day-header.weekend-header .day-date { color: rgba(255,255,255,0.32); }
+    .day-cell.weekend-cell {
+      background: repeating-linear-gradient(
+        45deg, rgba(255,255,255,0.012) 0 6px, transparent 6px 12px);
+    }
+    .day-cell.weekend-cell .off-mark {
+      font-size: 9px; text-transform: uppercase; letter-spacing: 0.6px;
+      color: rgba(255,255,255,0.18); font-weight: 700;
+    }
     .day-cell.conflict-cell {
       background: rgba(249,168,37,0.08);
       outline: 1px solid rgba(249,168,37,0.25);
@@ -764,6 +779,14 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     <div class="day-name">Friday</div>
     <div class="day-date">8</div>
   </div>
+  <div class="day-header weekend-header">
+    <div class="day-name">Saturday</div>
+    <div class="day-date">9</div>
+  </div>
+  <div class="day-header weekend-header">
+    <div class="day-name">Sunday</div>
+    <div class="day-date">10</div>
+  </div>
 
   <!-- ══ MIKE ══════════════════════════════════════════════════ -->
   <div class="crew-label">
@@ -821,6 +844,8 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     </div>
     <div class="cell-empty">+ Assign</div>
   </div>
+  <div class="day-cell weekend-cell"><span class="off-mark">off</span></div>
+  <div class="day-cell weekend-cell"><span class="off-mark">off</span></div>
 
   <!-- ══ DAVE ═══════════════════════════════════════════════════ -->
   <div class="crew-label">
@@ -879,6 +904,8 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       <div class="job-block-time">10:00 AM – 2:00 PM</div>
     </div>
   </div>
+  <div class="day-cell weekend-cell"><span class="off-mark">off</span></div>
+  <div class="day-cell weekend-cell"><span class="off-mark">off</span></div>
 
   <!-- ══ SARAH ════════════════════════════════════════════════ -->
   <div class="crew-label">
@@ -941,6 +968,8 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     </div>
     <div class="cell-empty">+ Assign</div>
   </div>
+  <div class="day-cell weekend-cell"><span class="off-mark">off</span></div>
+  <div class="day-cell weekend-cell"><span class="off-mark">off</span></div>
 
   <!-- ══ INSTALL CREW A ════════════════════════════════════════ -->
   <div class="crew-label last">
@@ -993,6 +1022,8 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     </div>
     <div class="cell-empty">+ Assign</div>
   </div>
+  <div class="day-cell weekend-cell last-row"><span class="off-mark">off</span></div>
+  <div class="day-cell weekend-cell last-row"><span class="off-mark">off</span></div>
 
 </div><!-- /schedule-grid -->
 </div><!-- /schedule-wrap -->

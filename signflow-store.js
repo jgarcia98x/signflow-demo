@@ -260,7 +260,29 @@
     return '';
   }
 
+  /* ── Week shape ────────────────────────────────────────────────────
+     One definition, because this was duplicated in signflow-queue.js and
+     signflow-engine.js and they could drift apart.
+
+     Saturday and Sunday are real: sign crews do weekend installs when a
+     storefront cannot close during trading hours. But a weekend is NOT
+     free by default — defaulting it to 'free' would have added two phantom
+     crew-days and inflated every parallel figure. So weekends start 'off'
+     (not a working day) and only count once someone is explicitly marked
+     available. 'off' is distinct from 'busy': busy means booked, off means
+     not scheduled to work. */
+  var DAYS     = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  var WEEKEND  = ['Sat', 'Sun'];
+
+  /* Two-letter labels where one is ambiguous — S/S told you nothing. */
+  var DAY_LABEL = { Mon:'M', Tue:'T', Wed:'W', Thu:'Th', Fri:'F', Sat:'Sa', Sun:'Su' };
+
+  function isWeekend(day) { return WEEKEND.indexOf(day) >= 0; }
+  function defaultAvail(day) { return isWeekend(day) ? 'off' : 'free'; }
+
   global.SFStore = {
+    DAYS: DAYS, WEEKEND: WEEKEND, DAY_LABEL: DAY_LABEL,
+    isWeekend: isWeekend, defaultAvail: defaultAvail,
     STAGES: STAGES, WIN_STAGE: WIN_STAGE, WIN_INDEX: WIN_INDEX,
     SEED_CLOSED: SEED_CLOSED, SEED_LOST: SEED_LOST,
     today: today, slug: slug, iso: iso, parseISO: parseISO,

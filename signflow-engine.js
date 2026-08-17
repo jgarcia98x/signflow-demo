@@ -167,20 +167,51 @@
   var CREW=['Mike Reyes','Dave Kowalski','Sarah Mitchell','Install Crew A'];
   var CREW_ROLE={'Mike Reyes':'Lead Installer','Dave Kowalski':'Lead / Installer','Sarah Mitchell':'Project Manager','Install Crew A':'Install Team'};
   var VENDORS=['Midwest Steel Fab','Midwest Supply Co','City Permits Office'];
-  var DAYS=['Mon','Tue','Wed','Thu','Fri'];
+  /* Week shape from the store (single definition, shared with the queue).
+     Sat/Sun included: sign crews do weekend installs when a storefront
+     can't close mid-week. They default to 'off' rather than 'free' so they
+     add no phantom capacity until someone is marked in. */
+  var SFS=window.SFStore||{};
+  var DAYS=SFS.DAYS||['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var DAY_LABEL=SFS.DAY_LABEL||{Mon:'M',Tue:'T',Wed:'W',Thu:'Th',Fri:'F',Sat:'Sa',Sun:'Su'};
+  function isWeekend(d){ return SFS.isWeekend?SFS.isWeekend(d):(d==='Sat'||d==='Sun'); }
+  function dayDefault(d){ return SFS.defaultAvail?SFS.defaultAvail(d):'free'; }
+  /* Weekdays cycle free→partial→busy. Weekends start off and can be opened
+     up, so 'off' joins the cycle there. */
   var CYCLE=['free','partial','busy'];
-  var CYCLE_COLOR={free:'#5FA97A',partial:'#D9A441',busy:'#C2453F'};
+  var CYCLE_WE=['off','free','partial','busy'];
+  function cycleFor(day){ return isWeekend(day)?CYCLE_WE:CYCLE; }
+  var CYCLE_COLOR={free:'#5FA97A',partial:'#D9A441',busy:'#C2453F',off:'rgba(255,255,255,0.10)'};
   var resState={};
   try { resState=JSON.parse(localStorage.getItem(RES_KEY)||'{}'); } catch(e){ resState={}; }
-  function resGet(who,day){ return (resState[who]&&resState[who][day])||'free'; }
+  function resGet(who,day){ return (resState[who]&&resState[who][day])||dayDefault(day); }
   function resSet(who,day,val){ if(!resState[who])resState[who]={}; resState[who][day]=val; try{localStorage.setItem(RES_KEY,JSON.stringify(resState));}catch(e){} }
   function crewBusyCount(){ var n=0; CREW.forEach(function(c){ DAYS.forEach(function(d){ if(resGet(c,d)==='busy')n++; }); }); return n; }
+
+  /* CYCLE_COLOR existed but was never applied to anything — every dot
+     rendered the same grey, so clicking through free → partial → busy gave
+     no feedback at all on the grid that feeds Smart Queue. Colour is set
+     inline because no stylesheet rule targets these. 'off' stays muted with
+     a dashed ring: not a working day, rather than a booked one. */
+  function dotStyle(v){
+    var c=CYCLE_COLOR[v]||CYCLE_COLOR.free;
+    if(v==='off'){
+      return 'background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.30);'
+        +'border:1px dashed rgba(255,255,255,0.22);box-sizing:border-box;';
+    }
+    return 'background:'+c+';color:#fff;border:1px solid rgba(0,0,0,0.25);box-sizing:border-box;';
+  }
 
   function resRow(who, role){
     var dots=DAYS.map(function(d){
       var v=resGet(who,d);
-      return '<span class="sf-res-dot" data-who="'+esc(who)+'" data-day="'+d+'" data-state="'+v+'" title="'+d+': '+v+'" '
-        +'style="width:15px;height:15px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:8px;font-weight:700;">'+d[0]+'</span>';
+      /* Two-letter labels for Sa/Su — d[0] rendered both weekend days as
+         an identical "S", which told the reader nothing. */
+      var lbl=DAY_LABEL[d]||d[0];
+      var we=isWeekend(d);
+      return '<span class="sf-res-dot'+(we?' sf-res-we':'')+'" data-who="'+esc(who)+'" data-day="'+d+'" data-state="'+v+'" title="'+d+': '+v+'" '
+        +'style="width:15px;height:15px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:'+(lbl.length>1?'7':'8')+'px;font-weight:700;'
+        +dotStyle(v)+'">'+lbl+'</span>';
     }).join('');
     return '<div class="sf-res-row" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'
       +'<div style="min-width:0;"><div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(who)+'</div>'
@@ -201,7 +232,12 @@
       +CREW.map(function(c){ return resRow(c, CREW_ROLE[c]); }).join('')
       +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.32);font-weight:700;margin:10px 0 4px;">Vendors</div>'
       +VENDORS.map(function(v){ return resRow(v, ''); }).join('')
-      +'<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:9px;">Click a day to cycle free → partial → busy. Feeds Smart Queue.</div>'
+      +'<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:9px;line-height:1.5;">'
+      +'Click a day to cycle <span style="color:#5FA97A;font-weight:600;">free</span> → '
+      +'<span style="color:#D9A441;font-weight:600;">partial</span> → '
+      +'<span style="color:#C2453F;font-weight:600;">busy</span>. Feeds Smart Queue.<br>'
+      +'<span style="color:rgba(255,255,255,0.28);">Sa/Su start as <em>off</em> — click to open a weekend install.</span>'
+      +'</div>'
       +'</div>';
     sidebar.insertBefore(box, sidebar.firstChild);
 
@@ -212,8 +248,12 @@
     box.addEventListener('click', function(e){
       var dot=e.target.closest('.sf-res-dot'); if(!dot) return;
       var who=dot.getAttribute('data-who'), day=dot.getAttribute('data-day');
-      var cur=resGet(who,day), nv=CYCLE[(CYCLE.indexOf(cur)+1)%CYCLE.length];
+      var cyc=cycleFor(day);
+      var idx=cyc.indexOf(resGet(who,day));
+      var nv=cyc[(idx<0?0:idx+1)%cyc.length];
       resSet(who,day,nv); dot.setAttribute('data-state',nv); dot.title=day+': '+nv;
+      /* Re-apply colour, preserving the geometry already on the element. */
+      dot.style.cssText=dot.style.cssText.replace(/background:[^;]*;?|color:[^;]*;?|border:[^;]*;?|box-sizing:[^;]*;?/g,'')+dotStyle(nv);
       reRankQueue();
       T(who+' · '+day+': '+nv,'👷');
     });
