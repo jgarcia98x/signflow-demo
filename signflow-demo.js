@@ -223,10 +223,14 @@
     '  nav::-webkit-scrollbar{display:none}',
     '  nav a{flex-shrink:0!important;white-space:nowrap!important;',
     '    overflow:visible!important;text-overflow:clip!important}',
-    /*  The last tab was clipped because the scroll row had no end padding —
-        nothing wrong with the tab itself, the row just ended flush. */
-    '  nav{padding-right:14px!important}',
-    '  nav:after{content:"";flex:0 0 6px}',
+    /*  Last tab looked clipped: each page's own media query sets
+        nav{padding:0}, which beat my spacer. The nav does scroll, but a
+        half-cut label reads as broken on a cold demo. Force end padding
+        and shrink tab padding so all 4 tabs fit a 390px row outright. */
+    '  nav{padding:0 16px 0 0!important;justify-content:flex-start!important}',
+    '  nav a{padding-left:11px!important;padding-right:11px!important;',
+    '    font-size:12.5px!important}',
+    '  nav a:last-child{margin-right:14px!important}',
     '  .sub-bar{flex-wrap:wrap!important;row-gap:8px}',
     '  .time-tabs{flex-wrap:wrap}',
     '  .date-chip,.header-sep{display:none!important}',
