@@ -322,6 +322,14 @@
            flex row that has margin-left:auto children fighting for space.
            Give it a clean two-row grid on phones. --- */
     '@media(max-width:700px){',
+    /*  MY REGRESSION: display:flex!important beat jobs.html's inline
+        display:none, so the whole All Jobs sub-bar (title, count, filter
+        pills, search, Filters, New Job) stayed visible on the Reports and
+        Smart Conversions sub-tabs. A stylesheet !important outranks a
+        non-important inline style, so show() was working and I was undoing
+        it. .sf-hidden is mirrored from the inline style by an observer and
+        wins over the layout rule below. */
+    '  .sub-bar.sf-hidden,.sf-subwrap.sf-hidden{display:none!important}',
     '  .sub-bar,.sf-subwrap{',
     '    display:flex!important;flex-wrap:wrap!important;',
     '    align-items:center!important;',
@@ -534,6 +542,30 @@
     });
     name.parentNode.insertBefore(row, action || null);
     b.dataset.sfTidied = '1';
+  }
+
+  /* ── 3c3. Respect the page's own sub-bar hiding ───────────────────────
+     jobs.html hides #jobs-subbar with an inline display:none when the
+     Reports / Smart Conversions sub-tabs are active, because the filter
+     pills, search, Filters and New Job belong only to the All Jobs table.
+     My injected display:flex!important outranked that inline style, so the
+     whole bar leaked onto both other sub-tabs. Mirror the page's intent
+     into a class that beats the layout rule.                            */
+  function initSubbarVisibility() {
+    var sub = document.getElementById('jobs-subbar');
+    if (!sub) return;
+
+    function sync() {
+      var hidden = sub.style.display === 'none';
+      sub.classList.toggle('sf-hidden', hidden);
+    }
+    sync();
+
+    /* The page sets the inline style directly, so watch the attribute
+       rather than trying to hook its click handler. */
+    new MutationObserver(sync).observe(sub, {
+      attributes: true, attributeFilter: ['style']
+    });
   }
 
   /* ── 3d. Dock the bell in the true top-right corner, above the tabs ── */
@@ -812,6 +844,8 @@
     initAiPanel();
     initZoom();
     skeletonize();
+
+    initSubbarVisibility();
 
     /* The bell is injected by signflow-engine.js, which may not have run
        yet. Poll briefly rather than assuming it exists. */
