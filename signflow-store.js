@@ -75,6 +75,53 @@
     return new Date(p[0], p[1] - 1, p[2]);
   }
 
+  /* ── Seed dates drift, so shift them ────────────────────────────────
+     TODAY became a live clock (it was pinned to Aug 3) but the seed dates
+     below are absolute strings authored against a fixed "today". The board
+     therefore reads correctly on the day it was authored and decays one day
+     per day: a job due "today" becomes "3d late" by Thursday, and after a
+     month everything is overdue and every velocity figure is wrong.
+
+     That is invisible in a same-day check and fatal for a demo link that is
+     sent to prospects over weeks. So seeded dates are shifted by the whole
+     number of days between the anchor they were written against and today.
+     Relative distances (this is due in 4 days, that quote went cold 21 days
+     ago) are preserved exactly; only the absolute frame moves.
+
+     Applied to SEED values only, before user edits merge, so a date the
+     owner typed himself is never rewritten. */
+  var SEED_ANCHOR = new Date(2026, 7, 17);   /* dates below authored for Aug 17 2026 */
+
+  function seedShiftDays() {
+    var t = today();
+    var a = SEED_ANCHOR;
+    var t0 = new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime();
+    var a0 = new Date(a.getFullYear(), a.getMonth(), a.getDate()).getTime();
+    return Math.round((t0 - a0) / 86400000);
+  }
+
+  function shiftISO(s, days) {
+    if (!s || !days) return s;
+    var d = parseISO(s);
+    if (!d) return s;
+    d.setDate(d.getDate() + days);
+    var m = String(d.getMonth() + 1), dd = String(d.getDate());
+    return d.getFullYear() + '-' + (m.length < 2 ? '0' + m : m)
+      + '-' + (dd.length < 2 ? '0' + dd : dd);
+  }
+
+  /* Every date-bearing seed field, across all three seed arrays. */
+  var SEED_DATE_KEYS = ['due', 'started', 'entered', 'won', 'lost'];
+
+  function shiftSeedDates(job, days) {
+    if (!days) return job;
+    var out = Object.assign({}, job);
+    SEED_DATE_KEYS.forEach(function (k) {
+      if (out[k]) out[k] = shiftISO(out[k], days);
+    });
+    return out;
+  }
+
   function daysBetween(a, b) {
     if (!a || !b) return null;
     return Math.round((b - a) / 86400000);
@@ -164,9 +211,12 @@
   /* ── Build the working set: seed + saved edits ─────────────────── */
   function all() {
     var edits = lsGet(LS_JOBS, {});
+    var shift = seedShiftDays();
     var out = SEED.map(function (j) {
       var id = slug(j.name);
-      var rec = Object.assign({ id: id, seeded: true, source: SOURCES[id] || '' }, j);
+      /* Shift the seed's dates, then let the owner's own edits win. */
+      var rec = Object.assign({ id: id, seeded: true, source: SOURCES[id] || '' },
+                              shiftSeedDates(j, shift));
       if (edits[id]) Object.assign(rec, edits[id]);
       rec.dueDate = parseISO(rec.due);
       return rec;
@@ -284,7 +334,19 @@
     DAYS: DAYS, WEEKEND: WEEKEND, DAY_LABEL: DAY_LABEL,
     isWeekend: isWeekend, defaultAvail: defaultAvail,
     STAGES: STAGES, WIN_STAGE: WIN_STAGE, WIN_INDEX: WIN_INDEX,
-    SEED_CLOSED: SEED_CLOSED, SEED_LOST: SEED_LOST,
+    /* Shifted the same way as live jobs. signflow-conversions.js reads these
+       arrays raw for win/loss history, so leaving them unshifted would freeze
+       the archive while the live board moved — "won 14 days ago" would slowly
+       become "won 6 weeks ago" relative to nothing. Getters so the shift is
+       recomputed if the page is left open across midnight. */
+    get SEED_CLOSED() {
+      var s = seedShiftDays();
+      return SEED_CLOSED.map(function (j) { return shiftSeedDates(j, s); });
+    },
+    get SEED_LOST() {
+      var s = seedShiftDays();
+      return SEED_LOST.map(function (j) { return shiftSeedDates(j, s); });
+    },
     today: today, slug: slug, iso: iso, parseISO: parseISO,
     daysBetween: daysBetween,
     all: all, get: get, update: update, createJob: createJob,
