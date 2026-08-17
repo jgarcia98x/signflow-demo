@@ -86,21 +86,29 @@
      is when the job landed in its current stage; `started` is when it
      first appeared as a New Inquiry. */
   var SEED = [
-    { name:"Kohl's #0394 — Pylon Reface",       client:"Kohl's Corporation",        stage:'Install',     type:'outdoor', value:19500, due:'2026-08-17', priority:'urgent', started:'2026-07-01', entered:'2026-08-14' },
-    { name:'Heritage Bank — Branch Refresh',     client:'Heritage Community Bank',   stage:'Fabrication', type:'indoor',  value:58000, due:'2026-08-21', priority:'urgent', started:'2026-06-15', entered:'2026-08-10' },
-    { name:'Summit Tech Park — Monument Sign',   client:'Summit Tech Park LLC',      stage:'Fabrication', type:'outdoor', value:41000, due:'2026-08-21', priority:'urgent', started:'2026-06-23', entered:'2026-08-07' },
-    { name:'La Paloma Restaurant — Exterior',    client:'La Paloma Group',           stage:'Install',     type:'outdoor', value:11200, due:'2026-08-18', priority:'high',   started:'2026-07-21', entered:'2026-08-15' },
-    { name:'Prairie Wind Storage — Exterior',    client:'Prairie Wind Self Storage', stage:'Approval',    type:'outdoor', value:22100, due:'2026-08-20', priority:'normal', started:'2026-07-11', entered:'2026-08-12' },
-    { name:'Village Tap — Blade Sign',           client:'The Village Tap',           stage:'Approval',    type:'outdoor', value:9200,  due:'2026-08-14', priority:'urgent', started:'2026-07-03', entered:'2026-07-31' },
-    { name:'Northside Gym — Vehicle Wrap',       client:'Northside Fitness',         stage:'Fabrication', type:'indoor',  value:6400,  due:'2026-08-19', priority:'high',   started:'2026-07-25', entered:'2026-08-11' },
-    { name:'Walgreens #4712 — Façade',           client:'Walgreens (National)',      stage:'Fabrication', type:'outdoor', value:24800, due:'2026-08-25', priority:'normal', started:'2026-06-18', entered:'2026-08-04' },
-    { name:'Downtown Diner — Channel Letters',   client:'Main St. Restaurant Group', stage:'Quote',       type:'indoor',  value:7200,  due:'2026-08-23', priority:'high',   started:'2026-08-07', entered:'2026-08-09' },
-    { name:'Riverside Auto — Pylon Sign',        client:'Riverside Automotive',      stage:'Quote',       type:'outdoor', value:18400, due:'2026-08-18', priority:'urgent', started:'2026-08-02', entered:'2026-08-06' },
-    { name:'Westside Fitness',                   client:'Westside Fitness',          stage:'New Inquiry', type:'indoor',  value:null,  due:null,         priority:'normal', started:'2026-08-16', entered:'2026-08-16' },
-    { name:'Joliet Tire & Auto',                 client:'Walk-in',                   stage:'New Inquiry', type:'outdoor', value:null,  due:null,         priority:'normal', started:'2026-08-14', entered:'2026-08-14' },
-    { name:'Bricktown Brewery — Outdoor Sign',   client:'Bricktown Craft Brewing',   stage:'Quote',       type:'outdoor', value:8600,  due:'2026-07-25', priority:'cold',   started:'2026-06-12', entered:'2026-06-27' },
-    { name:'Valley Fresh Grocery — Storefront',  client:'Valley Fresh Foods',        stage:'Quote',       type:'outdoor', value:14300, due:'2026-07-11', priority:'lost',   started:'2026-05-25', entered:'2026-06-10' },
-    { name:'Speedway #1188 — LED Retrofit',      client:'Speedway LLC',              stage:'Complete',    type:'indoor',  value:34100, due:'2026-08-12', priority:'done',   started:'2026-06-02', entered:'2026-08-08' }
+    /* needs / vstatus drive Smart Queue capacity. They are the two fields
+       that decide whether a job competes for the crew:
+         needs:  'crew' | 'lift' | 'office'   (office = no crew at all)
+         vstatus:'' | 'out' | 'back'          ('out' = sitting at a vendor)
+       Both are editable in the New Job modal, so every parallel number the
+       queue shows traces back to something the owner set. Seeded per stage:
+       quoting/design/approval is office work, fabrication is in-house crew
+       unless outsourced, install needs crew or a lift. */
+    { name:"Kohl's #0394 — Pylon Reface",       client:"Kohl's Corporation",        stage:'Install',     type:'outdoor', value:19500, due:'2026-08-17', priority:'urgent', started:'2026-07-01', entered:'2026-08-14', needs:'lift',   vstatus:''     },
+    { name:'Heritage Bank — Branch Refresh',     client:'Heritage Community Bank',   stage:'Fabrication', type:'indoor',  value:58000, due:'2026-08-21', priority:'urgent', started:'2026-06-15', entered:'2026-08-10', needs:'crew',   vstatus:'out'  },
+    { name:'Summit Tech Park — Monument Sign',   client:'Summit Tech Park LLC',      stage:'Fabrication', type:'outdoor', value:41000, due:'2026-08-21', priority:'urgent', started:'2026-06-23', entered:'2026-08-07', needs:'crew',   vstatus:''     },
+    { name:'La Paloma Restaurant — Exterior',    client:'La Paloma Group',           stage:'Install',     type:'outdoor', value:11200, due:'2026-08-18', priority:'high',   started:'2026-07-21', entered:'2026-08-15', needs:'crew',   vstatus:''     },
+    { name:'Prairie Wind Storage — Exterior',    client:'Prairie Wind Self Storage', stage:'Approval',    type:'outdoor', value:22100, due:'2026-08-20', priority:'normal', started:'2026-07-11', entered:'2026-08-12', needs:'office', vstatus:''     },
+    { name:'Village Tap — Blade Sign',           client:'The Village Tap',           stage:'Approval',    type:'outdoor', value:9200,  due:'2026-08-14', priority:'urgent', started:'2026-07-03', entered:'2026-07-31', needs:'office', vstatus:''     },
+    { name:'Northside Gym — Vehicle Wrap',       client:'Northside Fitness',         stage:'Fabrication', type:'indoor',  value:6400,  due:'2026-08-19', priority:'high',   started:'2026-07-25', entered:'2026-08-11', needs:'crew',   vstatus:'out'  },
+    { name:'Walgreens #4712 — Façade',           client:'Walgreens (National)',      stage:'Fabrication', type:'outdoor', value:24800, due:'2026-08-25', priority:'normal', started:'2026-06-18', entered:'2026-08-04', needs:'lift',   vstatus:''     },
+    { name:'Downtown Diner — Channel Letters',   client:'Main St. Restaurant Group', stage:'Quote',       type:'indoor',  value:7200,  due:'2026-08-23', priority:'high',   started:'2026-08-07', entered:'2026-08-09', needs:'office', vstatus:''     },
+    { name:'Riverside Auto — Pylon Sign',        client:'Riverside Automotive',      stage:'Quote',       type:'outdoor', value:18400, due:'2026-08-18', priority:'urgent', started:'2026-08-02', entered:'2026-08-06', needs:'office', vstatus:''     },
+    { name:'Westside Fitness',                   client:'Westside Fitness',          stage:'New Inquiry', type:'indoor',  value:null,  due:null,         priority:'normal', started:'2026-08-16', entered:'2026-08-16', needs:'office', vstatus:''     },
+    { name:'Joliet Tire & Auto',                 client:'Walk-in',                   stage:'New Inquiry', type:'outdoor', value:null,  due:null,         priority:'normal', started:'2026-08-14', entered:'2026-08-14', needs:'office', vstatus:''     },
+    { name:'Bricktown Brewery — Outdoor Sign',   client:'Bricktown Craft Brewing',   stage:'Quote',       type:'outdoor', value:8600,  due:'2026-07-25', priority:'cold',   started:'2026-06-12', entered:'2026-06-27', needs:'office', vstatus:''     },
+    { name:'Valley Fresh Grocery — Storefront',  client:'Valley Fresh Foods',        stage:'Quote',       type:'outdoor', value:14300, due:'2026-07-11', priority:'lost',   started:'2026-05-25', entered:'2026-06-10', needs:'office', vstatus:''     },
+    { name:'Speedway #1188 — LED Retrofit',      client:'Speedway LLC',              stage:'Complete',    type:'indoor',  value:34100, due:'2026-08-12', priority:'done',   started:'2026-06-02', entered:'2026-08-08', needs:'crew',   vstatus:''     }
   ];
 
   /* Closed jobs from earlier in the year. The live board only shows

@@ -121,6 +121,12 @@
       if (n > maxFree) maxFree = n;
     });
 
+    /* Jobs needing a lift are a second constrained resource, tracked
+       separately so "needs on site" is not one undifferentiated bucket. */
+    var liftJobs = crewJobs.filter(function (r) {
+      return (S.get(r.id) || {}).needs === 'lift';
+    });
+
     var parallelNow = Math.min(maxFree, crewJobs.length);
 
     return {
@@ -130,6 +136,10 @@
       freeDays: free,
       maxFreeCrew: maxFree,
       parallelNow: parallelNow,
+      /* The two fields that decide contention, surfaced by name so the
+         callouts can cite them instead of a bare number. */
+      needsOnSite: crewJobs,
+      liftJobs: liftJobs,
       /* Office work and vendor-side jobs genuinely run alongside crew
          work — they compete for nothing. */
       trueParallel: officeJobs.length + waiting.length,
@@ -291,14 +301,29 @@
         'Based on typical pace per stage, not your measured history yet.');
     }
 
-    /* ── Capacity, from the grid Peter edits ── */
+    /* ── Capacity, stated in the two fields that actually decide it ──
+       "Needs on site" and "Vendor / outsourced" are what make two jobs
+       compete or not. Lead with those counts rather than a bare number, so
+       the figure is legible as a consequence of fields the owner set. */
     if (q.parallelNow > 1) {
+      var onSite  = q.needsOnSite.length;
+      var atVend  = q.waiting.length;
+      var offOnly = q.officeJobs.length;
+      var liftN   = q.liftJobs.length;
+
       html += callout('rgba(249,168,37,0.08)', 'rgba(249,168,37,0.25)', '#F9A825',
         '⚡ ' + q.parallelNow + ' JOBS CAN RUN AT THE SAME TIME',
-        q.maxFreeCrew + ' of ' + global.SFQueue.CREW.length + ' crew are free on '
+        '<strong>' + onSite + '</strong> need someone on site'
+          + (liftN ? ' (' + liftN + ' need a lift)' : '')
+          + ', and <strong>' + q.maxFreeCrew + ' of ' + global.SFQueue.CREW.length
+          + '</strong> crew are free on '
           + (q.freeDays.length ? q.freeDays.join(', ') : 'no days this week')
-          + '. That is how many crew jobs can move in parallel.',
-        'From your crew availability grid — change it and this updates.');
+          + '. Only those compete for each other.<br>'
+          + '<strong>' + atVend + '</strong> outsourced to a vendor and '
+          + '<strong>' + offOnly + '</strong> office-only — those run alongside, '
+          + 'using none of your crew.',
+        'From "Needs on site" and "Vendor / outsourced" on each job, plus your '
+          + 'crew availability grid — change any of them and this updates.');
     } else if (q.freeDays.length === 0) {
       html += callout('rgba(194,69,63,0.07)', 'rgba(194,69,63,0.22)', '#C2453F',
         '⛔ NO CREW CAPACITY THIS WEEK',

@@ -251,7 +251,20 @@
       set('sfimp-closed', closed?money(closed):'$0');
       set('sfimp-revived', String(revived));
       set('sfimp-days', daysSaved);
-      set('sfimp-parallel', String(parallel||4));
+      /* Was String(parallel||4) — it invented "4" whenever the real count
+         was 0, which is exactly the kind of number the honest-tooling
+         standard forbids. Read the same figure Smart Queue computes from
+         "Needs on site" + "Vendor / outsourced", so the stats bar and the
+         queue can never disagree. Falls back to the DOM badge count only,
+         never to a constant. */
+      var par=parallel;
+      try{
+        if(window.SFQueue&&window.SFQueue.build){
+          var q=window.SFQueue.build();
+          if(q&&typeof q.parallelNow==='number') par=q.parallelNow;
+        }
+      }catch(e){}
+      set('sfimp-parallel', String(par));
     }
   };
   window.SFImpact=SFImpact;
