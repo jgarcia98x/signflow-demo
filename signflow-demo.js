@@ -157,6 +157,43 @@
     '@media(max-width:700px){#sf-banner .note{display:none}}',
     '@keyframes sfp{0%,100%{opacity:1}50%{opacity:.35}}',
 
+    /* --- THE Customers bug. .main-content becomes a column flex on mobile;
+           .list-pane has flex:1 while .ai-sidebar (CREW & VENDOR) claims
+           max-height:45vh. Result: the customer list collapses to a sliver
+           and the crew panel appears to "cover" it. Let content define
+           height and let the PAGE scroll, not two fighting panes. --- */
+    '@media(max-width:700px){',
+    '  .main-content{',
+    '    flex-direction:column!important;',
+    '    overflow:visible!important;height:auto!important;',
+    '    display:block!important}',
+    '  .list-pane{',
+    '    flex:none!important;overflow:visible!important;',
+    '    max-height:none!important;height:auto!important;',
+    '    display:block!important;padding:14px 14px 8px!important}',
+    '  .board-wrap{max-height:none!important}',
+    '  .ai-sidebar{',
+    '    flex:none!important;width:100%!important;',
+    '    max-height:none!important;height:auto!important;',
+    '    overflow:visible!important;',
+    '    border-left:none!important;',
+    '    border-top:1px solid rgba(255,255,255,.12)!important}',
+    /*  Collapse the crew/vendor panel by default so the primary content
+        (customers / pipeline) owns the first screen. */
+    '  .ai-sidebar.sf-collapsed>*:not(.sf-aitoggle){display:none!important}',
+    '  .sf-aitoggle{',
+    '    display:flex!important;align-items:center;gap:8px;width:100%;',
+    '    background:none;border:none;color:#fff;',
+    '    font-family:-apple-system,sans-serif;font-size:12px;font-weight:700;',
+    '    text-transform:uppercase;letter-spacing:.07em;',
+    '    padding:14px 4px;cursor:pointer;',
+    '    -webkit-tap-highlight-color:transparent}',
+    '  .sf-aitoggle .chev{margin-left:auto;opacity:.6;font-size:11px;',
+    '    transition:transform .18s}',
+    '  .ai-sidebar:not(.sf-collapsed) .sf-aitoggle .chev{transform:rotate(180deg)}',
+    '}',
+    '.sf-aitoggle{display:none}',
+
     /* --- reports.html has NO mobile nav styling of its own (its media
            query only handles tables), so the nav collapsed to 89px and
            collided with the sub-bar. Supply the same treatment the other
@@ -235,6 +272,24 @@
     });
 
     tray.parentNode.insertBefore(btn, tray);
+  }
+
+  /* ── 4b. Collapse the crew/vendor sidebar on phones ─────────────── */
+  function initAiPanel() {
+    if (!isPhone) return;
+    var sb = document.querySelector('.ai-sidebar');
+    if (!sb) return;
+
+    /* Reuse the panel's own heading text if it has one */
+    var head = sb.querySelector('.ai-title,.sidebar-title,.section-label,h2,h3');
+    var text = head ? head.textContent.trim() : 'Crew & Vendor Availability';
+
+    var t = document.createElement('button');
+    t.className = 'sf-aitoggle';
+    t.innerHTML = '<span>' + esc(text) + '</span><span class="chev">▾</span>';
+    sb.insertBefore(t, sb.firstChild);
+    sb.classList.add('sf-collapsed');
+    t.addEventListener('click', function () { sb.classList.toggle('sf-collapsed'); });
   }
 
   /* ── 5. Zoom (touch, wide content only) ─────────────────────────── */
@@ -400,6 +455,7 @@
     document.body.appendChild(wm);
 
     initFilters();
+    initAiPanel();
     initZoom();
     skeletonize();
 
