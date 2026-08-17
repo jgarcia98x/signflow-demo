@@ -418,6 +418,9 @@
      literally what the zoom pass is doing.                              */
   function initVeil() {
     if (!isPhone) return;
+    /* Styles are already up from the <head> bootstrap (this file loads at
+       end of body, ~149ms — too late; the board paints at ~93ms). Attach the
+       veil element to documentElement, which exists during parse. */
     var v = document.createElement('div');
     v.id = 'sf-veil';
     v.innerHTML =

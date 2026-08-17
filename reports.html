@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Boot veil bootstrap: must run before the board parses, so it lives in
+     <head> rather than in signflow-demo.js (which loads at end of body and
+     measured 149ms - too late; the board paints at ~93ms). Phones only. -->
+<script>(function(){if(!window.matchMedia||!window.matchMedia('(max-width:700px)').matches)return;
+var s=document.createElement('style');s.textContent='#sf-veil{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:radial-gradient(120% 90% at 50% 12%,#241318 0%,#160c10 55%,#100a0d 100%);opacity:1;transition:opacity .24s ease}#sf-veil.gone{opacity:0;pointer-events:none}';
+document.head.appendChild(s);document.documentElement.setAttribute('data-sf-booting','1');})();</script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SignFlow — Reports</title>
