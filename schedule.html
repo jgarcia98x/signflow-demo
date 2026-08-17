@@ -17,7 +17,9 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="signflow-store.js?v=202608160139"></script>
   <script src="signflow-dnd.js?v=202608160139"></script>
+  <script src="signflow-schedule-detail.js?v=202608170010"></script>
   <script src="signflow-jobs.js?v=202608160139"></script>
   <title>SignFlow — Smart Schedule</title>
   <style>
@@ -1434,7 +1436,11 @@ document.querySelectorAll('.job-block').forEach(function(block) {
 
       var node = util.closest('.crew-label') || util.parentNode;
       var cells = [], n = node && node.nextElementSibling;
-      while (n && cells.length < 5 && n.classList.contains('day-cell')) {
+      /* Was hardcoded 5 — a leftover from the Mon–Fri grid that silently
+         ignored conflicts on the new Sat/Sun columns. Read the real week
+         length from the store. */
+      var WEEK_LEN = (window.SFStore && SFStore.DAYS ? SFStore.DAYS.length : 7);
+      while (n && cells.length < WEEK_LEN && n.classList.contains('day-cell')) {
         cells.push(n); n = n.nextElementSibling;
       }
 

@@ -315,9 +315,25 @@
     '#sf-hint.sf-hint-out .sf-hint-sheet{transform:translateY(102%)}',
     '.sf-hint-grip{width:36px;height:4px;border-radius:2px;',
     '  background:rgba(255,255,255,0.20);margin:0 auto 14px}',
-    '.sf-hint-t{font-size:19px;font-weight:700;color:#fff;',
-    '  letter-spacing:-0.2px;margin-bottom:14px;text-align:center}',
+    '.sf-hint-t{font-size:21px;font-weight:700;color:#fff;',
+    '  letter-spacing:-0.35px;margin-bottom:5px;text-align:center}',
+    '.sf-hint-lede{font-size:12.5px;line-height:1.5;text-align:center;',
+    '  color:rgba(255,255,255,0.52);margin:0 6px 16px}',
     '.sf-hint-row{display:flex;gap:13px;align-items:flex-start;margin-bottom:13px}',
+    /*  Divider with an inline caption — the tools are a distinct idea from
+        the gestures, so they read better fenced off than as more rows. */
+    '.sf-hint-sep{display:flex;align-items:center;gap:9px;margin:3px 0 11px}',
+    '.sf-hint-sep:before,.sf-hint-sep:after{content:"";flex:1;height:1px;',
+    '  background:rgba(255,255,255,0.11)}',
+    '.sf-hint-sep span{font-size:9.5px;text-transform:uppercase;',
+    '  letter-spacing:0.8px;font-weight:700;color:rgba(255,255,255,0.34)}',
+    '.sf-hint-tools{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}',
+    '.sf-hint-tool{display:flex;align-items:baseline;gap:7px;',
+    '  background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.07);',
+    '  border-radius:9px;padding:8px 11px;font-size:11.5px;line-height:1.45}',
+    '.sf-hint-tic{flex:0 0 auto;font-size:11px}',
+    '.sf-hint-tn{flex:0 0 auto;font-weight:700;color:rgba(255,255,255,0.93)}',
+    '.sf-hint-tw{color:rgba(255,255,255,0.50);min-width:0}',
     '.sf-hint-ic{flex:0 0 34px;height:34px;border-radius:10px;',
     '  background:rgba(211,47,47,0.16);border:1px solid rgba(211,47,47,0.28);',
     '  display:flex;align-items:center;justify-content:center;font-size:16px}',
@@ -943,62 +959,72 @@
     }
   }
 
-  /* ── 3h. First-visit hint sheet ───────────────────────────────────────
-     Drag-and-drop and the detail panel are invisible affordances: a cold
-     prospect on a phone has no reason to guess that a job card can be
-     dragged between stages or tapped open. One iOS-style sheet on first
-     visit, then never again.
+  /* ── 3h. First-visit welcome sheet (pipeline only) ────────────────────
+     Two invisible things need saying to a cold prospect: the gestures
+     (drag / tap) and where the three "smart" tools live, since two of them
+     are on other tabs and nobody will hunt for them.
 
-     Copy is per-page and states only what that page actually does. Verified
-     by measurement, not assumption:
-       - Pipeline  : SFDnD.init({item:'.card', container:'.col'}) AND tapping
-                     a card opens #detail-panel (confirmed class 'open').
-       - Schedule  : SFDnD.init({item:'.job-block', container:'.day-cell'})
-                     but there is NO detail panel — tapping a block opens
-                     nothing. Claiming "tap for details" here would be a lie.
-     Hence two different bodies rather than one blanket claim. */
-  var HINTS = {
-    index: {
-      title: 'Two things to try',
-      rows: [
-        ['✋', 'Drag a job', 'Move any card between stages — Quote, Design, Fabrication, Install.'],
-        ['👆', 'Tap for details', 'Opens the full job: contact, value, timeline, notes.']
-      ]
-    },
-    schedule: {
-      title: 'Try dragging a job',
-      rows: [
-        ['✋', 'Reassign by dragging', 'Drag any job block to another crew member or day.'],
-        ['⚠', 'Conflicts update live', 'Double-bookings are flagged the moment you drop.']
-      ]
-    }
-  };
+     Pipeline only, by Jordan's call — it is the landing tab, and one sheet on
+     one tab is an introduction rather than a nag. Every claim verified:
+       - Drag      : SFDnD.init({item:'.card', container:'.col'})
+       - Tap       : opens #detail-panel (class 'open' confirmed)
+       - Queue     : index.html:1654 .sidebar-title "⚡ Smart Queue"
+       - Nudge     : customers.html:920 .sidebar-title "🎯 Smart Nudge"
+       - Conversions: jobs.html:456 .vs-tab[data-view="wins"] "⚡ Smart
+                      Conversions" — a sub-tab of Jobs & Reports, which is
+                      exactly why it needs directions.
+     Tone is invitational, not instructional: "Try it" beats "You must". */
+  var HINT_ROWS = [
+    ['\u270B', 'Drag a job anywhere',
+      'Move a card between stages and everything downstream updates \u2014 '
+      + 'schedule, capacity, forecast.'],
+    ['\u261D', 'Tap a job for the full story',
+      'Contact, value, next steps, history, and the actions you\u2019d actually take.']
+  ];
+  var HINT_TOOLS = [
+    ['\u26A1', 'Smart Queue', 'right here on Pipeline \u2014 what to do today, and why'],
+    ['\u{1F3AF}', 'Smart Nudge', 'Customers tab \u2014 quotes going cold, worth a call'],
+    ['\u26A1', 'Smart Conversions', 'Jobs &amp; Reports \u2192 Smart Conversions \u2014 what wins you work']
+  ];
 
   function initHint() {
     if (!isTouch) return;
 
-    var key = PATH.indexOf('schedule') !== -1 ? 'schedule'
-            : (PATH.indexOf('index') !== -1 || PATH === '/' || PATH === '') ? 'index'
-            : null;
-    if (!key) return;
+    /* Pipeline only. */
+    var onPipeline = PATH.indexOf('schedule') === -1
+      && (PATH.indexOf('index') !== -1 || /\/$/.test(PATH) || PATH === '');
+    if (!onPipeline) return;
 
-    var LS = 'sf_hint_' + key;
+    var LS = 'sf_hint_v2';
     try { if (localStorage.getItem(LS)) return; } catch (e) {}
 
-    var h = HINTS[key];
+    var demoName = null;
+    try { demoName = new URLSearchParams(location.search).get('demo'); } catch (e) {}
 
     var wrap = document.createElement('div');
     wrap.id = 'sf-hint';
     wrap.innerHTML =
-      '<div class="sf-hint-sheet" role="dialog" aria-modal="true" aria-label="' + h.title + '">'
+      '<div class="sf-hint-sheet" role="dialog" aria-modal="true" aria-label="Welcome to SignFlow">'
       + '<div class="sf-hint-grip"></div>'
-      + '<div class="sf-hint-t">' + h.title + '</div>'
-      + h.rows.map(function (r) {
+      + '<div class="sf-hint-t">'
+      + (demoName ? 'Built for ' + demoName : 'Welcome to SignFlow')
+      + '</div>'
+      + '<div class="sf-hint-lede">Every job you\u2019re running, on one board. '
+      + 'Two things worth trying:</div>'
+      + HINT_ROWS.map(function (r) {
           return '<div class="sf-hint-row"><div class="sf-hint-ic">' + r[0] + '</div>'
             + '<div><div class="sf-hint-rt">' + r[1] + '</div>'
             + '<div class="sf-hint-rd">' + r[2] + '</div></div></div>';
         }).join('')
-      + '<button class="sf-hint-ok" type="button">Got it</button>'
+      + '<div class="sf-hint-sep"><span>The three smart tools</span></div>'
+      + '<div class="sf-hint-tools">'
+      + HINT_TOOLS.map(function (t) {
+          return '<div class="sf-hint-tool"><span class="sf-hint-tic">' + t[0] + '</span>'
+            + '<span class="sf-hint-tn">' + t[1] + '</span>'
+            + '<span class="sf-hint-tw">' + t[2] + '</span></div>';
+        }).join('')
+      + '</div>'
+      + '<button class="sf-hint-ok" type="button">Start exploring</button>'
       + '</div>';
     document.body.appendChild(wrap);
 
