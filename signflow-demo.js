@@ -1022,7 +1022,12 @@
   ];
 
   function initHint() {
-    if (!isTouch) return;
+    /* Superseded by signflow-hint.js, which handles phone, tablet AND
+       desktop and is loaded by Peter's repo too. This one was gated on
+       isTouch, so it never appeared on a laptop. Left as a no-op rather
+       than deleted so the call site above stays readable; the CSS block
+       above (#sf-hint / .sf-hint-*) is likewise now unused. */
+    return;
 
     /* Pipeline only. */
     var onPipeline = PATH.indexOf('schedule') === -1
