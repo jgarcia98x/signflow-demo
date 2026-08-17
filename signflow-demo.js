@@ -531,10 +531,16 @@
         '<span class="nm">' + esc(demoFor) + '</span>' +
         '<span class="note">Not for distribution</span>';
       document.body.appendChild(banner);
-      /* Reserve space so the fixed banner stops covering the stats bar */
+      /* Reserve space so the fixed banner stops covering the stats bar.
+         Body padding alone stopped working once the phone shell became
+         naturally-flowing, so pad the last in-flow block too. */
       requestAnimationFrame(function () {
-        var h = banner.offsetHeight || 28;
+        var h = (banner.offsetHeight || 28) + 6;
         document.body.style.paddingBottom = h + 'px';
+        var sb = document.querySelector('.stats-bar');
+        if (sb && window.innerWidth < 700) {
+          sb.style.paddingBottom = (parseFloat(getComputedStyle(sb).paddingBottom) || 8) + h + 'px';
+        }
       });
       document.querySelectorAll('.stats-meta').forEach(function (el) {
         if (el.textContent.indexOf('Apex Build Co') !== -1)
