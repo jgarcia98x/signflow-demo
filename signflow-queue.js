@@ -98,6 +98,8 @@
       return atVendor(j);
     });
 
+    /* Ranked drives PRIORITY ("what do I call about today"), so it stays the
+       source for the today list. */
     var crewJobs = ranked.filter(function (r) {
       var j = S.get(r.id) || {};
       return !atVendor(j) && needsCrew(j);
@@ -106,6 +108,33 @@
     var officeJobs = ranked.filter(function (r) {
       var j = S.get(r.id) || {};
       return !atVendor(j) && !needsCrew(j);
+    });
+
+    /* ── CAPACITY is a different question, and reading it off `ranked` was
+       wrong. `ranked` comes from liveScores, which excludes won jobs — and
+       SFStore.isWon() counts Install as won ("the truck is loaded"). That is
+       right for chasing, but an Install job is the most crew-hungry work
+       there is: it is exactly when the crew is on site. Excluding it
+       under-counted contention (reported 2 on site when 4 jobs needed
+       someone). So capacity reads the store directly, and only drops work
+       that genuinely cannot consume crew this week: finished, cold or lost.
+       Ordered by the ranked list so the two views still agree on sequence. */
+    var rankPos = {};
+    ranked.forEach(function (r, i) { rankPos[r.id] = i; });
+
+    var liveJobs = S.all().filter(function (j) {
+      return j.stage !== 'Complete'
+        && j.priority !== 'lost' && j.priority !== 'cold' && j.priority !== 'done';
+    }).sort(function (a, b) {
+      var pa = rankPos[a.id], pb = rankPos[b.id];
+      if (pa == null && pb == null) return 0;
+      if (pa == null) return 1;
+      if (pb == null) return -1;
+      return pa - pb;
+    });
+
+    var onSiteAll = liveJobs.filter(function (j) {
+      return !atVendor(j) && needsCrew(j);
     });
 
     var free = freeDays();
@@ -122,27 +151,43 @@
     });
 
     /* Jobs needing a lift are a second constrained resource, tracked
-       separately so "needs on site" is not one undifferentiated bucket. */
-    var liftJobs = crewJobs.filter(function (r) {
-      return (S.get(r.id) || {}).needs === 'lift';
+       separately so "needs on site" is not one undifferentiated bucket.
+       Reads the capacity list, not the ranked one — a lift is a lift whether
+       or not the job is still worth chasing. */
+    var liftJobs = onSiteAll.filter(function (j) {
+      return j.needs === 'lift';
     });
 
-    var parallelNow = Math.min(maxFree, crewJobs.length);
+    /* Contention is bounded by real free crew and real on-site demand. */
+    var parallelNow = Math.min(maxFree, onSiteAll.length);
+
+    /* Vendor-side and office work also read the capacity list, so an
+       outsourced or office-only Install job is not silently dropped. */
+    var waitingAll = liveJobs.filter(atVendor);
+    var officeAll  = liveJobs.filter(function (j) {
+      return !atVendor(j) && !needsCrew(j);
+    });
 
     return {
       today: crewJobs.slice(0, 3),
-      officeJobs: officeJobs,
-      waiting: waiting,
+      /* Priority-scoped lists stay ranked-derived; capacity-scoped lists
+         come from the store. Kept as separate keys so no caller has to
+         guess which question it is answering. */
+      officeJobs: officeAll,
+      waiting: waitingAll,
+      officeRanked: officeJobs,
+      waitingRanked: waiting,
       freeDays: free,
       maxFreeCrew: maxFree,
       parallelNow: parallelNow,
       /* The two fields that decide contention, surfaced by name so the
          callouts can cite them instead of a bare number. */
-      needsOnSite: crewJobs,
+      needsOnSite: onSiteAll,
       liftJobs: liftJobs,
       /* Office work and vendor-side jobs genuinely run alongside crew
-         work — they compete for nothing. */
-      trueParallel: officeJobs.length + waiting.length,
+         work — they compete for nothing. Capacity-scoped, to match the
+         numbers the callout actually prints. */
+      trueParallel: officeAll.length + waitingAll.length,
       all: ranked,
       live: live,
       stalling: live.stalling
