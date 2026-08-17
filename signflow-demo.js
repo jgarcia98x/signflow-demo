@@ -231,6 +231,15 @@
     '  nav a{padding-left:11px!important;padding-right:11px!important;',
     '    font-size:12.5px!important}',
     '  nav a:last-child{margin-right:14px!important}',
+
+    /*  Bell badge is injected with top:-5px;right:-5px, so it eats 5px of
+        the 10px header gap and visually touches the New Job button.
+        Measured: badge right=277, button left=283 — 6px. Widen the gap and
+        pull the badge inward. */
+    '  .header-right{gap:14px!important;padding-right:2px}',
+    '  #sf-bell-badge{top:-4px!important;right:-3px!important;',
+    '    box-shadow:0 0 0 2px rgba(20,10,12,.95)}',
+    '  .btn-new{margin-left:4px!important}',
     '  .sub-bar{flex-wrap:wrap!important;row-gap:8px}',
     '  .time-tabs{flex-wrap:wrap}',
     '  .date-chip,.header-sep{display:none!important}',
@@ -346,6 +355,11 @@
   /* ── 4b. Collapse the crew/vendor sidebar on phones ─────────────── */
   function initAiPanel() {
     if (!isPhone) return;
+    /* On the pipeline the .ai-sidebar IS the Smart Queue — the primary
+       feature of the demo. Collapsing it there was wrong; it must stay
+       expanded. Only collapse the secondary crew/vendor panel on the
+       other tabs. */
+    if (PATH.indexOf('customers') === -1 && PATH.indexOf('schedule') === -1) return;
     var sb = document.querySelector('.ai-sidebar');
     if (!sb) return;
 
@@ -397,6 +411,15 @@
        390px phone — the clamp itself was the last 6px of scroll. */
     var STEP = 0.08, MIN = 0.14, MAX = 1;
     var LS = 'sf_bz7_' + PATH.replace(/\W/g, ''), LSV = LS + '_vpw';
+    /* Purge any zoom saved by earlier builds so a stale pinch can't
+       override the intended default on a device that already visited. */
+    if (isPhone) {
+      try {
+        Object.keys(localStorage).forEach(function (k) {
+          if (k.indexOf('sf_bz') === 0) localStorage.removeItem(k);
+        });
+      } catch (_) {}
+    }
     var vpw = window.innerWidth, nat = { w: 1, h: 1 }, z = 1;
 
     function measure() {
@@ -454,7 +477,7 @@
       el.style.transform    = 'scale(' + z + ')';
       el.style.marginRight  = -(nat.w * (1 - z)) + 'px';
       el.style.marginBottom = -(nat.h * (1 - z)) + 'px';
-      localStorage.setItem(LS, z); localStorage.setItem(LSV, vpw);
+      if (!isPhone) { localStorage.setItem(LS, z); localStorage.setItem(LSV, vpw); }
       btnOut.style.opacity = z <= MIN + .01 ? '.28' : '1';
       btnIn.style.opacity  = z >= MAX - .01 ? '.28' : '1';
       lbl.textContent = z <= MIN + .05 ? 'All' : Math.round(z * 100) + '%';
@@ -480,9 +503,18 @@
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         measure();
-        var s = parseFloat(localStorage.getItem(LS));
-        var sv = parseFloat(localStorage.getItem(LSV));
-        z = (s && Math.abs(sv - vpw) < 40) ? Math.min(MAX, Math.max(MIN, s)) : calcDefault();
+        /* Deliberately NOT restoring a saved zoom on phones.
+           A prospect opening the demo must always land on the intended
+           4-column view; persisting a pinch meant Jordan kept seeing
+           whatever he last pinched to rather than the default. Zoom is a
+           transient viewing gesture here, not a saved preference. */
+        if (isPhone) {
+          z = calcDefault();
+        } else {
+          var s = parseFloat(localStorage.getItem(LS));
+          var sv = parseFloat(localStorage.getItem(LSV));
+          z = (s && Math.abs(sv - vpw) < 40) ? Math.min(MAX, Math.max(MIN, s)) : calcDefault();
+        }
         apply(z);
         pill.classList.add('visible');
       });
