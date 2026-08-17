@@ -143,7 +143,127 @@
     });
   }
 
-  /* ── 4. Schedule tab: replace hardcoded job blocks with skeletons ── */
+  /* ── 4. Board zoom control (mobile / touch only) ────────────────── */
+  function initBoardZoom() {
+    /* Only on touch/mobile — pointer:coarse covers all phones and iPads */
+    var isTouch = window.matchMedia('(pointer:coarse)').matches;
+    if (!isTouch) return;
+
+    var board = document.querySelector('.board');
+    var wrap  = document.querySelector('.board-wrap');
+    if (!board || !wrap) return;
+
+    /* Compute a sensible default zoom so ~2 columns are visible */
+    var COL_WIDTH = 190; /* px, unzoomed */
+    var NUM_COLS  = document.querySelectorAll('.col').length || 7;
+    var vpw       = window.innerWidth;
+    var defaultZ  = Math.min(1, Math.max(0.42, (vpw * 0.88) / (COL_WIDTH * 2.2)));
+    defaultZ = Math.round(defaultZ * 100) / 100;
+
+    var ZOOM_MIN = 0.38, ZOOM_MAX = 1.0, ZOOM_STEP = 0.1;
+    var LS_KEY = 'sf_board_zoom';
+    var z = parseFloat(localStorage.getItem(LS_KEY)) || defaultZ;
+    z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
+
+    function applyZoom(val) {
+      z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(val * 100) / 100));
+      board.style.zoom = z;
+      localStorage.setItem(LS_KEY, z);
+      zoomOut.style.opacity = z <= ZOOM_MIN ? '0.35' : '1';
+      zoomIn.style.opacity  = z >= ZOOM_MAX ? '0.35' : '1';
+      /* label: show "overview" at min, percentage otherwise */
+      var pct = Math.round(z * 100);
+      zoomLabel.textContent = z <= ZOOM_MIN ? 'Overview' : pct + '%';
+    }
+
+    /* Inject CSS for zoom controls */
+    var zs = document.createElement('style');
+    zs.textContent = [
+      '#sf-zoom-ctrl {',
+      '  position: sticky;',
+      '  bottom: 12px;',
+      '  left: 0;',
+      '  z-index: 200;',
+      '  display: flex;',
+      '  align-items: center;',
+      '  gap: 0;',
+      '  width: fit-content;',
+      '  margin: 8px 0 0 12px;',
+      '  background: rgba(15,12,12,0.88);',
+      '  backdrop-filter: blur(10px);',
+      '  -webkit-backdrop-filter: blur(10px);',
+      '  border: 1px solid rgba(255,255,255,0.13);',
+      '  border-radius: 22px;',
+      '  overflow: hidden;',
+      '  box-shadow: 0 2px 12px rgba(0,0,0,0.5);',
+      '}',
+      '#sf-zoom-ctrl button {',
+      '  background: none;',
+      '  border: none;',
+      '  color: #fff;',
+      '  font-size: 18px;',
+      '  width: 42px;',
+      '  height: 36px;',
+      '  cursor: pointer;',
+      '  display: flex;',
+      '  align-items: center;',
+      '  justify-content: center;',
+      '  -webkit-tap-highlight-color: transparent;',
+      '  touch-action: manipulation;',
+      '  transition: opacity 0.15s;',
+      '}',
+      '#sf-zoom-label {',
+      '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;',
+      '  font-size: 11px;',
+      '  font-weight: 600;',
+      '  color: rgba(255,255,255,0.7);',
+      '  letter-spacing: 0.04em;',
+      '  min-width: 52px;',
+      '  text-align: center;',
+      '  user-select: none;',
+      '}',
+    ].join('\n');
+    document.head.appendChild(zs);
+
+    /* Build the control */
+    var ctrl = document.createElement('div');
+    ctrl.id = 'sf-zoom-ctrl';
+
+    var zoomOut   = document.createElement('button');
+    zoomOut.textContent = '−';
+    zoomOut.setAttribute('aria-label', 'Zoom out');
+
+    var zoomLabel = document.createElement('span');
+    zoomLabel.id = 'sf-zoom-label';
+
+    var zoomIn    = document.createElement('button');
+    zoomIn.textContent = '+';
+    zoomIn.setAttribute('aria-label', 'Zoom in');
+
+    ctrl.appendChild(zoomOut);
+    ctrl.appendChild(zoomLabel);
+    ctrl.appendChild(zoomIn);
+
+    zoomOut.addEventListener('click', function() { applyZoom(z - ZOOM_STEP); });
+    zoomIn.addEventListener('click',  function() { applyZoom(z + ZOOM_STEP); });
+
+    /* Insert below the board (inside board-wrap, after board div) */
+    wrap.appendChild(ctrl);
+
+    /* Apply initial zoom */
+    applyZoom(z);
+
+    /* Reset default on orientation change */
+    window.addEventListener('orientationchange', function() {
+      setTimeout(function() {
+        var newDefault = Math.min(1, Math.max(0.42,
+          (window.innerWidth * 0.88) / (COL_WIDTH * 2.2)));
+        if (!localStorage.getItem(LS_KEY)) applyZoom(newDefault);
+      }, 300);
+    });
+  }
+
+  /* ── 5. Schedule tab: replace hardcoded job blocks with skeletons ── */
   function skeletonizeSchedule() {
     var isSchedule = window.location.pathname.indexOf('schedule') !== -1;
     if (!isSchedule) return;
@@ -207,6 +327,7 @@
 
   function inject() {
     document.body.appendChild(wm);
+    initBoardZoom();
     skeletonizeSchedule();
 
     /* ── 3. Personalised banner (only when ?demo= set) ─────────────── */
