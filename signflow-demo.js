@@ -157,6 +157,24 @@
     '@media(max-width:700px){#sf-banner .note{display:none}}',
     '@keyframes sfp{0%,100%{opacity:1}50%{opacity:.35}}',
 
+    /* --- reports.html has NO mobile nav styling of its own (its media
+           query only handles tables), so the nav collapsed to 89px and
+           collided with the sub-bar. Supply the same treatment the other
+           pages get. --- */
+    '@media(max-width:1024px){',
+    '  header{flex-wrap:wrap!important;height:auto!important;',
+    '    padding:10px 14px 0!important;gap:8px!important}',
+    '  nav{width:100%!important;overflow-x:auto!important;',
+    '    -webkit-overflow-scrolling:touch;display:flex!important;',
+    '    border-top:1px solid rgba(255,255,255,.08);',
+    '    scrollbar-width:none}',
+    '  nav::-webkit-scrollbar{display:none}',
+    '  nav a{flex-shrink:0!important;white-space:nowrap}',
+    '  .sub-bar{flex-wrap:wrap!important;row-gap:8px}',
+    '  .time-tabs{flex-wrap:wrap}',
+    '  .date-chip,.header-sep{display:none!important}',
+    '}',
+
     /* --- Zoom pill --- */
     '#sf-zpill{position:fixed;left:50%;transform:translateX(-50%);',
     '  bottom:calc(46px + env(safe-area-inset-bottom,0px));',
@@ -261,10 +279,11 @@
       nat.h = el.scrollHeight || el.offsetHeight || 1;
     }
     function calcDefault() {
-      var avail = vpw - pad;
-      return Math.round(Math.min(MAX, Math.max(MIN,
-        isPhone ? (avail / nat.w) : ((avail * 0.8) / (nat.w / 7 * 2.5))
-      )) * 100) / 100;
+      /* -2px safety: rounding zoom UP to 2dp can re-introduce a few px of
+         scroll (measured 6px left over after the padding fix). */
+      var avail = vpw - pad - 2;
+      var raw = isPhone ? (avail / nat.w) : ((avail * 0.8) / (nat.w / 7 * 2.5));
+      return Math.max(MIN, Math.min(MAX, Math.floor(raw * 100) / 100));
     }
 
     var pill   = document.createElement('div'); pill.id = 'sf-zpill';
@@ -275,6 +294,21 @@
     btnIn.textContent = '+'; btnIn.setAttribute('aria-label', 'Zoom in');
     pill.append(btnOut, lbl, btnIn);
     document.body.appendChild(pill);
+
+    /* The pill was landing on top of .stats-bar (measured 164x50px overlap).
+       Sit it directly above whatever fixed furniture is at the bottom. */
+    requestAnimationFrame(function () {
+      var below = 8;
+      var sb = document.querySelector('.stats-bar');
+      if (sb) {
+        var r = sb.getBoundingClientRect();
+        /* only count it if it's actually pinned near the bottom */
+        if (r.bottom > window.innerHeight - 120) below += r.height;
+      }
+      var bn = document.getElementById('sf-banner');
+      if (bn) below += bn.offsetHeight;
+      pill.style.bottom = 'calc(' + below + 'px + env(safe-area-inset-bottom,0px))';
+    });
 
     function apply(v) {
       z = Math.round(Math.min(MAX, Math.max(MIN, v)) * 100) / 100;
