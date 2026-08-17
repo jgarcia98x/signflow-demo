@@ -259,6 +259,23 @@
         New Job on its own row (margin-left:auto forced a wrap), so both are
         wrapped in a real .sf-actionrow element instead — one row, guaranteed,
         with Filters left and New Job filling the remainder. */
+    /*  "Focus Now" banner is built as one inline string with &nbsp;·&nbsp;
+        separators, so at 390px it collapsed into a 4-line ragged block with
+        orphaned dots. On phones: name on its own line, meta as a wrapping
+        row, and the trailing "Highest-impact" tag on its own line. */
+    '  .ai-banner{display:block!important;line-height:1.45!important;',
+    '    padding:10px 12px!important;font-size:12.5px!important}',
+    '  .ai-banner .hot-name{display:block!important;font-weight:700!important;',
+    '    font-size:13.5px!important;margin:2px 0 1px!important}',
+    '  .ai-banner .hot-action{display:block!important;margin-top:3px!important;',
+    '    font-size:11.5px!important;opacity:.75!important}',
+    '  .ai-banner .sf-bmeta{display:flex!important;flex-wrap:wrap!important;',
+    '    align-items:center!important;gap:0 6px!important;margin-top:1px!important}',
+    '  .ai-banner .sf-bchip{white-space:nowrap!important}',
+    /*  Dots never start or end a line — they stay glued between two chips. */
+    '  .ai-banner .sf-bdot{opacity:.45!important;white-space:nowrap!important}',
+    '  .ai-banner em{font-style:normal!important}',
+
     '  .sf-actionrow{order:6!important;display:flex!important;width:100%!important;',
     '    gap:10px!important;align-items:center!important;margin-top:2px!important;',
     '    flex:0 0 100%!important}',
@@ -470,6 +487,53 @@
        a failure can never leave a prospect staring at a veil. */
     window.__sfVeilLift = lift;
     setTimeout(lift, 1400);
+  }
+
+  /* ── 3c2. Tidy the Focus Now banner on phones ────────────────────────
+     index.html builds it as one inline run with "&nbsp;·&nbsp;" separators.
+     At 390px that wrapped into a ragged 4-line block with dots stranded at
+     line ends. Wrap the meta parts in a flex row so the dots stay glued to
+     their values, and drop the leading dot.                              */
+  function initFocusBanner() {
+    if (!isPhone) return;
+    var b = document.querySelector('.ai-banner');
+    if (!b || b.dataset.sfTidied) return;
+
+    var name = b.querySelector('.hot-name');
+    var action = b.querySelector('.hot-action');
+    if (!name) return;
+
+    /* Collect the text/element run between name and action — that's the meta. */
+    var meta = [], n = name.nextSibling;
+    while (n && n !== action) { meta.push(n); n = n.nextSibling; }
+
+    var txt = meta.map(function (x) {
+      return x.nodeType === 3 ? x.textContent : x.textContent;
+    }).join('').replace(/\u00a0/g, ' ');
+
+    /* Split on the middot and rebuild as discrete chips. */
+    var parts = txt.split('·').map(function (s) { return s.trim(); })
+                   .filter(function (s) { return s.length; });
+    if (!parts.length) { b.dataset.sfTidied = '1'; return; }
+
+    meta.forEach(function (x) { if (x.parentNode) x.parentNode.removeChild(x); });
+
+    var row = document.createElement('span');
+    row.className = 'sf-bmeta';
+    parts.forEach(function (s, i) {
+      var chip = document.createElement('span');
+      chip.className = 'sf-bchip';
+      chip.textContent = s;
+      row.appendChild(chip);
+      if (i < parts.length - 1) {
+        var d = document.createElement('span');
+        d.className = 'sf-bdot';
+        d.textContent = '·';
+        row.appendChild(d);
+      }
+    });
+    name.parentNode.insertBefore(row, action || null);
+    b.dataset.sfTidied = '1';
   }
 
   /* ── 3d. Dock the bell in the true top-right corner, above the tabs ── */
@@ -754,6 +818,15 @@
     (function waitForBell(tries) {
       if (initBellCorner() || tries > 40) return;
       setTimeout(function () { waitForBell(tries + 1); }, 50);
+    })(0);
+
+    /* The banner is filled by index.html's own script, so wait for its
+       .hot-name to exist before restructuring it. */
+    (function waitForBanner(tries) {
+      var b = document.querySelector('.ai-banner .hot-name');
+      if (b) { initFocusBanner(); return; }
+      if (tries > 40) return;
+      setTimeout(function () { waitForBanner(tries + 1); }, 50);
     })(0);
 
     if (demoFor) {
