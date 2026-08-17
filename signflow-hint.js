@@ -272,7 +272,10 @@
        prospect demo's boot veil has cleared first. Bounded, then show
        anyway — the introduction is not worth losing to a slow render. */
     (function waitForBoard(tries) {
-      var ready = document.querySelector('.job-card, .kanban-card, [data-stage]');
+      /* Selector matches signflow-engine.js allCards() — .board .card /
+         .col .card. An invented class name here would silently never match
+         and the sheet would always fire on the timeout instead. */
+      var ready = document.querySelector('.board .card, .col .card');
       var veil = document.getElementById('sf-veil');
       var veilGone = !veil || veil.style.opacity === '0'
         || getComputedStyle(veil).opacity === '0';
