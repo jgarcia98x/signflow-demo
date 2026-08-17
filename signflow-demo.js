@@ -692,11 +692,16 @@
   /* ── 4b. Collapse the crew/vendor sidebar on phones ─────────────── */
   function initAiPanel() {
     if (!isPhone) return;
-    /* On the pipeline the .ai-sidebar IS the Smart Queue — the primary
-       feature of the demo. Collapsing it there was wrong; it must stay
-       expanded. Only collapse the secondary crew/vendor panel on the
-       other tabs. */
-    if (PATH.indexOf('customers') === -1 && PATH.indexOf('schedule') === -1) return;
+    /* Only collapse a sidebar that is genuinely secondary.
+         - pipeline  : .ai-sidebar IS Smart Queue        → never collapse
+         - customers : .ai-sidebar IS Smart Nudge        → never collapse
+         - schedule  : crew/vendor availability panel    → collapse
+       Customers was being collapsed, which measured .nudge-card heights of 0
+       on iPhone: the whole tool was invisible on phones while the welcome
+       sheet told people to go and find it. Exactly the Smart Queue mistake,
+       repeated on the next tab along — "is this panel the page's point?" is
+       the test, not "is this panel a sidebar?". */
+    if (PATH.indexOf('schedule') === -1) return;
     var sb = document.querySelector('.ai-sidebar');
     if (!sb) return;
 
