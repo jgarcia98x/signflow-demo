@@ -188,19 +188,15 @@
   function resSet(who,day,val){ if(!resState[who])resState[who]={}; resState[who][day]=val; try{localStorage.setItem(RES_KEY,JSON.stringify(resState));}catch(e){} }
   function crewBusyCount(){ var n=0; CREW.forEach(function(c){ DAYS.forEach(function(d){ if(resGet(c,d)==='busy')n++; }); }); return n; }
 
-  /* CYCLE_COLOR existed but was never applied to anything — every dot
-     rendered the same grey, so clicking through free → partial → busy gave
-     no feedback at all on the grid that feeds Smart Queue. Colour is set
-     inline because no stylesheet rule targets these. 'off' stays muted with
-     a dashed ring: not a working day, rather than a booked one. */
-  function dotStyle(v){
-    var c=CYCLE_COLOR[v]||CYCLE_COLOR.free;
-    if(v==='off'){
-      return 'background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.30);'
-        +'border:1px dashed rgba(255,255,255,0.22);box-sizing:border-box;';
-    }
-    return 'background:'+c+';color:#fff;border:1px solid rgba(0,0,0,0.25);box-sizing:border-box;';
-  }
+  /* Dot colour is owned by signflow-calm.css via [data-state] rules, which
+     use !important — deliberately. Its comment: "A wall of identical green =
+     zero information. Free days go faint; only partial/busy carry colour."
+     That is a real design decision, so this function sets NO colour and lets
+     the stylesheet win. I briefly mistook the uniform grey for dead code and
+     hardcoded green here; the inline style lost to !important anyway, which
+     is how the mistake surfaced. Styling for the new 'off' state is added to
+     signflow-calm.css alongside the other three, not here. */
+  function dotStyle(){ return ''; }
 
   function resRow(who, role){
     var dots=DAYS.map(function(d){
@@ -251,9 +247,8 @@
       var cyc=cycleFor(day);
       var idx=cyc.indexOf(resGet(who,day));
       var nv=cyc[(idx<0?0:idx+1)%cyc.length];
+      /* data-state drives the CSS, so the colour updates on its own. */
       resSet(who,day,nv); dot.setAttribute('data-state',nv); dot.title=day+': '+nv;
-      /* Re-apply colour, preserving the geometry already on the element. */
-      dot.style.cssText=dot.style.cssText.replace(/background:[^;]*;?|color:[^;]*;?|border:[^;]*;?|box-sizing:[^;]*;?/g,'')+dotStyle(nv);
       reRankQueue();
       T(who+' · '+day+': '+nv,'👷');
     });
