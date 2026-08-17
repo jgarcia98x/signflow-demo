@@ -1149,7 +1149,9 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 // ── Toast helper ──────────────────────────────────────────
 function toast(msg) {
   var el = document.createElement('div');
-  el.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(22,22,38,0.97);border:1px solid rgba(255,255,255,0.16);border-radius:10px;padding:10px 20px;font-size:12px;color:#fff;font-weight:600;box-shadow:0 4px 24px rgba(0,0,0,.55);white-space:nowrap;z-index:9999;animation:tIn .22s ease;pointer-events:none;';
+  /* white-space:nowrap made a longer message 398px wide on a 390px phone —
+     it ran off both edges. Cap the width and allow wrapping instead. */
+  el.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(22,22,38,0.97);border:1px solid rgba(255,255,255,0.16);border-radius:10px;padding:10px 20px;font-size:12px;color:#fff;font-weight:600;box-shadow:0 4px 24px rgba(0,0,0,.55);z-index:9999;animation:tIn .22s ease;pointer-events:none;max-width:calc(100vw - 32px);box-sizing:border-box;text-align:center;line-height:1.45;';
   el.textContent = msg;
   if (!document.getElementById('sf-toast-style')) {
     var s = document.createElement('style');
