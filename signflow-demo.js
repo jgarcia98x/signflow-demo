@@ -239,7 +239,45 @@
     '  .header-right{gap:14px!important;padding-right:2px}',
     '  #sf-bell-badge{top:-4px!important;right:-3px!important;',
     '    box-shadow:0 0 0 2px rgba(20,10,12,.95)}',
-    '  .btn-new{margin-left:4px!important}',
+
+    /*  Bell docked to the true top-right corner, on the logo band above the
+        nav tabs. Absolute inside the header so it cannot crowd anything. */
+    '  header.sf-hdr-anchor{position:relative!important}',
+    '  #sf-bell.sf-bell-corner{position:absolute!important;top:8px!important;',
+    '    right:12px!important;width:38px!important;height:38px!important;',
+    '    margin:0!important;z-index:60!important}',
+    /*  Keep the logo/date clear of the docked bell. */
+    '  header.sf-hdr-anchor .logo{padding-right:52px!important}',
+    '  header.sf-hdr-anchor .date-chip{display:none!important}',
+
+    /*  New Job moved next to Filters: right-aligned on the sub-bar row. */
+    '  .btn-new.sf-newmoved{order:7!important;margin-left:auto!important;',
+    '    height:40px!important;padding:0 14px!important;font-size:13px!important;',
+    '    white-space:nowrap!important;flex:0 0 auto!important}',
+
+    /*  Boot veil — covers the unscaled-board flash (see initVeil). */
+    '  #sf-veil{position:fixed;inset:0;z-index:99999;display:flex;',
+    '    align-items:center;justify-content:center;',
+    '    background:radial-gradient(120% 90% at 50% 12%,#241318 0%,#160c10 55%,#100a0d 100%);',
+    '    opacity:1;transition:opacity .24s ease}',
+    '  #sf-veil.gone{opacity:0;pointer-events:none}',
+    '  .sf-veil-in{text-align:center;transform:translateY(-6px)}',
+    '  .sf-veil-mark{display:flex;gap:5px;justify-content:center;',
+    '    align-items:flex-end;height:38px;margin:0 auto 16px}',
+    /*  Four bars rising like pipeline columns filling in. */
+    '  .sf-vb{width:9px;border-radius:3px;background:#C2453F;',
+    '    animation:sfvb 1.05s cubic-bezier(.4,0,.3,1) infinite;',
+    '    animation-delay:calc(var(--i)*.11s);height:12px;opacity:.35}',
+    '  .sf-vb:nth-child(3){background:#D9694F}',
+    '  .sf-vb:nth-child(4){background:rgba(255,255,255,.28)}',
+    '  @keyframes sfvb{0%{height:10px;opacity:.3}',
+    '    45%{height:34px;opacity:1}100%{height:10px;opacity:.3}}',
+    '  .sf-veil-t{font-size:19px;font-weight:700;letter-spacing:.2px;',
+    '    color:#fff;margin-bottom:5px}',
+    '  .sf-veil-s{font-size:12px;color:rgba(255,255,255,.5);',
+    '    letter-spacing:.3px}',
+    '  @media(prefers-reduced-motion:reduce){',
+    '    .sf-vb{animation:none;height:24px;opacity:.7}}',
     '  .sub-bar{flex-wrap:wrap!important;row-gap:8px}',
     '  .time-tabs{flex-wrap:wrap}',
     '  .date-chip,.header-sep{display:none!important}',
@@ -317,6 +355,17 @@
     btn.id = 'sf-ftoggle';
     btn.setAttribute('aria-expanded', 'true');
 
+    /* On phones the primary action belongs beside the filter control, at
+       thumb height, rather than in the header where it crowded the bell.
+       Moved (not cloned) so there is only ever one New Job button. */
+    if (isPhone && sub) {
+      var newBtn = document.querySelector('header .btn-new');
+      if (newBtn) {
+        newBtn.classList.add('sf-newmoved');
+        sub.appendChild(newBtn);
+      }
+    }
+
     function activeCount() {
       var n = tray.querySelectorAll('.filter-pill.active').length;
       /* "All" selected is not a meaningful filter */
@@ -350,6 +399,60 @@
     });
 
     tray.parentNode.insertBefore(btn, tray);
+  }
+
+  /* ── 3c. Boot veil ───────────────────────────────────────────────────
+     Measured justification, not decoration: the board paints at full size
+     at 82ms and the zoom transform lands at 231ms, so there is a ~149ms
+     window where a phone shows a giant unscaled board that then snaps to
+     34%. That jolt is the actual defect. This covers exactly that window
+     and removes itself the moment the layout is settled.
+     Deliberately NOT a fake progress bar — nothing here is really loading
+     (53KB, 8 requests, DOM ready at 302ms). Inventing progress would
+     violate the honest-tooling standard. It reads as "arranging", which is
+     literally what the zoom pass is doing.                              */
+  function initVeil() {
+    if (!isPhone) return;
+    var v = document.createElement('div');
+    v.id = 'sf-veil';
+    v.innerHTML =
+      '<div class="sf-veil-in">' +
+        '<div class="sf-veil-mark">' +
+          '<span class="sf-vb" style="--i:0"></span>' +
+          '<span class="sf-vb" style="--i:1"></span>' +
+          '<span class="sf-vb" style="--i:2"></span>' +
+          '<span class="sf-vb" style="--i:3"></span>' +
+        '</div>' +
+        '<div class="sf-veil-t">SignFlow</div>' +
+        '<div class="sf-veil-s">Arranging your board</div>' +
+      '</div>';
+    document.documentElement.appendChild(v);
+
+    var done = false;
+    function lift() {
+      if (done) return;
+      done = true;
+      v.classList.add('gone');
+      setTimeout(function () { if (v.parentNode) v.parentNode.removeChild(v); }, 260);
+    }
+    /* Lift once the zoom pass has actually applied, with a hard ceiling so
+       a failure can never leave a prospect staring at a veil. */
+    window.__sfVeilLift = lift;
+    setTimeout(lift, 1400);
+  }
+
+  /* ── 3d. Dock the bell in the true top-right corner, above the tabs ── */
+  function initBellCorner() {
+    if (!isPhone) return true;
+    var bell = document.getElementById('sf-bell');
+    var hdr = document.querySelector('header');
+    if (!bell || !hdr) return false;
+    /* The header is the positioning context; the logo row is the top band,
+       so anchoring the bell there puts it above the nav tabs. */
+    hdr.classList.add('sf-hdr-anchor');
+    bell.classList.add('sf-bell-corner');
+    hdr.appendChild(bell);
+    return true;
   }
 
   /* ── 4a. Smart Queue must be expanded AND reachable on the pipeline ── */
@@ -551,6 +654,13 @@
           z = (s && Math.abs(sv - vpw) < 40) ? Math.min(MAX, Math.max(MIN, s)) : calcDefault();
         }
         apply(z);
+        /* Layout is settled — lift the boot veil on the next frame so the
+           first thing a prospect sees is the finished board. */
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            if (window.__sfVeilLift) window.__sfVeilLift();
+          });
+        });
         pill.classList.add('visible');
       });
     });
@@ -608,6 +718,13 @@
     initZoom();
     skeletonize();
 
+    /* The bell is injected by signflow-engine.js, which may not have run
+       yet. Poll briefly rather than assuming it exists. */
+    (function waitForBell(tries) {
+      if (initBellCorner() || tries > 40) return;
+      setTimeout(function () { waitForBell(tries + 1); }, 50);
+    })(0);
+
     if (demoFor) {
       var banner = document.createElement('div'); banner.id = 'sf-banner';
       banner.innerHTML = '<div class="dot"></div>' +
@@ -633,7 +750,18 @@
     }
   }
 
+  /* The veil exists to hide the unscaled-board flash, so it must paint
+     BEFORE the board does — it cannot wait for DOMContentLoaded. Styles and
+     veil go up immediately; everything else waits for the DOM. */
+  initVeil();
+
   document.readyState === 'loading'
     ? document.addEventListener('DOMContentLoaded', inject)
     : inject();
+
+  /* Safety net: if zoom never runs (desktop width, missing board, thrown
+     error), make sure the veil is never left covering the app. */
+  window.addEventListener('load', function () {
+    setTimeout(function () { if (window.__sfVeilLift) window.__sfVeilLift(); }, 250);
+  });
 })();
