@@ -30,15 +30,17 @@
   var SNOOZE_KEY = 'sf-nudge-snooze';
 
   function snoozed() {
-    try { return JSON.parse(localStorage.getItem(SNOOZE_KEY) || '{}'); }
-    catch (e) { return {}; }
+    /* Storage through SFStore adapter — never raw localStorage. */
+    var S = global.SFStore;
+    return (S && S.getItem(SNOOZE_KEY, {})) || {};
   }
 
   function snooze(id, days) {
     var s = snoozed();
-    var until = new Date(global.SFStore.today().getTime() + (days || 7) * 86400000);
-    s[id] = global.SFStore.iso(until);
-    try { localStorage.setItem(SNOOZE_KEY, JSON.stringify(s)); } catch (e) {}
+    var S = global.SFStore;
+    var until = new Date(S.today().getTime() + (days || 7) * 86400000);
+    s[id] = S.iso(until);
+    if (S) S.setItem(SNOOZE_KEY, s);
   }
 
   function isSnoozed(id) {

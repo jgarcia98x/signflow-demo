@@ -26,9 +26,9 @@
 
   /* ── F1: Activity log ─────────────────────────────────────────── */
   var LOG_KEY='sf_activity_v1';
-  var store={};
-  try { store=JSON.parse(localStorage.getItem(LOG_KEY)||'{}'); } catch(e){ store={}; }
-  function persist(){ try { localStorage.setItem(LOG_KEY, JSON.stringify(store)); } catch(e){} }
+  /* Load through SFStore adapter — production swap later touches only the adapter. */
+  var store=(window.SFStore&&window.SFStore.getItem(LOG_KEY,{}))||{};
+  function persist(){ if(window.SFStore) window.SFStore.setItem(LOG_KEY,store); }
 
   var SFLog={
     jobId:function(card){
@@ -182,10 +182,10 @@
   var CYCLE_WE=['off','free','partial','busy'];
   function cycleFor(day){ return isWeekend(day)?CYCLE_WE:CYCLE; }
   var CYCLE_COLOR={free:'#5FA97A',partial:'#D9A441',busy:'#C2453F',off:'rgba(255,255,255,0.10)'};
-  var resState={};
-  try { resState=JSON.parse(localStorage.getItem(RES_KEY)||'{}'); } catch(e){ resState={}; }
+  /* Load resource state through SFStore adapter. */
+  var resState=(window.SFStore&&window.SFStore.getItem(RES_KEY,{}))||{};
   function resGet(who,day){ return (resState[who]&&resState[who][day])||dayDefault(day); }
-  function resSet(who,day,val){ if(!resState[who])resState[who]={}; resState[who][day]=val; try{localStorage.setItem(RES_KEY,JSON.stringify(resState));}catch(e){} }
+  function resSet(who,day,val){ if(!resState[who])resState[who]={}; resState[who][day]=val; if(window.SFStore) window.SFStore.setItem(RES_KEY,resState); }
   function crewBusyCount(){ var n=0; CREW.forEach(function(c){ DAYS.forEach(function(d){ if(resGet(c,d)==='busy')n++; }); }); return n; }
 
   /* Dot colour is owned by signflow-calm.css via [data-state] rules, which

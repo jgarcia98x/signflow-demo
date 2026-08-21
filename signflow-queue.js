@@ -40,8 +40,10 @@
   }
 
   function resState() {
-    try { return JSON.parse(localStorage.getItem(RES_KEY) || '{}'); }
-    catch (e) { return {}; }
+    /* Reach storage through SFStore's adapter so swapping to a
+       Postgres/HTTP backend later does not touch this module. */
+    var S = global.SFStore;
+    return (S && S.getItem(RES_KEY, {})) || {};
   }
 
   function availOf(st, who, day) {

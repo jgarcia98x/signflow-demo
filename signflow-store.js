@@ -355,6 +355,25 @@
     fmtDue: fmtDue, dueClass: dueClass,
     reset: function () {
       try { localStorage.removeItem(LS_JOBS); localStorage.removeItem(LS_HIST); } catch (e) {}
+    },
+
+    /* ── Storage adapter interface ─────────────────────────────────────
+       Engines (SFConversions, SFQueue, SFNudge, SFLog) reach localStorage
+       only through these three methods. Later a Postgres/HTTP adapter slots
+       in here and the engine code stays unchanged — every non-job-data key
+       (resources, snooze, activity log) is stored and retrieved via getItem /
+       setItem / removeItem, never via a bare localStorage call in the engine.
+
+       lsGet/lsSet handle JSON parse/stringify and swallow storage errors,
+       so callers never need try/catch for the storage layer itself. */
+    getItem: function (key, fallback) {
+      return lsGet(key, fallback !== undefined ? fallback : null);
+    },
+    setItem: function (key, val) {
+      lsSet(key, val);
+    },
+    removeItem: function (key) {
+      try { localStorage.removeItem(key); } catch (e) {}
     }
   };
 })(window);
