@@ -1283,8 +1283,13 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 <!-- ══ AI BANNER ════════════════════════════════════════════════ -->
 <div class="ai-banner">
   <span>⚡</span>
-  <strong>⚡ Smart Queue</strong> — 4 jobs can run in parallel today &nbsp;·&nbsp; 2 vendor windows open &nbsp;·&nbsp; 1 job can start earlier than scheduled
-  <em>&nbsp;·&nbsp; Est. 2.3 days saved this week</em>
+  <!-- Hardcoded "4 jobs · 2 vendor windows · 1 early start · 2.3 days saved"
+       lived here. The script below replaces this banner with the real
+       highest-impact job, but only once it runs — so on a slow load those
+       invented figures were the first thing on screen, and if the script
+       ever failed they were the only thing. Neutral placeholder instead:
+       fail to a visible gap, never to a comfortable number. -->
+  <strong>⚡ Smart Queue</strong> — ranking today's work…
 </div>
 
 <!-- ══ SUB BAR ══════════════════════════════════════════════════ -->

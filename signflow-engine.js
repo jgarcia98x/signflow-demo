@@ -282,10 +282,13 @@
         if(c.getAttribute('data-early')) early++;
         if(c.classList.contains('parallel')||c.querySelector('.parallel-badge')) parallel++;
       });
-      var daysSaved=(2.3+(revived+early)*0.4).toFixed(1);
+      /* "Est. Days Saved" is gone outright. It was seeded at a constant
+         2.3 and grew by 0.4 per revived/early click — arithmetic over UI
+         events, not over any work the user did. It failed the standing
+         rule that a number shown to the user must be computed from data
+         the user can edit. */
       set('sfimp-closed', closed?money(closed):'$0');
       set('sfimp-revived', String(revived));
-      set('sfimp-days', daysSaved);
       /* Was String(parallel||4) — it invented "4" whenever the real count
          was 0, which is exactly the kind of number the honest-tooling
          standard forbids. Read the same figure Smart Queue computes from
@@ -315,7 +318,6 @@
     }
     stat('sfimp-closed','Closed This Month','green', function(){ highlight(function(c){return c.classList.contains('done')||stageOf(c)==='Complete';},'closed jobs'); });
     stat('sfimp-revived','Revived from Cold','', function(){ highlight(function(c){return c.getAttribute('data-revived');},'revived jobs'); });
-    stat('sfimp-days','Est. Days Saved','amber', function(){ T('Days saved from parallel scheduling + early starts + revived quotes','📈'); });
     stat('sfimp-parallel','⚡ Parallel Executed','', function(){ highlight(function(c){return c.classList.contains('parallel')||c.querySelector('.parallel-badge');},'parallel jobs'); });
     SFImpact.refresh();
   }
@@ -335,19 +337,32 @@
   /* ── F3: Notifications + digest ───────────────────────────────── */
   function urgentCount(){ return document.querySelectorAll('.card.urgent, .card.overdue').length; }
   function coldCount(){ return document.querySelectorAll('.card.cold').length; }
+  /* Parallel capacity from Smart Queue, or null when the engine is
+     unavailable — the digest then omits the line rather than asserting a
+     number nothing computed. Replaces a hardcoded "4 jobs can run
+     together (~2.3 days saved)" that never once changed. */
+  function parallelNow(){
+    try{
+      if(window.SFQueue&&window.SFQueue.build){
+        var q=window.SFQueue.build();
+        if(q&&typeof q.parallelNow==='number') return q;
+      }
+    }catch(e){}
+    return null;
+  }
   function buildDigestText(){
     var urg=[].slice.call(document.querySelectorAll('.card.urgent, .card.overdue')).map(function(c){return txt(c,'.card-name');}).filter(Boolean);
     var cold=[].slice.call(document.querySelectorAll('.card.cold')).map(function(c){return txt(c,'.card-name');}).filter(Boolean);
-    var days=(document.getElementById('sfimp-days')||{}).textContent||'2.3';
+    var q=parallelNow();
     var L=[];
     L.push('SignFlow — Daily Digest');
     L.push('');
     L.push('🔴 Urgent / overdue ('+urg.length+'): '+(urg.slice(0,6).join(', ')||'none'));
-    L.push('⚡ Parallel opportunities: 4 jobs can run together (~'+days+' days saved)');
+    if(q){
+      L.push('⚡ '+q.parallelNow+' job'+(q.parallelNow===1?'':'s')+' can run at once ('
+        +q.maxFreeCrew+' of '+window.SFQueue.CREW.length+' crew free)');
+    }
     L.push('❄️ Cold quotes to revive ('+cold.length+'): '+(cold.slice(0,6).join(', ')||'none'));
-    L.push('▶ Early starts available: check Smart Queue');
-    L.push('');
-    L.push('Est. days saved this week: '+days);
     return L.join('\n');
   }
   function initNotifications(){
@@ -370,11 +385,11 @@
     panel.style.cssText='position:fixed;top:56px;right:16px;width:320px;max-width:92vw;background:rgba(20,20,30,0.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.12);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.6);padding:14px;z-index:6000;display:none;';
     document.body.appendChild(panel);
     function render(){
-      var urg=urgentCount(), cold=coldCount(), days=(document.getElementById('sfimp-days')||{}).textContent||'2.3';
+      var urg=urgentCount(), cold=coldCount(), q=parallelNow();
       panel.innerHTML=
         '<div style="font-size:14px;font-weight:700;margin-bottom:10px;">Notifications</div>'
         +'<div class="sf-notif-item" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;">🔴 <strong>'+urg+'</strong> urgent / overdue jobs</div>'
-        +'<div class="sf-notif-item" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;">⚡ <strong>4</strong> parallel opportunities · ~'+days+' days saved</div>'
+        +(q?'<div class="sf-notif-item" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;">⚡ <strong>'+q.parallelNow+'</strong> job'+(q.parallelNow===1?'':'s')+' can run at once · '+q.maxFreeCrew+' of '+window.SFQueue.CREW.length+' crew free</div>':'')
         +'<div class="sf-notif-item" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;">❄️ <strong>'+cold+'</strong> cold quotes to revive</div>'
         +'<div class="sf-notif-item" style="padding:8px 0;font-size:12px;">📅 Daily digest scheduled 7:00 AM → Discord</div>'
         +'<div style="display:flex;gap:7px;margin-top:12px;">'
