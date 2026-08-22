@@ -3,13 +3,15 @@
  *  Analytics are INERT until `key` below is a real PostHog project key.
  *  With key empty: nothing loads, nothing is transmitted, no requests.
  *
- *  To activate (after Gatehouse approval + account creation):
- *    1. key  = the PostHog project API key (starts with 'phc_')
- *    2. host = 'https://eu.i.posthog.com'  (EU cloud)
- *          or 'https://us.i.posthog.com'  (US cloud)
- *       This MUST match the region the account was created in, or
- *       events are silently dropped.
- *    3. Bump the ?v= cache-buster on the script tags (bump-cache.sh).
+ *  ACTIVE since 2026-08-22 (US cloud).
+ *
+ *  host MUST match the region the account was created in, or events are
+ *  silently dropped — no error, no 4xx in the console, just nothing
+ *  arriving. This account is US cloud, so the default EU host would have
+ *  failed silently.
+ *
+ *  After changing anything here, bump the ?v= cache-buster on the script
+ *  tags (bump-cache.sh) or GitHub Pages will keep serving the old file.
  *
  *  The project API key is designed to be public — it is write-only
  *  ingestion and cannot read your data. It is still worth keeping this
@@ -19,7 +21,10 @@
  *  keeping pageview/tab events. Inputs are masked either way.
  */
 window.SF_ANALYTICS = {
-  key:  '',                            // '' = disabled (current state)
-  host: 'https://eu.i.posthog.com',
+  // Publishable project key (phc_): write-only ingestion, cannot read
+  // data. Safe in client source. Never put a personal/private key
+  // (phx_) here — those can read the whole project.
+  key:  'phc_nVtCsCCJQsasPb3oXZZga5nExfBFkFYpwJ4DLK4PBXFV',
+  host: 'https://us.i.posthog.com',    // US cloud — must match the account region
   replay: true,
 };

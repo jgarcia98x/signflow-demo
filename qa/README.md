@@ -45,3 +45,22 @@ node qa/ovcheck.js
   each with geometry.
 
 Full write-up: vault → `Knowledge/SignFlow — Mobile Layout Debugging & Demo Hardening.md`
+
+## Analytics verification
+
+- `analytics-verify.js` — 89 assertions, Chromium + WebKit. Proves the
+  LIVE posture: all 6 pages activate, point at the **US** host, use a
+  publishable `phc_` key, carry the `demo=` company, and contact nobody
+  but PostHog.
+- `live-verify.js` — end-to-end against the **real** project. Exits
+  non-zero unless the ingest endpoint returns 2xx.
+
+**PostHog silently drops events from headless browsers.** `_is_bot()`
+returns true under Playwright, so `capture()` becomes a no-op: returns
+undefined, `before_send` never fires, zero network requests, nothing in
+the console. This reads exactly like a broken key. It is not.
+`live-verify.js` injects `opt_out_useragent_filter: true` **into the test
+only** — never ship that option, or crawlers get recorded as prospects.
+
+Read-back needs a private key. HTTP 200 from ingest is the strongest
+evidence obtainable without one.

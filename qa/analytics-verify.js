@@ -1,10 +1,32 @@
-/* Verify SignFlow demo analytics.
+/* Verify ShopAnvil (prospect demo) analytics.
  *
- * The central claim to prove: with no key configured, the file loads and
- * transmits NOTHING. A comment saying "inert" is not evidence.
+ * ANALYTICS ARE LIVE as of 2026-08-22 (PostHog US cloud). Before that
+ * date the central claim was "inert with no key"; that section has been
+ * inverted rather than deleted, because the interesting question changed:
  *
- * Also proves the active path works, without needing a real PostHog
- * account, by pointing the host at a local sink and reading what arrives.
+ *   1. LIVE POSTURE  - every page activates, points at the CONFIGURED
+ *                      region (us, not the eu default), and talks to
+ *                      nobody except PostHog.
+ *   2. ACTIVE PATH   - events carry the demo= company, against a local
+ *                      sink so verification needs no live project.
+ *   3. SAFETY GUARD  - the mockups-path kill switch still works, so a
+ *                      cross-repo copy cannot start tracking Peter.
+ *
+ * Region matters: a US key against the EU host is dropped SILENTLY - no
+ * error, no 4xx, just no data. So we assert the host actually contacted.
+ *
+ * ⚠️  POSTHOG DROPS ALL EVENTS FROM HEADLESS BROWSERS.
+ * posthog-js runs `_is_bot()` on every capture, headless Chromium and
+ * WebKit both return true, and capture() becomes a SILENT no-op -
+ * returns undefined, before_send never fires, zero network requests.
+ * Nothing in the console says so.
+ *
+ * Consequence: you cannot prove real ingestion from Playwright with the
+ * shipped config, and an unaware reader will conclude the key is broken.
+ * It is not. To exercise the real wire path, inject
+ * `opt_out_useragent_filter: true` INTO THE TEST ONLY (see
+ * qa/live-verify.js). Never put that option in the shipped config or the
+ * demo would start recording real crawlers as prospects.
  */
 const { chromium, webkit } = require('playwright');
 const http = require('http');
@@ -91,40 +113,59 @@ function serve(port) {
   for (const [name, engine] of [['Chromium', chromium], ['WebKit', webkit]]) {
     const browser = await engine.launch();
 
-    // ── A. INERT PATH: no key => zero requests, zero errors ──────
-    console.log(`\n── 1. Inert path (${name}) ───────────────────────────`);
+    // ── A. LIVE POSTURE: all 6 pages active, correct region ──────
+    // Uses the REAL committed config (no route override), so this proves
+    // what a visitor to the deployed site actually gets.
+    console.log(`\n── 1. Live posture, real config (${name}) ────────────`);
     for (const page of PAGES) {
       const ctx = await browser.newContext();
       const pg = await ctx.newPage();
-      const external = [];
+      const hosts = new Set();
       const errors = [];
       pg.on('request', (r) => {
         const h = new URL(r.url()).hostname;
-        if (h !== '127.0.0.1' && h !== 'localhost') external.push(r.url());
+        if (h !== '127.0.0.1' && h !== 'localhost') hosts.add(h);
       });
       pg.on('pageerror', (e) => errors.push(e.message));
 
       await pg.goto(`${base}/${page}?demo=Acme+Signs`, { waitUntil: 'networkidle' });
-      await pg.waitForTimeout(400);
+      await pg.waitForTimeout(600);
 
       const state = await pg.evaluate(() => ({
         enabled: window.SFAnalytics ? window.SFAnalytics.enabled : null,
-        reason: window.SFAnalytics ? window.SFAnalytics.reason : null,
-        posthogLoaded: typeof window.posthog !== 'undefined',
+        reason:  window.SFAnalytics ? window.SFAnalytics.reason : null,
+        company: window.SFAnalytics ? window.SFAnalytics.demoCompany : null,
+        host:    (window.SF_ANALYTICS || {}).host,
+        key:     ((window.SF_ANALYTICS || {}).key || '').slice(0, 4),
       }));
 
-      if (external.length) bad(`${page}: made ${external.length} external request(s): ${external[0]}`);
-      else ok(`${page}: zero external requests`);
+      state.enabled === true
+        ? ok(`${page}: analytics ACTIVE`)
+        : bad(`${page}: expected enabled=true, got ${JSON.stringify(state)}`);
 
-      if (state.enabled === false) ok(`${page}: SFAnalytics.enabled === false (${state.reason})`);
-      else bad(`${page}: expected enabled=false, got ${JSON.stringify(state)}`);
+      // Region check. A US key against the EU host fails silently.
+      state.host === 'https://us.i.posthog.com'
+        ? ok(`${page}: configured host is US cloud`)
+        : bad(`${page}: wrong region host: ${state.host}`);
 
-      if (state.posthogLoaded) bad(`${page}: posthog global exists while inert — snippet ran`);
-      else ok(`${page}: posthog snippet never executed`);
+      // Publishable keys only. A phx_/personal key here would be a leak.
+      state.key === 'phc_'
+        ? ok(`${page}: key is a publishable phc_ key`)
+        : bad(`${page}: key prefix is "${state.key}", expected phc_`);
+
+      state.company === 'Acme Signs'
+        ? ok(`${page}: demo company captured`)
+        : bad(`${page}: demo company wrong: ${state.company}`);
+
+      // Talks to PostHog and nobody else.
+      const strangers = [...hosts].filter(h => !/posthog\.com$/.test(h));
+      strangers.length === 0
+        ? ok(`${page}: contacted only PostHog (${[...hosts].join(',') || 'none yet'})`)
+        : bad(`${page}: unexpected third-party host(s): ${strangers.join(',')}`);
 
       const real = errors.filter(e => !/favicon/i.test(e));
-      if (real.length) bad(`${page}: JS errors: ${real[0]}`);
-      else ok(`${page}: no JS errors`);
+      real.length ? bad(`${page}: JS errors: ${real[0]}`)
+                  : ok(`${page}: no JS errors`);
 
       await ctx.close();
     }
