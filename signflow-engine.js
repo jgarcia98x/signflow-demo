@@ -141,15 +141,15 @@
         if(!c){ T('Logged: '+act.label+' — '+name,'✓'); markQueueDone(item); return; }
         if(act.kind==='revive'){
           c.classList.remove('cold'); c.classList.add('high'); c.setAttribute('data-revived','1');
-          SFLog.add(c,'impact','❄️ Revived from cold — followed up'); T('Revived '+name+' ✓','❄️');
+          SFLog.add(c,'impact','Revived from cold — followed up'); T('Revived '+name+' ✓','');
         } else if(act.kind==='quote'){
-          SFLog.add(c,'action','Quote sent to client'); T('Quote sent for '+name+' ✓','📄');
+          SFLog.add(c,'action','Quote sent to client'); T('Quote sent for '+name+' ✓','');
         } else if(act.kind==='chase'){
-          SFLog.add(c,'action','Chased approval'); T('Chasing approval on '+name,'⏳');
+          SFLog.add(c,'action','Chased approval'); T('Chasing approval on '+name,'');
         } else {
           var nx=advanceCard(c);
-          if(nx){ SFLog.add(c,'stage','Stage → '+nx); if(c.classList.contains('urgent')){ c.setAttribute('data-early','1'); SFLog.add(c,'impact','⏱️ Started ahead of schedule'); } T('Advanced '+name+' → '+nx+' ✓','→'); }
-          else { SFLog.add(c,'action','Marked started'); T('Started '+name,'▶'); }
+          if(nx){ SFLog.add(c,'stage','Stage → '+nx); if(c.classList.contains('urgent')){ c.setAttribute('data-early','1'); SFLog.add(c,'impact','Started ahead of schedule'); } T('Advanced '+name+' → '+nx+' ✓','→'); }
+          else { SFLog.add(c,'action','Marked started'); T('Started '+name,''); }
         }
         markQueueDone(item);
         SFImpact.refresh();
@@ -221,7 +221,7 @@
     box.style.cssText='background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px;margin-bottom:12px;';
     box.innerHTML=
       '<div id="sf-res-head" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">'
-      +'<div style="font-size:11px;font-weight:700;letter-spacing:0.4px;color:rgba(255,255,255,0.7);">👷 CREW & VENDOR AVAILABILITY</div>'
+      +'<div style="font-size:11px;font-weight:700;letter-spacing:0.4px;color:rgba(255,255,255,0.7);">CREW & VENDOR AVAILABILITY</div>'
       +'<span id="sf-res-caret" style="font-size:11px;color:rgba(255,255,255,0.4);">▾</span></div>'
       +'<div id="sf-res-body" style="margin-top:10px;">'
       +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.32);font-weight:700;margin:2px 0 4px;">Crew</div>'
@@ -250,7 +250,7 @@
       /* data-state drives the CSS, so the colour updates on its own. */
       resSet(who,day,nv); dot.setAttribute('data-state',nv); dot.title=day+': '+nv;
       reRankQueue();
-      T(who+' · '+day+': '+nv,'👷');
+      T(who+' · '+day+': '+nv,'');
     });
   }
   function reRankQueue(){
@@ -261,7 +261,7 @@
       if(busy>=3){
         if(!note){
           note=document.createElement('div'); note.className='sfq-crew-note';
-          note.textContent='⚠ crew tight this week';
+          note.textContent='crew tight this week';
           note.style.cssText='font-size:10px;color:#D9A441;margin-top:5px;font-weight:600;';
           (item.querySelector('.sfq-actions')||item).appendChild(note);
         }
@@ -318,7 +318,7 @@
     }
     stat('sfimp-closed','Closed This Month','green', function(){ highlight(function(c){return c.classList.contains('done')||stageOf(c)==='Complete';},'closed jobs'); });
     stat('sfimp-revived','Revived from Cold','', function(){ highlight(function(c){return c.getAttribute('data-revived');},'revived jobs'); });
-    stat('sfimp-parallel','⚡ Parallel Executed','', function(){ highlight(function(c){return c.classList.contains('parallel')||c.querySelector('.parallel-badge');},'parallel jobs'); });
+    stat('sfimp-parallel','Parallel Executed','', function(){ highlight(function(c){return c.classList.contains('parallel')||c.querySelector('.parallel-badge');},'parallel jobs'); });
     SFImpact.refresh();
   }
   function highlight(pred, label){
@@ -329,7 +329,7 @@
       if(hit){ c.style.opacity='1'; c.style.boxShadow='0 0 0 2px rgba(194,69,63,0.6)'; n++; }
       else { c.style.opacity='0.28'; c.style.boxShadow='none'; }
     });
-    T('Showing '+n+' '+label+' — click board to clear','🔎');
+    T('Showing '+n+' '+label+' — click board to clear','');
     var clear=function(){ cards.forEach(function(c){ c.style.opacity=''; c.style.boxShadow=''; }); document.removeEventListener('click',clear,true); };
     setTimeout(function(){ document.addEventListener('click',clear,true); },50);
   }
@@ -357,12 +357,12 @@
     var L=[];
     L.push('SignFlow — Daily Digest');
     L.push('');
-    L.push('🔴 Urgent / overdue ('+urg.length+'): '+(urg.slice(0,6).join(', ')||'none'));
+    L.push('Urgent / overdue ('+urg.length+'): '+(urg.slice(0,6).join(', ')||'none'));
     if(q){
-      L.push('⚡ '+q.parallelNow+' job'+(q.parallelNow===1?'':'s')+' can run at once ('
+      L.push(''+q.parallelNow+' job'+(q.parallelNow===1?'':'s')+' can run at once ('
         +q.maxFreeCrew+' of '+window.SFQueue.CREW.length+' crew free)');
     }
-    L.push('❄️ Cold quotes to revive ('+cold.length+'): '+(cold.slice(0,6).join(', ')||'none'));
+    L.push('Cold quotes to revive ('+cold.length+'): '+(cold.slice(0,6).join(', ')||'none'));
     return L.join('\n');
   }
   function initNotifications(){
@@ -370,7 +370,7 @@
     var bell=document.createElement('button');
     bell.id='sf-bell';
     bell.style.cssText='position:relative;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:9px;width:34px;height:34px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;color:#fff;';
-    bell.innerHTML='🔔';
+    bell.innerHTML='';
     var count=urgentCount()+coldCount();
     var badge=document.createElement('span');
     badge.id='sf-bell-badge';
@@ -388,20 +388,20 @@
       var urg=urgentCount(), cold=coldCount(), q=parallelNow();
       panel.innerHTML=
         '<div style="font-size:14px;font-weight:700;margin-bottom:10px;">Notifications</div>'
-        +'<div class="sf-notif-item" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;">🔴 <strong>'+urg+'</strong> urgent / overdue jobs</div>'
-        +(q?'<div class="sf-notif-item" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;">⚡ <strong>'+q.parallelNow+'</strong> job'+(q.parallelNow===1?'':'s')+' can run at once · '+q.maxFreeCrew+' of '+window.SFQueue.CREW.length+' crew free</div>':'')
-        +'<div class="sf-notif-item" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;">❄️ <strong>'+cold+'</strong> cold quotes to revive</div>'
-        +'<div class="sf-notif-item" style="padding:8px 0;font-size:12px;">📅 Daily digest scheduled 7:00 AM → Discord</div>'
+        +'<div class="sf-notif-item" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;"><strong>'+urg+'</strong> urgent / overdue jobs</div>'
+        +(q?'<div class="sf-notif-item" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;"><strong>'+q.parallelNow+'</strong> job'+(q.parallelNow===1?'':'s')+' can run at once · '+q.maxFreeCrew+' of '+window.SFQueue.CREW.length+' crew free</div>':'')
+        +'<div class="sf-notif-item" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:12px;"><strong>'+cold+'</strong> cold quotes to revive</div>'
+        +'<div class="sf-notif-item" style="padding:8px 0;font-size:12px;">Daily digest scheduled 7:00 AM → Discord</div>'
         +'<div style="display:flex;gap:7px;margin-top:12px;">'
         +'<button id="sf-digest-copy" style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#fff;font-weight:600;font-size:11px;padding:8px;border-radius:8px;cursor:pointer;">Copy digest text</button>'
         +'<button id="sf-digest-send" style="flex:1;background:rgba(194,69,63,0.9);border:none;color:#fff;font-weight:600;font-size:11px;padding:8px;border-radius:8px;cursor:pointer;">Send to Discord now</button>'
         +'</div>';
       document.getElementById('sf-digest-copy').onclick=function(){
         var t=buildDigestText();
-        try{ navigator.clipboard.writeText(t); T('Digest copied to clipboard ✓','📋'); }
-        catch(e){ T('Copy not available in this browser','📋'); }
+        try{ navigator.clipboard.writeText(t); T('Digest copied to clipboard ✓',''); }
+        catch(e){ T('Copy not available in this browser',''); }
       };
-      document.getElementById('sf-digest-send').onclick=function(){ T('Digest queued for Discord ✓ (7am cron handles daily send)','📨'); };
+      document.getElementById('sf-digest-send').onclick=function(){ T('Digest queued for Discord ✓ (7am cron handles daily send)',''); };
     }
     bell.onclick=function(e){ e.stopPropagation(); var open=panel.style.display==='block'; if(!open) render(); panel.style.display=open?'none':'block'; };
     document.addEventListener('click',function(e){ if(panel.style.display==='block' && !panel.contains(e.target) && e.target!==bell && !bell.contains(e.target)) panel.style.display='none'; });
@@ -464,7 +464,7 @@
       b.addEventListener('click', function(){
         var nb=document.querySelector('.btn-new');
         if(nb) nb.click();
-        else if(typeof window.toast==='function') window.toast('New job','\uD83D\uDCCB');
+        else if(typeof window.toast==='function') window.toast('New job','');
       });
       col.appendChild(b);
     });

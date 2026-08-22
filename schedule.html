@@ -17,10 +17,10 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <script src="signflow-store.js?v=202608221301"></script>
-  <script src="signflow-dnd.js?v=202608221301"></script>
-  <script src="signflow-schedule-detail.js?v=202608221301"></script>
-  <script src="signflow-jobs.js?v=202608221301"></script>
+  <script src="signflow-store.js?v=202608221332"></script>
+  <script src="signflow-dnd.js?v=202608221332"></script>
+  <script src="signflow-schedule-detail.js?v=202608221332"></script>
+  <script src="signflow-jobs.js?v=202608221332"></script>
   <title>SignFlow — Smart Schedule</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -713,7 +713,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     .card-name { font-size: 13px; }
   }
   </style>
-<link rel="stylesheet" href="signflow-calm.css?v=202608221301">
+<link rel="stylesheet" href="signflow-calm.css?v=202608221332">
 </head>
 <body>
 
@@ -729,7 +729,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     <a href="settings.html">Settings</a>
   </nav>
   <div class="header-right">
-    <div class="date-chip">📅 Week of Aug 4–8, 2026</div>
+    <div class="date-chip">Week of Aug 4–8, 2026</div>
     <button class="btn-assign">＋ Assign Job</button>
     <div class="avatar">JG</div>
   </div>
@@ -752,14 +752,14 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   <div class="filter-pills">
     <div class="filter-pill active">All Crew</div>
     <div class="filter-pill">Install Only</div>
-    <div class="filter-pill">⚠ Conflicts</div>
+    <div class="filter-pill">Conflicts</div>
     <div class="filter-pill">AI Suggestions</div>
   </div>
 </div>
 
 <!-- ══ CONFLICT ALERT ════════════════════════════════════════════ -->
 <div class="conflict-bar">
-  <span>⚠</span>
+  <span></span>
   <div class="conflict-text">
     <strong>Conflict:</strong> Dave double-booked Tuesday — AI suggests reassigning La Paloma to Install Crew A
   </div>
@@ -839,7 +839,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
   <div class="day-cell">
     <div class="job-block" style="background: var(--j-heritage);">
-      <div class="ai-tag">⚡ AI Suggested</div>
+      <div class="ai-tag">AI Suggested</div>
       <div class="job-block-name">Heritage Bank</div>
       <div class="job-block-detail">Branch Sign Install #1</div>
       <div class="job-block-time">8:00 AM – 5:00 PM</div>
@@ -872,7 +872,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       <div class="crew-name">Dave Kowalski</div>
       <div class="crew-role">Lead / Installer</div>
     </div>
-    <div class="crew-util util-conflict">⚠ Conflict</div>
+    <div class="crew-util util-conflict">Conflict</div>
   </div>
 
   <div class="day-cell">
@@ -885,13 +885,13 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
   <div class="day-cell today-col conflict-cell">
     <div class="job-block" style="background: var(--j-summit); outline: 1px solid rgba(239,83,80,0.6); outline-offset: 1px;">
-      <div class="conflict-badge">⚠ CONFLICT</div>
+      <div class="conflict-badge">CONFLICT</div>
       <div class="job-block-name">Summit Tech Park</div>
       <div class="job-block-detail">Electrical — LED Wiring</div>
       <div class="job-block-time">7:00 AM – 2:00 PM</div>
     </div>
     <div class="job-block" style="background: var(--j-lapaloma); outline: 1px solid rgba(239,83,80,0.6); outline-offset: 1px;">
-      <div class="conflict-badge">⚠ CONFLICT</div>
+      <div class="conflict-badge">CONFLICT</div>
       <div class="job-block-name">La Paloma Restaurant</div>
       <div class="job-block-detail">Awning — Setup</div>
       <div class="job-block-time">1:00 PM – 6:00 PM</div>
@@ -1009,7 +1009,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
   <div class="day-cell today-col last-row">
     <div class="job-block" style="background: var(--j-lapaloma);">
-      <div class="ai-tag">⚡ AI Reassigned</div>
+      <div class="ai-tag">AI Reassigned</div>
       <div class="job-block-name">La Paloma Restaurant</div>
       <div class="job-block-detail">Awning — Reassigned</div>
       <div class="job-block-time">1:00 – 6:00 PM</div>
@@ -1061,41 +1061,41 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       <div class="legend-item"><div class="legend-dot" style="background: var(--j-platinum);"></div>Platinum Fitness — Wall Graphics</div>
       <div class="legend-item">
         <div style="width:11px;height:11px;border-radius:3px;border:1px solid rgba(239,83,80,0.6);background:rgba(239,83,80,0.1);"></div>
-        ⚠ Conflict Flagged
+        Conflict Flagged
       </div>
       <div class="legend-item">
-        <div style="width:11px;height:11px;border-radius:3px;background:rgba(249,168,37,0.2);border:1px solid rgba(249,168,37,0.4);font-size:8px;display:flex;align-items:center;justify-content:center;color:var(--amber);">⚡</div>
-        ⚡ AI Suggested / Reassigned
+        <div style="width:11px;height:11px;border-radius:3px;background:rgba(249,168,37,0.2);border:1px solid rgba(249,168,37,0.4);font-size:8px;display:flex;align-items:center;justify-content:center;color:var(--amber);"></div>
+        AI Suggested / Reassigned
       </div>
     </div>
   </div>
 
   <div class="ai-panel">
-    <div class="ai-panel-title">⚡ AI Insights</div>
+    <div class="ai-panel-title">AI Insights</div>
 
     <div class="ai-panel-item">
-      <div class="icon">✅</div>
+      <div class="icon"></div>
       <div>
         <strong class="ai-qb">QuickBooks Sync Active</strong>
         Invoices auto-created on job completion. Last sync: today 4:32 PM
       </div>
     </div>
     <div class="ai-panel-item">
-      <div class="icon">⚠️</div>
+      <div class="icon"></div>
       <div>
         <strong>Dave double-booked Tue Aug 5</strong>
         Summit Tech (7–2 PM) overlaps La Paloma setup. Reassign La Paloma to Install Crew A — slot confirmed.
       </div>
     </div>
     <div class="ai-panel-item">
-      <div class="icon">⚡</div>
+      <div class="icon"></div>
       <div>
         <strong>Prairie Wind — material delay risk</strong>
         Aluminum substrate ETA Aug 10. Push install to Aug 18 to avoid rework.
       </div>
     </div>
     <div class="ai-panel-item">
-      <div class="icon">📈</div>
+      <div class="icon"></div>
       <div>
         <strong>Mike at 100% — no buffer</strong>
         Consider Install Crew A as backup on Tue PM for Kohl's punch list.
@@ -1140,7 +1140,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     <div class="stat-val green">8</div>
     <div class="stat-label">Client Updates Sent</div>
   </div>
-  <div class="stats-meta">⚡ AI Optimized Schedule · Apex Build Co, Chicago IL</div>
+  <div class="stats-meta">AI Optimized Schedule · Apex Build Co, Chicago IL</div>
 </div>
 
 <script>
@@ -1167,8 +1167,8 @@ function toast(msg) {
 
 // ── Week nav arrows ───────────────────────────────────────
 var weekNavBtns = document.querySelectorAll('.week-nav-btn');
-if (weekNavBtns[0]) weekNavBtns[0].addEventListener('click', function() { toast('◀ Previous week'); });
-if (weekNavBtns[1]) weekNavBtns[1].addEventListener('click', function() { toast('▶ Next week'); });
+if (weekNavBtns[0]) weekNavBtns[0].addEventListener('click', function() { toast('Previous week'); });
+if (weekNavBtns[1]) weekNavBtns[1].addEventListener('click', function() { toast('Next week'); });
 
 // ── Today button ──────────────────────────────────────────
 var todayBtn = document.querySelector('.today-btn');
@@ -1184,7 +1184,7 @@ var assignBtn = document.querySelector('.btn-assign');
 if (assignBtn) assignBtn.addEventListener('click', function() {
   /* This page's toast() takes one argument — a second emoji arg is silently
      dropped, so it goes in the string. */
-  toast('\u270B Drag any job block onto a crew member\u2019s day to assign it');
+  toast('Drag any job block onto a crew member\u2019s day to assign it');
   /* Nudge the grid so the affordance is visible, not just described. */
   var jb = document.querySelector('.job-block');
   if (jb) {
@@ -1320,7 +1320,7 @@ document.querySelectorAll('.cell-empty').forEach(function(slot) {
   var d = new Date();
   var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  el.textContent = '📅 ' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  el.textContent = '' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
 })();
 
 // Tag conflict blocks — remove inline outline, apply .conflict class for CSS glow
@@ -1338,7 +1338,7 @@ document.querySelectorAll('.job-block').forEach(function(block) {
    SCHEDULE DRAG & DROP  (Peter, 2026-08-15)
    Reassign a job block to a different crew member or day by dragging.
    Conflicts are recomputed live after every drop, so clearing an
-   overlap actually clears the ⚠ flag instead of leaving it stale.
+   overlap actually clears the flag instead of leaving it stale.
    ═══════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -1373,13 +1373,13 @@ document.querySelectorAll('.job-block').forEach(function(block) {
   /* ── recompute every conflict on the board ────────────────────────
      The board ships with hand-authored .conflict-badge chips already in
      the markup, so we show/hide those rather than injecting a second
-     set (which produced doubled ⚠ CONFLICT labels). */
+     set (which produced doubled CONFLICT labels). */
   function conflictBadge(block) {
     var b = block.querySelector('.conflict-badge');
     if (b) return b;
     b = document.createElement('div');
     b.className = 'conflict-badge';
-    b.textContent = '\u26A0 CONFLICT';
+    b.textContent = 'CONFLICT';
     block.insertBefore(b, block.firstChild);
     return b;
   }
@@ -1452,7 +1452,7 @@ document.querySelectorAll('.job-block').forEach(function(block) {
 
       if (hasConflict) {
         /* Show a load figure alongside the warning. Dave's authored badge
-           reads "⚠ Conflict" with no number, which made the single most
+           reads "Conflict" with no number, which made the single most
            overbooked crew look like they had no load at all — so derive
            one from booked hours when the markup doesn't supply it. */
         var pct = null;
@@ -1470,7 +1470,7 @@ document.querySelectorAll('.job-block').forEach(function(block) {
           if (mins > 0) pct = Math.round((mins / (40 * 60)) * 100);
         }
         util.className = 'crew-util util-over';
-        util.textContent = (pct != null ? pct + '% \u00B7 ' : '') + '\u26A0';
+        util.textContent = (pct != null ? pct + '% \u00B7 ' : '') + '';
         util.title = 'Double-booked — overlapping jobs this week';
       } else {
         util.className = util.getAttribute('data-orig-class') || util.className;
@@ -1527,9 +1527,9 @@ document.querySelectorAll('.job-block').forEach(function(block) {
 
         var name = (block.querySelector('.job-block-name') || {}).textContent || 'Job';
         if (typeof window.toast === 'function') {
-          if (after < before)      toast(name + ' moved \u2014 conflict resolved \u2713', '\u2705');
-          else if (after > before) toast(name + ' moved \u2014 new conflict created', '\u26A0');
-          else                     toast(name + ' reassigned', '\uD83D\uDCC5');
+          if (after < before)      toast(name + ' moved \u2014 conflict resolved \u2713', '');
+          else if (after > before) toast(name + ' moved \u2014 new conflict created', '');
+          else                     toast(name + ' reassigned', '');
         }
       }
     });
@@ -1550,7 +1550,7 @@ document.querySelectorAll('.job-block').forEach(function(block) {
   block.setAttribute('data-job-type', jtype);
   var badge = document.createElement('div');
   badge.className = 'job-block-type ' + jtype;
-  badge.textContent = isIndoor ? '\uD83C\uDFE0 Indoor' : '\u2600\uFE0F Outdoor';
+  badge.textContent = isIndoor ? 'Indoor' : 'Outdoor';
   block.insertBefore(badge, block.firstChild);
 });
 
@@ -1586,9 +1586,10 @@ document.querySelectorAll('.day-cell').forEach(function(cell) {
   table{max-width:100%;}
 }
 </style>
-<script src="signflow-analytics-config.js?v=202608221301"></script>
-<script src="signflow-analytics.js?v=202608221301"></script>
-<script src="signflow-engine.js?v=202608221301"></script>
-  <script src="signflow-demo.js?v=202608221301"></script>
+<script src="signflow-analytics-config.js?v=202608221332"></script>
+<script src="signflow-analytics.js?v=202608221332"></script>
+<script src="signflow-engine.js?v=202608221332"></script>
+  <script src="signflow-demo.js?v=202608221332"></script>
+<link rel="stylesheet" href="signflow-design.css?v=202608221332">
 </body>
 </html>

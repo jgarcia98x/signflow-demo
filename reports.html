@@ -241,7 +241,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
     @media(max-width:1024px){.two-col,.three-col,.kpi-row,.insights-grid{grid-template-columns:1fr;}}
   </style>
-<link rel="stylesheet" href="signflow-calm.css?v=202608221301">
+<link rel="stylesheet" href="signflow-calm.css?v=202608221332">
 </head>
 <body>
 
@@ -256,7 +256,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     <a href="settings.html">Settings</a>
   </nav>
   <div class="header-right">
-    <div class="date-chip" id="date-chip">📅 …</div>
+    <div class="date-chip" id="date-chip">…</div>
     <div class="avatar">JG</div>
   </div>
 </header>
@@ -269,7 +269,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     <div class="time-tab active" data-range="month">Month</div>
     <div class="time-tab" data-range="quarter">Quarter</div>
   </div>
-  <button class="export-btn" onclick="toast('Report exported as PDF ✓','📄')">Export ↓</button>
+  <button class="export-btn" onclick="toast('Report exported as PDF ✓','')">Export ↓</button>
 </div>
 
 <div class="page-content" id="page-content">
@@ -307,7 +307,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     <div class="section">
       <div class="section-header">
         <div class="section-title">Pipeline Funnel</div>
-        <div class="section-action" onclick="toast('Funnel exported','📊')">Export</div>
+        <div class="section-action" onclick="toast('Funnel exported','')">Export</div>
       </div>
       <div id="funnel-list"></div>
     </div>
@@ -336,18 +336,18 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     <div class="section">
       <div class="section-header">
         <div class="section-title">Job Type Split</div>
-        <div class="section-action" onclick="toast('Type breakdown opened','🏠')">Detail →</div>
+        <div class="section-action" onclick="toast('Type breakdown opened','')">Detail →</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
         <div style="background:rgba(100,180,255,0.08);border:1px solid rgba(100,180,255,0.22);border-radius:9px;padding:14px;text-align:center;cursor:pointer;" onclick="openPanel('indoor')">
-          <div style="font-size:24px;margin-bottom:4px;">🏠</div>
+          <div style="font-size:24px;margin-bottom:4px;"></div>
           <div style="font-size:20px;font-weight:800;color:rgba(100,180,255,0.95);">5</div>
           <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;">Indoor jobs</div>
           <div style="font-size:11px;font-weight:700;color:rgba(100,180,255,0.70);margin-top:4px;">$112,200</div>
           <div style="font-size:9px;color:var(--text-dim);margin-top:2px;">Avg ~2–4d cycle</div>
         </div>
         <div style="background:rgba(255,190,80,0.08);border:1px solid rgba(255,190,80,0.22);border-radius:9px;padding:14px;text-align:center;cursor:pointer;" onclick="openPanel('outdoor')">
-          <div style="font-size:24px;margin-bottom:4px;">☀️</div>
+          <div style="font-size:24px;margin-bottom:4px;"></div>
           <div style="font-size:20px;font-weight:800;color:rgba(255,190,80,0.95);">10</div>
           <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;">Outdoor jobs</div>
           <div style="font-size:11px;font-weight:700;color:rgba(255,190,80,0.70);margin-top:4px;">$132,600</div>
@@ -356,11 +356,11 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       </div>
       <div style="padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);">
         <div style="font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);font-weight:700;margin-bottom:8px;">Outsourced dependencies</div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;cursor:pointer;padding:4px 6px;border-radius:5px;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''" onclick="toast('2 jobs waiting on logo vectoring','🔗')">
-          <span style="color:rgba(206,147,216,0.90);">🔗 Logo Vectoring</span><span style="color:var(--text-dim);">2 jobs · ~2–3d</span>
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;cursor:pointer;padding:4px 6px;border-radius:5px;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''" onclick="toast('2 jobs waiting on logo vectoring','')">
+          <span style="color:rgba(206,147,216,0.90);">Logo Vectoring</span><span style="color:var(--text-dim);">2 jobs · ~2–3d</span>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;cursor:pointer;padding:4px 6px;border-radius:5px;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''" onclick="toast('2 jobs waiting on neon fab shop','🔗')">
-          <span style="color:rgba(206,147,216,0.90);">🔗 Neon Fabrication</span><span style="color:var(--text-dim);">2 jobs · ~7–14d</span>
+        <div style="display:flex;justify-content:space-between;font-size:11px;cursor:pointer;padding:4px 6px;border-radius:5px;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''" onclick="toast('2 jobs waiting on neon fab shop','')">
+          <span style="color:rgba(206,147,216,0.90);">Neon Fabrication</span><span style="color:var(--text-dim);">2 jobs · ~7–14d</span>
         </div>
       </div>
     </div>
@@ -370,25 +370,25 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   <div class="two-col">
     <div class="section">
       <div class="section-header">
-        <div class="section-title">💰 Outstanding Invoices</div>
+        <div class="section-title">Outstanding Invoices</div>
         <div style="font-size:11px;font-weight:800;color:#FFD700;">$30,700 to collect</div>
       </div>
       <div id="invoices-list"></div>
       <div style="margin-top:10px;">
-        <button style="width:100%;padding:9px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.30);border-radius:8px;color:#FFD700;font-size:11px;font-weight:700;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,215,0,0.20)'" onmouseout="this.style.background='rgba(255,215,0,0.12)'" onclick="toast('All invoices queued for send ✓','💰')">
-          📬 Send All Invoices Now
+        <button style="width:100%;padding:9px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.30);border-radius:8px;color:#FFD700;font-size:11px;font-weight:700;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,215,0,0.20)'" onmouseout="this.style.background='rgba(255,215,0,0.12)'" onclick="toast('All invoices queued for send ✓','')">
+          Send All Invoices Now
         </button>
       </div>
     </div>
     <div class="section">
       <div class="section-header">
-        <div class="section-title">❄️ Cold Pipeline Risk</div>
+        <div class="section-title">Cold Pipeline Risk</div>
         <div style="font-size:11px;font-weight:800;color:rgba(79,195,247,0.90);" id="cold-total">$48,500 at risk</div>
       </div>
       <div id="cold-list"></div>
       <div style="margin-top:10px;">
-        <button style="width:100%;padding:9px;background:rgba(79,195,247,0.10);border:1px solid rgba(79,195,247,0.28);border-radius:8px;color:rgba(79,195,247,0.90);font-size:11px;font-weight:700;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(79,195,247,0.18)'" onmouseout="this.style.background='rgba(79,195,247,0.10)'" onclick="toast('Follow-ups queued for all cold jobs ✓','📬')">
-          📬 Queue All Follow-ups
+        <button style="width:100%;padding:9px;background:rgba(79,195,247,0.10);border:1px solid rgba(79,195,247,0.28);border-radius:8px;color:rgba(79,195,247,0.90);font-size:11px;font-weight:700;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(79,195,247,0.18)'" onmouseout="this.style.background='rgba(79,195,247,0.10)'" onclick="toast('Follow-ups queued for all cold jobs ✓','')">
+          Queue All Follow-ups
         </button>
       </div>
     </div>
@@ -406,8 +406,8 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   <!-- AI INSIGHTS -->
   <div class="section">
     <div class="section-header">
-      <div class="section-title">⚡ Smart Insights</div>
-      <div class="section-action" onclick="toast('Refreshing insights…','⚡')">Refresh</div>
+      <div class="section-title">Smart Insights</div>
+      <div class="section-action" onclick="toast('Refreshing insights…','')">Refresh</div>
     </div>
     <div class="insights-grid" id="insights-grid"></div>
   </div>
@@ -444,7 +444,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   (function(){
     var d = new Date(), days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
         mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    document.getElementById('date-chip').textContent = '📅 '+days[d.getDay()]+', '+mo[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+    document.getElementById('date-chip').textContent = ''+days[d.getDay()]+', '+mo[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
   })();
 
   /* ── Data ────────────────────────────────────────────────── */
@@ -519,9 +519,9 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   var VELOCITY = [
     { name:'New Inquiry', days:2,  color:'#B44FF5', flag:'' },
     { name:'Quote',       days:8,  color:'#F0529A', flag:'' },
-    { name:'Design',      days:12, color:'#00C8D4', flag:'⚠' },
+    { name:'Design',      days:12, color:'#00C8D4', flag:'' },
     { name:'Approval',    days:3,  color:'#F0C040', flag:'' },
-    { name:'Fabrication', days:14, color:'#F07040', flag:'⚠' },
+    { name:'Fabrication', days:14, color:'#F07040', flag:'' },
     { name:'Install',     days:2,  color:'#50D880', flag:'' },
   ];
   var maxDays = 14;
@@ -537,7 +537,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       +'</div>'
       +'<div class="velocity-days">'+v.days+'d</div>'
       +'<div class="velocity-flag">'+v.flag+'</div>';
-    div.addEventListener('click', function(){ toast(v.name+': avg '+v.days+' days — '+(v.flag?'bottleneck detected':'on track'),'⏱'); });
+    div.addEventListener('click', function(){ toast(v.name+': avg '+v.days+' days — '+(v.flag?'bottleneck detected':'on track'),''); });
     vl.appendChild(div);
   });
 
@@ -554,7 +554,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     div.innerHTML =
       '<div class="rate-ring" style="background:'+r.bg+';color:'+r.color+';">'+r.val+'</div>'
       +'<div class="rate-val-label">'+r.label+'</div>';
-    div.addEventListener('click', function(){ toast(r.label+' rate: '+r.val,'📊'); });
+    div.addEventListener('click', function(){ toast(r.label+' rate: '+r.val,''); });
     rr.appendChild(div);
   });
 
@@ -607,14 +607,14 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     div.className = 'invoice-row';
     div.innerHTML =
       '<div><div class="invoice-name">'+inv.name+'</div>'
-      +'<div class="invoice-meta">'+inv.client+' · '+(inv.type==='outdoor'?'☀️':'🏠')+'</div></div>'
+      +'<div class="invoice-meta">'+inv.client+' · '+(inv.type==='outdoor'?'':'')+'</div></div>'
       +'<div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;">'
       +'<div class="invoice-val">'+inv.val+'</div>'
       +'<div style="display:flex;gap:5px;align-items:center;">'
       +'<span class="invoice-age">'+inv.age+'</span>'
-      +'<button class="send-invoice-btn" onclick="toast(\'Invoice sent to '+inv.client+' ✓\',\'📄\');this.textContent=\'✓ Sent\';this.style.color=\'var(--green)\';this.style.borderColor=\'rgba(102,187,106,0.3)\';">Send</button>'
+      +'<button class="send-invoice-btn" onclick="toast(\'Invoice sent to '+inv.client+' ✓\',\'\');this.textContent=\'✓ Sent\';this.style.color=\'var(--green)\';this.style.borderColor=\'rgba(102,187,106,0.3)\';">Send</button>'
       +'</div></div>';
-    div.addEventListener('click', function(e){ if(!e.target.closest('button')) toast('Opening invoice: '+inv.name,'📄'); });
+    div.addEventListener('click', function(e){ if(!e.target.closest('button')) toast('Opening invoice: '+inv.name,''); });
     il.appendChild(div);
   });
 
@@ -635,7 +635,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       +'<div style="display:flex;align-items:center;gap:6px;">'
       +'<span class="cold-val">'+c.val+'</span>'
       +'<span class="cold-age">'+c.age+' silent</span></div>';
-    div.addEventListener('click', function(){ toast('Follow-up queued for '+c.client,'📬'); });
+    div.addEventListener('click', function(){ toast('Follow-up queued for '+c.client,''); });
     cl.appendChild(div);
   });
 
@@ -664,33 +664,33 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       +'  <div class="client-val">'+c.val+'</div>'
       +'  <div class="client-trend" style="color:rgba(255,255,255,0.35);font-size:9px;">'+c.trend+'</div>'
       +'</div>';
-    div.addEventListener('click', function(){ toast('Opening client: '+c.name,'👤'); });
+    div.addEventListener('click', function(){ toast('Opening client: '+c.name,''); });
     cll.appendChild(div);
   });
 
   /* ── Smart Insights ──────────────────────────────────────── */
   var INSIGHTS = [
-    { type:'alert', icon:'🚨', title:'Fabrication Bottleneck',
+    { type:'alert', icon:'', title:'Fabrication Bottleneck',
       body:'3 jobs averaging 14 days in Fabrication — your longest stage. Heritage Bank ($58k) is your highest-risk delay.',
       action:'Review Heritage Bank now →',
-      fn: function(){ toast('Opening Heritage Bank job','🔧'); }},
-    { type:'good', icon:'⚡', title:'Quick Win: Riverside Auto',
+      fn: function(){ toast('Opening Heritage Bank job',''); }},
+    { type:'good', icon:'', title:'Quick Win: Riverside Auto',
       body:'Quote is ready and client historically approves in <24h. Send today and move to Design 2 days ahead of schedule.',
       action:'Send quote now →',
-      fn: function(){ toast('Quote sent to Riverside Automotive ✓','📄'); }},
-    { type:'warn', icon:'❄️', title:'$22.9k at Cold Risk',
+      fn: function(){ toast('Quote sent to Riverside Automotive ✓',''); }},
+    { type:'warn', icon:'', title:'$22.9k at Cold Risk',
       body:'Bricktown Brewery (22d) and Valley Fresh (39d) haven\'t responded. A follow-up today could recover $22.9k.',
       action:'Queue follow-ups →',
-      fn: function(){ toast('Follow-ups queued for cold jobs ✓','📬'); }},
-    { type:'good', icon:'💰', title:'$30.7k Ready to Collect',
+      fn: function(){ toast('Follow-ups queued for cold jobs ✓',''); }},
+    { type:'good', icon:'', title:'$30.7k Ready to Collect',
       body:'Kohl\'s and La Paloma installs are complete. Invoices have not been sent — send today to hit your cash flow target.',
       action:'Send invoices now →',
-      fn: function(){ toast('Both invoices sent ✓','💰'); }},
-    { type:'warn', icon:'🔗', title:'Outsourced Delays Ahead',
+      fn: function(){ toast('Both invoices sent ✓',''); }},
+    { type:'warn', icon:'', title:'Outsourced Delays Ahead',
       body:'4 jobs depend on external vendors (logo vectoring + neon fab). Neon fab shops book out fast — order now for Aug installs.',
       action:'Contact vendors →',
-      fn: function(){ toast('Vendor contact drafted ✓','🔗'); }},
-    { type:'good', icon:'📈', title:'Win Rate Trending Up',
+      fn: function(){ toast('Vendor contact drafted ✓',''); }},
+    { type:'good', icon:'', title:'Win Rate Trending Up',
       body:'68% win rate this month vs 63% in July. Parallel job scheduling is shortening your quote-to-close cycle by 3 days.',
       action:'See velocity detail →',
       fn: function(){ openPanel('velocity'); }},
@@ -722,13 +722,13 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     document.getElementById('rp-panel-title').textContent = s.name + ' — ' + s.jobs + ' jobs';
     var body = document.getElementById('rp-panel-body');
     var STAGE_JOBS = {
-      'New Inquiry':  [{name:'Joliet Tire & Auto',val:'TBD',type:'☀️ Outdoor'},{name:'Westside Fitness',val:'TBD',type:'🏠 Indoor'}],
-      'Quote':        [{name:'Riverside Auto — Pylon Sign',val:'$18,400',type:'☀️'},{name:'Downtown Diner — Channel Letters',val:'$7,200',type:'🏠'},{name:'Bricktown Brewery ❄️',val:'$8,600',type:'☀️'},{name:'Valley Fresh ✕',val:'$14,300',type:'☀️'}],
-      'Design':       [{name:'Prairie Wind Storage — Exterior',val:'$22,100',type:'☀️ + 🔗'},{name:'Heritage Bank — Branch Refresh',val:'$58,000',type:'🏠 + 🔗'}],
-      'Approval':     [{name:'Village Tap — Blade Sign',val:'$9,200',type:'☀️ Overdue'},{name:'Prairie Wind Storage',val:'$22,100',type:'☀️'}],
-      'Fabrication':  [{name:'Summit Tech Park — Monument',val:'$41,000',type:'☀️ + 🔗'},{name:'Walgreens — Façade',val:'$24,800',type:'☀️'},{name:'Northside Gym — Wrap',val:'$6,400',type:'🏠'}],
-      'Install':      [{name:"Kohl's #0394 — Pylon Reface",val:'$19,500',type:'☀️ 💰'},{name:'La Paloma Restaurant',val:'$11,200',type:'☀️ 💰'}],
-      'Complete':     [{name:'Speedway #1188 — LED Retrofit',val:'$34,100',type:'🏠 ✓ Paid'}],
+      'New Inquiry':  [{name:'Joliet Tire & Auto',val:'TBD',type:'Outdoor'},{name:'Westside Fitness',val:'TBD',type:'Indoor'}],
+      'Quote':        [{name:'Riverside Auto — Pylon Sign',val:'$18,400',type:''},{name:'Downtown Diner — Channel Letters',val:'$7,200',type:''},{name:'Bricktown Brewery ',val:'$8,600',type:''},{name:'Valley Fresh ✕',val:'$14,300',type:''}],
+      'Design':       [{name:'Prairie Wind Storage — Exterior',val:'$22,100',type:'+ '},{name:'Heritage Bank — Branch Refresh',val:'$58,000',type:'+ '}],
+      'Approval':     [{name:'Village Tap — Blade Sign',val:'$9,200',type:'Overdue'},{name:'Prairie Wind Storage',val:'$22,100',type:''}],
+      'Fabrication':  [{name:'Summit Tech Park — Monument',val:'$41,000',type:'+ '},{name:'Walgreens — Façade',val:'$24,800',type:''},{name:'Northside Gym — Wrap',val:'$6,400',type:''}],
+      'Install':      [{name:"Kohl's #0394 — Pylon Reface",val:'$19,500',type:''},{name:'La Paloma Restaurant',val:'$11,200',type:''}],
+      'Complete':     [{name:'Speedway #1188 — LED Retrofit',val:'$34,100',type:'✓ Paid'}],
     };
     var jobs = STAGE_JOBS[s.name] || [];
     body.innerHTML = '<div style="margin-bottom:12px;font-size:11px;color:var(--text-dim);">Avg '+(VELOCITY.find(function(v){return v.name===s.name;})||{days:'?'}).days+' days in this stage</div>'
@@ -853,9 +853,10 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   new MutationObserver(ping).observe(document.body, {childList:true, subtree:true});
 })();
 </script>
-<script src="signflow-analytics-config.js?v=202608221301"></script>
-<script src="signflow-analytics.js?v=202608221301"></script>
-<script src="signflow-engine.js?v=202608221301"></script>
-  <script src="signflow-demo.js?v=202608221301"></script>
+<script src="signflow-analytics-config.js?v=202608221332"></script>
+<script src="signflow-analytics.js?v=202608221332"></script>
+<script src="signflow-engine.js?v=202608221332"></script>
+  <script src="signflow-demo.js?v=202608221332"></script>
+<link rel="stylesheet" href="signflow-design.css?v=202608221332">
 </body>
 </html>

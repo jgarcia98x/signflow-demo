@@ -48,7 +48,7 @@
   /* ── Content ──────────────────────────────────────────────────────── */
   function rows() {
     return [
-      ['\u270B',
+      ['',
         coarse ? 'Hold a job, then drag it' : 'Drag a job anywhere',
         'Move a card between stages and everything downstream updates \u2014 '
         + 'schedule, capacity, forecast.'],
@@ -61,12 +61,12 @@
 
   /* Locations verified in source, not assumed:
        Queue       index.html    .sidebar-title "\u26A1 Smart Queue"
-       Nudge       customers.html .sidebar-title "\u{1F3AF} Smart Nudge"
+       Nudge       customers.html .sidebar-title "Smart Nudge"
        Conversions jobs.html      .vs-tab[data-view="wins"] — a sub-tab, which
                                   is precisely why it needs directions. */
   var TOOLS = [
     ['\u26A1', 'Smart Queue', 'right here on Pipeline \u2014 what to do today, and why'],
-    ['\u{1F3AF}', 'Smart Nudge', 'Customers tab \u2014 quotes going cold, worth a call'],
+    ['', 'Smart Nudge', 'Customers tab \u2014 quotes going cold, worth a call'],
     ['\u26A1', 'Smart Conversions', 'Jobs &amp; Reports \u2192 Smart Conversions \u2014 what wins you work']
   ];
 

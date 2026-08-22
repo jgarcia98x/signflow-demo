@@ -187,7 +187,7 @@
     /* Conflict first — it is the only thing here that needs acting on. */
     if (conflict) {
       html += '<div class="sfsd-alert">'
-        + '<strong>\u26A0 Double-booked.</strong> This overlaps another job in the '
+        + '<strong>Double-booked.</strong> This overlaps another job in the '
         + 'same crew-day. Drag either one to a free day to clear it.'
         + '</div>';
     }

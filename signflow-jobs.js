@@ -57,7 +57,7 @@
 
   var PRIORITIES = ['urgent', 'high', 'normal', 'cold', 'lost', 'done'];
 
-  var ICON = { urgent: '🔴', high: '🟡', normal: '⚪', cold: '❄️', lost: '✕', done: '✓' };
+  var ICON = { urgent: '', high: '', normal: '', cold: '', lost: '✕', done: '✓' };
   function cap(s) { return String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1); }
 
   /* ── read a card's current values ────────────────────────── */
@@ -105,7 +105,7 @@
       if (lbl) {
         PRIORITIES.forEach(function (p) { lbl.classList.remove(p); });
         lbl.classList.add(data.priority);
-        /* Seeded cards sometimes use bespoke copy ("📞 Incoming").
+        /* Seeded cards sometimes use bespoke copy ("Incoming").
            Only normalise the text when it looks like a priority word. */
         var txt = (lbl.textContent || '').trim();
         var looksPriority = new RegExp(PRIORITIES.join('|'), 'i').test(txt);

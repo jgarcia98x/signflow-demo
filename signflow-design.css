@@ -1,0 +1,189 @@
+/* ShopAnvil design language — cheap-fix layer for the prospect demo.
+ *
+ * Implements the S-cost items from DESIGN.md (app repo root): type scale,
+ * weight collapse, radius collapse, glow removal, glass reduction, red
+ * discipline, motion consolidation.
+ *
+ * WHY A LAYER, NOT SIX EDITED FILES: the base styling is inline in each
+ * page (~40k chars of CSS across 6 HTML files). Rewriting that by hand is
+ * the expensive rework DESIGN.md defers to the real app. This sheet loads
+ * LAST and overrides by cascade, so the demo can look right now without a
+ * risky rewrite of the pilot-adjacent markup.
+ *
+ * Load order: signflow-calm.css -> signflow-design.css (must be last).
+ * Deliberately does NOT apply to jgarcia98x/signflow-mockups (Peter's
+ * frozen copy). Never copy this file across repos.
+ */
+
+:root {
+  /* Four neutrals + two semantics. See DESIGN.md §4. */
+  --sf-bg: #0F1115;
+  --sf-surface: #171A20;
+  --sf-line: #262A32;
+  --sf-ink: #E6E8EC;
+  --sf-ink-2: #9BA1AC;
+  --sf-urgent: #D32F2F;   /* urgency + destructive ONLY */
+  --sf-ok: #3E9E6A;
+
+  /* Three sizes. Nothing below 13px ships. */
+  --sf-display: 24px;
+  --sf-body: 15px;
+  --sf-meta: 13px;
+
+  --sf-radius: 8px;
+  --sf-elev-1: 0 1px 2px rgba(0,0,0,.30);
+  --sf-elev-2: 0 8px 24px rgba(0,0,0,.45);
+
+  --sf-dur: 180ms;
+  --sf-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ── Type ──────────────────────────────────────────────────────────────
+ * The audit found 25 distinct sizes and up to 309 elements per page below
+ * 13px. Anything under the floor is raised to --sf-meta rather than being
+ * hand-mapped: unreadable-in-a-truck is a correctness bug, not a taste one.
+ */
+body,
+body * {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Raise everything below the legibility floor.
+ *
+ * MEASURED, not guessed: an inline-[style] selector approach caught almost
+ * nothing, because the small text comes from CSS CLASSES
+ * (.cust-date 12px, .cust-type 9px, .stat-label 9.5px, .afu-badge 8px...).
+ * Verified per-element with getComputedStyle before writing these rules.
+ *
+ * NOT using a blanket `font-size: max(--sf-meta, 1em)`: `em` is relative to
+ * the PARENT, so a floor expressed that way COMPOUNDS down nested elements
+ * and silently inflates deep text. Explicit selectors only.
+ *
+ * Doubled class (.x.x) raises specificity enough to beat the page's own
+ * rules, which otherwise win despite this sheet loading last.
+ */
+.cust-date.cust-date, .cust-company.cust-company, .cust-trade.cust-trade,
+.status-badge.status-badge, .filter-pill.filter-pill,
+.slow-card-name.slow-card-name, .slow-card-detail.slow-card-detail,
+.slow-card-when.slow-card-when, .cust-count.cust-count, .chev.chev,
+.job-block-type.job-block-type, .job-block-name.job-block-name,
+.job-block-detail.job-block-detail, .job-block-time.job-block-time,
+.legend-item.legend-item, .legend-dot.legend-dot, .off-mark.off-mark,
+.day-name.day-name, .cell-empty.cell-empty, .crew-avatar.crew-avatar,
+.crew-role.crew-role, .crew-util.crew-util, .crew-name.crew-name,
+.kpi-label.kpi-label, .kpi-sub.kpi-sub, .rp-item-name.rp-item-name,
+.rp-item-val.rp-item-val, .th.th, .stage-pill.stage-pill,
+.toggle-label.toggle-label, .integration-name.integration-name,
+nav a, .tab, .nav-link {
+  font-size: var(--sf-meta) !important;
+}
+
+/* Explicit floor for the classes the audit found under 13px. */
+.cust-type, .cust-days,
+.nudge-btn, .nudge-name, .nudge-company, .nudge-reason, .nudge-avatar,
+.afu-name, .afu-msg, .afu-send, .afu-snooze, .afu-badge,
+.status-badge, .stat-label, .sf-res-dot,
+.card-due, .card-notified, .priority-label, .vendor-wait-label,
+.meta, .muted, .small, .tiny, .label, .caption, .hint, .sub,
+[class*="-label"], [class*="-meta"], [class*="-date"], [class*="-badge"],
+[class*="-days"], [class*="-sub"] {
+  font-size: var(--sf-meta) !important;
+}
+
+[style*="font-size:8px"],  [style*="font-size: 8px"],
+[style*="font-size:9px"],  [style*="font-size: 9px"],
+[style*="font-size:9.5px"],[style*="font-size: 9.5px"],
+[style*="font-size:10px"], [style*="font-size: 10px"],
+[style*="font-size:10.5px"],[style*="font-size: 10.5px"],
+[style*="font-size:11px"], [style*="font-size: 11px"],
+[style*="font-size:11.5px"],[style*="font-size: 11.5px"],
+[style*="font-size:12px"], [style*="font-size: 12px"],
+[style*="font-size:12.5px"],[style*="font-size: 12.5px"] {
+  font-size: var(--sf-meta) !important;
+}
+
+/* Two weights: 400 and 600. Collapses 500/650/700/800. */
+[style*="font-weight:500"], [style*="font-weight: 500"],
+[style*="font-weight:650"], [style*="font-weight: 650"],
+[style*="font-weight:700"], [style*="font-weight: 700"],
+[style*="font-weight:800"], [style*="font-weight: 800"],
+b, strong, th {
+  font-weight: 600 !important;
+}
+
+/* ── Effects ───────────────────────────────────────────────────────────
+ * 32 text-shadows and 87 backdrop-filters. Glow is the loudest
+ * "AI-made" tell; it goes entirely. Glass survives only on genuinely
+ * floating layers (modal/sheet/dropdown), one per screen.
+ */
+* {
+  text-shadow: none !important;
+}
+
+*:not(.sf-modal):not(.sfh-in):not(#sf-modal):not(.modal):not(.sheet):not([role="dialog"]) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ── Shape ─────────────────────────────────────────────────────────────
+ * 16 radii collapse to one. Pills keep their full radius.
+ */
+div, section, article, aside, header, footer, nav,
+button, input, select, textarea, .card, .panel, .box {
+  border-radius: var(--sf-radius);
+}
+
+.pill, .badge, .chip, .filter-pill, .avatar,
+[class*="pill"], [class*="chip"], [class*="avatar"] {
+  border-radius: 999px;
+}
+
+/* ── Red discipline ────────────────────────────────────────────────────
+ * The audit found 44 of 56 red uses had NO urgency signal, including
+ * .filter-pill:hover. Red that appears where nothing is wrong teaches the
+ * user that red means nothing. Neutralise decorative reds; keep semantic
+ * ones (.overdue/.urgent/.late/.danger/.alert) red.
+ */
+.filter-pill:hover,
+.filter-pill:focus,
+.tab:hover,
+.nav-link:hover,
+a:hover {
+  border-color: var(--sf-ink-2) !important;
+  color: var(--sf-ink) !important;
+}
+
+/* ── Motion ────────────────────────────────────────────────────────────
+ * One duration, one easing, for every state change. Springs live in
+ * signflow-dnd.js (drag only) and are untouched here.
+ */
+*, *::before, *::after {
+  transition-duration: var(--sf-dur) !important;
+  transition-timing-function: var(--sf-ease) !important;
+}
+
+/* Nothing else animates. sfDeepPulse is exactly the attention-seeking
+ * loop DESIGN.md §6 bans. */
+.sf-vb, [class*="pulse"], [class*="glow"] {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Touch targets ─────────────────────────────────────────────────────
+ * Apple HIG 44pt. Applied to coarse pointers only: affordance follows
+ * POINTER TYPE, not viewport width (an iPad is coarse at 1024px, a small
+ * laptop window is fine-pointer at 700px).
+ */
+@media (hover: none) and (pointer: coarse) {
+  nav a, .tab, button, [role="button"] {
+    min-height: 44px;
+  }
+}

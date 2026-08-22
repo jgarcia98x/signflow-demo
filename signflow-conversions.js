@@ -169,7 +169,7 @@
 
     var s = best(a.bySource, 15);
     if (s) out.push({
-      icon: '🎯',
+      icon: '',
       text: hedge(s.top) + '<b>' + s.top.name + '</b> leads close at <b>' + s.top.rate +
             '%</b>, ' + s.gap + ' points above your other sources (' + s.top.n + ' jobs).',
       action: s.top.n < SOLID_N
@@ -179,7 +179,7 @@
 
     var t = best(a.byType, 12);
     if (t) out.push({
-      icon: '🏗️',
+      icon: '',
       text: hedge(t.top) + '<b>' + cap(t.top.name) + '</b> jobs close at <b>' +
             t.top.rate + '%</b> — ' + t.gap + ' points better than the rest.',
       action: t.top.n < SOLID_N
@@ -192,7 +192,7 @@
       return b.confident && b.fasterBy != null && b.fasterBy >= 5;
     })[0];
     if (quick) out.push({
-      icon: '⚡',
+      icon: '',
       text: '<b>' + quick.name + '</b> jobs reach Install in <b>' + quick.medianDays +
             ' days</b> — ' + quick.fasterBy + ' days faster than your median.',
       action: 'Best cash-flow per week of effort.'
@@ -203,7 +203,7 @@
     if (worst && a.bySource.filter(function (x) { return x.confident; }).length >= 2 &&
         worst.rate <= 30) {
       out.push({
-        icon: '🧊',
+        icon: '',
         text: hedge(worst) + '<b>' + worst.name + '</b> converts at just <b>' +
               worst.rate + '%</b> (' + worst.n + ' jobs).',
         action: worst.n < SOLID_N
@@ -213,7 +213,7 @@
     }
 
     if (!out.length) out.push({
-      icon: '📭',
+      icon: '',
       text: 'Not enough closed jobs yet to call a pattern.',
       action: 'Smart Conversions needs about ' + MIN_N + ' closed jobs per segment.'
     });

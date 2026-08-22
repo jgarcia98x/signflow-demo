@@ -15,7 +15,9 @@
 V=$(date +%Y%m%d%H%M)
 for f in *.html; do
   sed -i '' -E "s/(src=\"signflow-[a-z-]+\.js)(\?v=[^\"]*)?\"/\1?v=$V\"/g" "$f"
-  sed -i '' -E "s/(href=\"signflow-calm\.css)(\?v=[^\"]*)?\"/\1?v=$V\"/g" "$f"
+  # Any signflow-*.css, not just calm.css - signflow-design.css was silently
+  # skipped by the hardcoded name, the same class of bug as the hyphen one.
+  sed -i '' -E "s/(href=\"signflow-[a-z-]+\.css)(\?v=[^\"]*)?\"/\1?v=$V\"/g" "$f"
 done
 echo "cache stamp: $V"
 
@@ -24,6 +26,15 @@ stale=$(grep -oh 'signflow-[a-z-]*\.\(js\|css\)?\?v=[0-9]*' *.html | grep -v "v=
 if [ -n "$stale" ]; then
   echo "ERROR: these references were not re-stamped:" >&2
   echo "$stale" >&2
+  exit 1
+fi
+
+# An UNSTAMPED local reference is the failure this script exists to prevent,
+# and it is invisible to the check above (which only sees stamped ones).
+unstamped=$(grep -ohE '(src|href)="signflow-[a-z-]+\.(js|css)"' *.html | sort -u)
+if [ -n "$unstamped" ]; then
+  echo "ERROR: these references carry no ?v= stamp at all:" >&2
+  echo "$unstamped" >&2
   exit 1
 fi
 echo "all references stamped $V"

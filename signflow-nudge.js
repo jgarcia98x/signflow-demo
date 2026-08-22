@@ -5,7 +5,7 @@
 /* ═══════════════════════════════════════════════════════════════════════
    signflow-nudge.js — "Smart Nudge", computed
    ───────────────────────────────────────────────────────────────────────
-   Replaces six hand-typed nudge cards ("❄️ 22 days silent · $8,600
+   Replaces six hand-typed nudge cards ("22 days silent · $8,600
    quote" — a string literal) with the same stall maths Smart Queue and
    Smart Conversions already use.
 
@@ -180,14 +180,14 @@
       +     esc(N.initials(r.client || r.name)) + '</div>'
       +   '<div class="nudge-info">'
       +     '<div class="nudge-name">' + esc(r.client || r.name) + '</div>'
-      +     '<div class="nudge-company">' + (kind === 'cold' ? '❄️ ' : '⏰ ')
+      +     '<div class="nudge-company">' + (kind === 'cold' ? '' : '')
       +       r.inStage + ' days silent · ' + money(r.value) + ' ' + esc(r.stage.toLowerCase())
       +     '</div>'
       +   '</div>'
       + '</div>'
       + '<div class="nudge-reason" style="color:rgba(255,255,255,0.58);">' + why + '</div>'
       + '<div class="nudge-actions">'
-      +   '<button class="nudge-btn" data-act="contact">💬 Quick Text</button>'
+      +   '<button class="nudge-btn" data-act="contact">Quick Text</button>'
       +   '<button class="nudge-btn ghost" data-act="snooze">Snooze 7d</button>'
       + '</div>'
       + '</div>';
@@ -213,7 +213,7 @@
           + '. Nothing has been lost yet — most shops simply stop asking.';
       msg = 'Hi ' + who + ', following up on the ' + esc(d.name)
           + ' quote. Happy to adjust the scope if the timing or budget moved.';
-      cta = '📬 Send follow-up';
+      cta = 'Send follow-up';
     } else if (kind === 'lost') {
       ageLabel = '✕ Lost';
       why = money(d.value) + ' that went elsewhere. Worth one no-pressure '
@@ -221,7 +221,7 @@
           + 'shop they already met.';
       msg = 'Hi ' + who + ', no hard feelings on ' + esc(d.name)
           + '. If anything changes or you need work on another site, I am here.';
-      cta = '🔄 Re-engage';
+      cta = 'Re-engage';
     } else {
       ageLabel = d.monthsSince + 'mo ago';
       why = 'Delivered ' + money(d.value) + ' of work ' + d.monthsSince
@@ -232,7 +232,7 @@
       msg = 'Hi ' + who + ', we installed your ' + esc(d.name)
           + ' about ' + d.monthsSince + ' months ago. Anything else coming up '
           + 'this year — another location, refresh, or lighting?';
-      cta = '📞 Reach out';
+      cta = 'Reach out';
     }
 
     return '<div class="nudge-card" data-nudge-id="' + esc(d.id) + '">'
@@ -299,18 +299,18 @@
     var n = global.SFNudge.build();
     var html = '';
 
-    html += section('79,195,247', '❄️ COLD QUOTES — CALL TODAY',
+    html += section('79,195,247', 'COLD QUOTES — CALL TODAY',
       'These quotes went quiet. One text or call now could bring them back.',
       n.cold, 'cold');
 
-    html += section('217,164,65', '⏰ WAITING ON APPROVAL',
+    html += section('217,164,65', 'WAITING ON APPROVAL',
       'Signed off and nothing is moving until they reply.', n.due, 'due');
 
-    html += section('194,69,63', '⚠️ HELD UP IN PRODUCTION',
+    html += section('194,69,63', 'HELD UP IN PRODUCTION',
       'Past your usual pace at this stage.', n.atRisk, 'risk');
 
     /* ── Outreach, now owned by this tool ── */
-    html += outreachSection('79,195,247', '❄️ COLD LEADS — QUOTE WENT QUIET',
+    html += outreachSection('79,195,247', 'COLD LEADS — QUOTE WENT QUIET',
       'Quoted, then silence. Still winnable; most shops just stop asking.',
       n.coldLeads, 'cold');
 
@@ -328,7 +328,7 @@
         : 'Your archive has no repeat wins yet, so treat this as a first test '
           + 'rather than a proven channel.';
       html += outreachSection('129,199,132',
-        '🔁 PAST CUSTOMERS — READY FOR A SECOND JOB',
+        'PAST CUSTOMERS — READY FOR A SECOND JOB',
         'Delivered over ' + (rm.coolOff || 90) + ' days ago. ' + proof,
         n.repeats, 'repeat');
     }
@@ -374,7 +374,7 @@
       document.body.removeChild(ta);
       done();
     } catch (e) {
-      if (global.toast) global.toast('Could not copy — select the text manually', '⚠');
+      if (global.toast) global.toast('Could not copy — select the text manually', '');
     }
   }
 
@@ -393,7 +393,7 @@
           /* Dismissing now actually persists — it used to be a toast. */
           global.SFNudge.snooze(id, 7);
           render();
-          if (global.toast) global.toast('Snoozed ' + who + ' for 7 days', '⏰');
+          if (global.toast) global.toast('Snoozed ' + who + ' for 7 days', '');
         } else if (act === 'copy') {
           /* The one genuinely useful action here: put the suggested line on
              the clipboard so it can be pasted into whatever he actually
@@ -401,13 +401,13 @@
              navigator.clipboard needs a secure context and permission. */
           var msg = btn.getAttribute('data-msg') || '';
           var done = function () {
-            if (global.toast) global.toast('Message copied — paste into your texts', '📋');
+            if (global.toast) global.toast('Message copied — paste into your texts', '');
           };
           if (global.navigator && navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(msg).then(done, function () { fallback(msg, done); });
           } else { fallback(msg, done); }
         } else {
-          if (global.toast) global.toast('Contact queued for ' + who + ' ✓', '📬');
+          if (global.toast) global.toast('Contact queued for ' + who + ' ✓', '');
         }
       });
     });

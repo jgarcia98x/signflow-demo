@@ -243,7 +243,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       .integration-grid { grid-template-columns: 1fr; }
     }
   </style>
-<link rel="stylesheet" href="signflow-calm.css?v=202608221301">
+<link rel="stylesheet" href="signflow-calm.css?v=202608221332">
 </head>
 <body>
 
@@ -259,7 +259,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     <a href="settings.html" class="active">Settings</a>
   </nav>
   <div class="header-right">
-    <div class="date-chip" id="date-chip">📅 Sun, Aug 2, 2026</div>
+    <div class="date-chip" id="date-chip">Sun, Aug 2, 2026</div>
     <button class="btn-new">＋ New Job</button>
     <div class="avatar">JG</div>
   </div>
@@ -267,7 +267,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
 <!-- ══ PAGE CONTENT ══════════════════════════════════════════════ -->
 <div class="page-content">
-  <div class="page-title">⚙️ Settings</div>
+  <div class="page-title">Settings</div>
 
   <div class="settings-grid">
 
@@ -377,7 +377,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       </div>
       <div class="integration-grid">
         <div class="integration-card">
-          <div class="integration-icon">📊</div>
+          <div class="integration-icon"></div>
           <div class="integration-info">
             <div class="integration-name">QuickBooks</div>
             <div class="integration-status status-connected">✓ Connected</div>
@@ -385,7 +385,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
           <button class="btn-outline" style="font-size:11px;padding:6px 12px;" onclick="toast('QuickBooks settings coming soon')">Manage</button>
         </div>
         <div class="integration-card">
-          <div class="integration-icon">📅</div>
+          <div class="integration-icon"></div>
           <div class="integration-info">
             <div class="integration-name">Google Calendar</div>
             <div class="integration-status status-not-connected">Not connected</div>
@@ -393,7 +393,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
           <button class="btn-connect" onclick="toast('Connecting Google Calendar…')">Connect</button>
         </div>
         <div class="integration-card">
-          <div class="integration-icon">💳</div>
+          <div class="integration-icon"></div>
           <div class="integration-info">
             <div class="integration-name">Stripe</div>
             <div class="integration-status status-not-connected">Not connected</div>
@@ -401,7 +401,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
           <button class="btn-connect" onclick="toast('Connecting Stripe…')">Connect</button>
         </div>
         <div class="integration-card">
-          <div class="integration-icon">💬</div>
+          <div class="integration-icon"></div>
           <div class="integration-info">
             <div class="integration-name">iMessage</div>
             <div class="integration-status status-coming-soon">Coming soon</div>
@@ -415,7 +415,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     <div class="section-card settings-full">
       <div class="section-header">
         <div class="section-title">Team</div>
-        <button class="btn-invite" onclick="toast('📧 Invite link copied — share it with your team member')">+ Invite Team Member</button>
+        <button class="btn-invite" onclick="toast('Invite link copied — share it with your team member')">+ Invite Team Member</button>
       </div>
       <div class="team-member">
         <div class="member-avatar">JG</div>
@@ -444,7 +444,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     var d = new Date();
     var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    el.textContent = '📅 ' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    el.textContent = '' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
   }
 
   /* Toast */
@@ -465,7 +465,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
   /* Toggle handler */
   window.handleToggle = function(input, label) {
-    toast((input.checked ? '🔔 ' : '🔕 ') + label + (input.checked ? ' enabled' : ' disabled'));
+    toast((input.checked ? '' : '') + label + (input.checked ? ' enabled' : ' disabled'));
   };
 })();
 </script>
@@ -490,9 +490,10 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   table{max-width:100%;}
 }
 </style>
-<script src="signflow-analytics-config.js?v=202608221301"></script>
-<script src="signflow-analytics.js?v=202608221301"></script>
-<script src="signflow-engine.js?v=202608221301"></script>
-  <script src="signflow-demo.js?v=202608221301"></script>
+<script src="signflow-analytics-config.js?v=202608221332"></script>
+<script src="signflow-analytics.js?v=202608221332"></script>
+<script src="signflow-engine.js?v=202608221332"></script>
+  <script src="signflow-demo.js?v=202608221332"></script>
+<link rel="stylesheet" href="signflow-design.css?v=202608221332">
 </body>
 </html>

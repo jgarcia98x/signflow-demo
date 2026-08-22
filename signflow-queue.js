@@ -332,8 +332,8 @@
         late ? 'rgba(194,69,63,0.09)' : 'rgba(217,164,65,0.07)',
         late ? 'rgba(194,69,63,0.28)' : 'rgba(217,164,65,0.22)',
         late ? '#E2726B' : '#D9A441',
-        (late ? '🚨 ' + late + ' PAST ITS INSTALL DATE'
-              : '📅 ' + L.thisWeek.length + ' INSTALLING THIS WEEK'),
+        (late ? '' + late + ' PAST ITS INSTALL DATE'
+              : '' + L.thisWeek.length + ' INSTALLING THIS WEEK'),
         lines.slice(0, 4).join('<br>'),
         'From the due dates you set. These drive the order below.');
     }
@@ -356,14 +356,14 @@
     if (datedN >= 4 && runway.length / datedN > 0.4) {
       html += callout('rgba(255,255,255,0.04)', 'rgba(255,255,255,0.12)',
         'rgba(255,255,255,0.6)',
-        'ℹ️ TIMELINE ESTIMATES LOOK OFF',
+        'TIMELINE ESTIMATES LOOK OFF',
         runway.length + ' of ' + datedN + ' dated jobs would miss their install '
           + 'date at the pace this tool assumes.',
         'That usually means the assumed pace is wrong, not the dates. These '
           + 'become accurate once there is enough of your own stage history.');
     } else if (runway.length) {
       html += callout('rgba(217,164,65,0.05)', 'rgba(217,164,65,0.18)', '#D9A441',
-        '⏳ ' + runway.length + ' MAY NOT LEAVE ENOUGH TIME',
+        '' + runway.length + ' MAY NOT LEAVE ENOUGH TIME',
         runway.slice(0, 3).map(function (r) {
           return '<strong>' + esc(r.name) + '</strong> — ' + r.stagesLeft + ' stage'
             + (r.stagesLeft > 1 ? 's' : '') + ' to go, ' + r.daysToDue + 'd left';
@@ -382,7 +382,7 @@
       var liftN   = q.liftJobs.length;
 
       html += callout('rgba(249,168,37,0.08)', 'rgba(249,168,37,0.25)', '#F9A825',
-        '⚡ ' + q.parallelNow + ' JOBS CAN RUN AT THE SAME TIME',
+        '' + q.parallelNow + ' JOBS CAN RUN AT THE SAME TIME',
         /* Was "Only those compete for each other" — too abstract. State the
            bottleneck as a plain sentence: what the limit is, and why the
            other jobs do not count against it. */
@@ -403,7 +403,7 @@
           + 'crew availability grid — change any of them and this updates.');
     } else if (q.freeDays.length === 0) {
       html += callout('rgba(194,69,63,0.07)', 'rgba(194,69,63,0.22)', '#C2453F',
-        '⛔ NO CREW CAPACITY THIS WEEK',
+        'NO CREW CAPACITY THIS WEEK',
         'Every crew member is marked busy all five days. Nothing new can start '
           + 'until something frees up.', null);
     }
@@ -411,7 +411,7 @@
     /* ── Vendor-side work: real parallelism, no invented dates ── */
     if (q.waiting.length) {
       html += callout('rgba(206,147,216,0.07)', 'rgba(206,147,216,0.22)', '#CE93D8',
-        '🔗 ' + q.waiting.length + ' JOB' + (q.waiting.length > 1 ? 'S' : '') + ' WITH A VENDOR',
+        '' + q.waiting.length + ' JOB' + (q.waiting.length > 1 ? 'S' : '') + ' WITH A VENDOR',
         q.waiting.map(function (r) {
           return '<strong>' + esc(r.name) + '</strong> — out for work, no crew needed';
         }).join('<br>'),
@@ -421,7 +421,7 @@
     /* ── Office work runs alongside anything ── */
     if (q.officeJobs.length) {
       html += callout('rgba(102,187,106,0.06)', 'rgba(102,187,106,0.18)', '#66BB6A',
-        '🗂️ ' + q.officeJobs.length + ' CAN MOVE FROM THE OFFICE',
+        '' + q.officeJobs.length + ' CAN MOVE FROM THE OFFICE',
         q.officeJobs.slice(0, 3).map(function (r) {
           return '<strong>' + esc(r.name) + '</strong> — ' + r.stage;
         }).join('<br>'),
@@ -450,7 +450,7 @@
     if (quiet.length) {
       var s0 = quiet[0];
       html += '<div style="margin-top:10px;">' + item(s0, {
-        num: '❄️',
+        num: '',
         numColor: '#4FC3F7',
         tag: s0.inStage + ' days in ' + s0.stage + ' — usually ' + s0.norm,
         tagColor: '#4FC3F7',

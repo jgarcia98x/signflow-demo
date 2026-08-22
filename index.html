@@ -20,13 +20,13 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   <title>SignFlow — Job Pipeline</title>
   <!-- Drag layer + job persistence must exist before the inline board
        scripts run, so they load here rather than at the foot of the page. -->
-  <script src="signflow-store.js?v=202608221301"></script>
-<script src="signflow-dnd.js?v=202608221301"></script>
-  <script src="signflow-jobs.js?v=202608221301"></script>
+  <script src="signflow-store.js?v=202608221332"></script>
+<script src="signflow-dnd.js?v=202608221332"></script>
+  <script src="signflow-jobs.js?v=202608221332"></script>
   <!-- Must load before the inline page script: Slow Season Outreach reads
        SFConversions.dormant(). It used to sit after the inline block, so
        dormant() was undefined and the sidebar silently rendered empty. -->
-  <script src="signflow-conversions.js?v=202608221301"></script>
+  <script src="signflow-conversions.js?v=202608221332"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1274,7 +1274,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     <a href="settings.html">Settings</a>
   </nav>
   <div class="header-right">
-    <div class="date-chip">📅 Sun, Aug 2, 2026</div>
+    <div class="date-chip">Sun, Aug 2, 2026</div>
     <button class="btn-new">＋ New Job</button>
     <div class="avatar">JG</div>
   </div>
@@ -1282,14 +1282,14 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
 <!-- ══ AI BANNER ════════════════════════════════════════════════ -->
 <div class="ai-banner">
-  <span>⚡</span>
+  <span></span>
   <!-- Hardcoded "4 jobs · 2 vendor windows · 1 early start · 2.3 days saved"
        lived here. The script below replaces this banner with the real
        highest-impact job, but only once it runs — so on a slow load those
        invented figures were the first thing on screen, and if the script
        ever failed they were the only thing. Neutral placeholder instead:
        fail to a visible gap, never to a comfortable number. -->
-  <strong>⚡ Smart Queue</strong> — ranking today's work…
+  <strong>Smart Queue</strong> — ranking today's work…
 </div>
 
 <!-- ══ SUB BAR ══════════════════════════════════════════════════ -->
@@ -1299,7 +1299,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
        Outreach and on the Customers page. updateJobCount() recomputes
        this from the DOM on load, so it stays honest as cards move. -->
   <div class="job-count">2 new · 11 active</div>
-  <input class="search-box" type="text" placeholder="🔍  Search jobs…" />
+  <input class="search-box" type="text" placeholder=" Search jobs…" />
   <button id="sf-density-toggle" type="button" aria-pressed="true" title="Card density — At a glance">
     <span class="sfd-track"><span class="sfd-knob"></span></span>
     <span class="sfd-label">Compact</span>
@@ -1307,9 +1307,9 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   <div class="filter-pills">
     <div class="filter-pill active">All</div>
     <div class="filter-pill">My Jobs</div>
-    <div class="filter-pill">⚡ Parallel</div>
+    <div class="filter-pill">Parallel</div>
     <div class="filter-pill">This Week</div>
-    <div class="filter-pill">❄️ Cold / Lost</div>
+    <div class="filter-pill">Cold / Lost</div>
   </div>
 </div>
 
@@ -1333,7 +1333,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         <div class="card-name">Joliet Tire &amp; Auto</div>
         <div class="card-client">Walk-in &middot; Aug 4</div>
         <div class="card-row">
-          <span class="priority-label normal">📞 Incoming</span>
+          <span class="priority-label normal">Incoming</span>
           <span class="card-due">New today</span>
         </div>
         <div class="card-row"><div></div><div class="card-value muted">TBD</div></div>
@@ -1347,7 +1347,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         <div class="card-name">Westside Fitness</div>
         <div class="card-client">Referral &middot; Aug 3</div>
         <div class="card-row">
-          <span class="priority-label normal">📞 Incoming</span>
+          <span class="priority-label normal">Incoming</span>
           <span class="card-due">2 days ago</span>
         </div>
         <div class="card-row"><div></div><div class="card-value muted">TBD</div></div>
@@ -1373,14 +1373,14 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         <div class="card-name">Riverside Auto — Pylon Sign</div>
         <div class="card-client">Riverside Automotive</div>
         <div class="card-row">
-          <span class="priority-label urgent">🔴 Urgent</span>
+          <span class="priority-label urgent">Urgent</span>
           <span class="card-due soon">Due Aug 5</span>
         </div>
         <div class="card-row">
           <div></div>
           <div class="card-value">$18,400</div>
         </div>
-        <div class="card-notified">📨 Client notified Aug 1</div>
+        <div class="card-notified">Client notified Aug 1</div>
         <div class="card-steps">
           <label class="step-item"><input type="checkbox"> Send finalized quote PDF</label>
           <label class="step-item"><input type="checkbox"> Confirm site measurement date</label>
@@ -1392,21 +1392,21 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         <div class="card-name">Downtown Diner — Channel Letters</div>
         <div class="card-client">Main St. Restaurant Group</div>
         <div class="card-row">
-          <span class="priority-label high">🟡 High</span>
+          <span class="priority-label high">High</span>
           <span class="card-due">Due Aug 10</span>
         </div>
         <div class="card-row">
-          <span class="parallel-badge">⚡ PARALLEL</span>
+          <span class="parallel-badge">PARALLEL</span>
           <div class="card-value">$7,200</div>
         </div>
-        <div class="card-notified">📨 Client notified Aug 2</div>
+        <div class="card-notified">Client notified Aug 2</div>
         <div class="card-steps">
           <label class="step-item"><input type="checkbox"> Add illumination option to quote</label>
           <label class="step-item"><input type="checkbox"> Email quote by EOD Aug 4</label>
         </div>
       </div>
 
-      <!-- ❄️ Cold -->
+      <!-- Cold -->
 
 
       <!-- ✕ Lost -->
@@ -1429,14 +1429,14 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         <div class="card-name">Prairie Wind Storage — Exterior Identity</div>
         <div class="card-client">Prairie Wind Self Storage</div>
         <div class="card-row">
-          <span class="priority-label normal">⚪ Normal</span>
+          <span class="priority-label normal">Normal</span>
           <span class="card-due soon">Due Aug 7</span>
         </div>
         <div class="card-row">
           <div></div>
           <div class="card-value">$22,100</div>
         </div>
-        <div class="card-notified">📨 Client notified Jul 31</div>
+        <div class="card-notified">Client notified Jul 31</div>
         <div class="card-steps">
           <label class="step-item"><input type="checkbox" checked> Initial concept sketches</label>
           <label class="step-item"><input type="checkbox"> Send artwork proof for review</label>
@@ -1448,16 +1448,16 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         <div class="card-name">Heritage Bank — Branch Refresh</div>
         <div class="card-client">Heritage Community Bank</div>
         <div class="card-row">
-          <span class="priority-label urgent">🔴 Urgent</span>
+          <span class="priority-label urgent">Urgent</span>
           <span class="card-due soon">Due Aug 8</span>
         </div>
         <div class="card-row">
           <div></div>
           <div class="card-value">$58,000</div>
         </div>
-        <div class="card-notified">📨 Client notified Aug 1</div>
+        <div class="card-notified">Client notified Aug 1</div>
         <div class="vendor-wait-row">
-          <span class="vendor-wait-label">🔗 At studio — 2 days waiting</span>
+          <span class="vendor-wait-label">At studio — 2 days waiting</span>
           <span class="vendor-wait-days">~2 days remaining · advance other jobs now</span>
         </div>
         <div class="card-steps">
@@ -1482,14 +1482,14 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         <div class="card-name">Village Tap — Blade Sign</div>
         <div class="card-client">The Village Tap Bar &amp; Grill</div>
         <div class="card-row">
-          <span class="priority-label urgent">🔴 Urgent</span>
+          <span class="priority-label urgent">Urgent</span>
           <span class="card-due overdue">Overdue Aug 1</span>
         </div>
         <div class="card-row">
-          <span class="parallel-badge">⚡ PARALLEL</span>
+          <span class="parallel-badge">PARALLEL</span>
           <div class="card-value">$9,200</div>
         </div>
-        <div class="card-notified">📨 Client notified Jul 30</div>
+        <div class="card-notified">Client notified Jul 30</div>
         <div class="card-steps">
           <label class="step-item"><input type="checkbox"> Call client — approval is overdue</label>
           <label class="step-item"><input type="checkbox"> Get signed approval form</label>
@@ -1501,14 +1501,14 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         <div class="card-name">Northside Gym — Vehicle Wrap</div>
         <div class="card-client">Northside Fitness</div>
         <div class="card-row">
-          <span class="priority-label high">🟡 High</span>
+          <span class="priority-label high">High</span>
           <span class="card-due soon">Due Aug 6</span>
         </div>
         <div class="card-row">
-          <span class="parallel-badge">⚡ PARALLEL</span>
+          <span class="parallel-badge">PARALLEL</span>
           <div class="card-value">$6,400</div>
         </div>
-        <div class="card-notified">📨 Client notified Aug 2</div>
+        <div class="card-notified">Client notified Aug 2</div>
         <div class="card-steps">
           <label class="step-item"><input type="checkbox" checked> Proof sent to client</label>
           <label class="step-item"><input type="checkbox"> Confirm approval &amp; start print</label>
@@ -1531,16 +1531,16 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         <div class="card-name">Summit Tech Park — Monument Sign</div>
         <div class="card-client">Summit Tech Park LLC</div>
         <div class="card-row">
-          <span class="priority-label urgent">🔴 Urgent</span>
+          <span class="priority-label urgent">Urgent</span>
           <span class="card-due soon">Due Aug 8</span>
         </div>
         <div class="card-row">
           <div></div>
           <div class="card-value">$41,000</div>
         </div>
-        <div class="card-notified">📨 Client notified Aug 1</div>
+        <div class="card-notified">Client notified Aug 1</div>
         <div class="vendor-wait-row">
-          <span class="vendor-wait-label">🔗 At vendor — 8 days waiting</span>
+          <span class="vendor-wait-label">At vendor — 8 days waiting</span>
           <span class="vendor-wait-days">~9 days remaining · crew is free</span>
         </div>
         <div class="card-steps">
@@ -1554,16 +1554,16 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         <div class="card-name">Walgreens #4712 — Façade Replacement</div>
         <div class="card-client">Walgreens (National)</div>
         <div class="card-row">
-          <span class="priority-label normal">⚪ Normal</span>
+          <span class="priority-label normal">Normal</span>
           <span class="card-due">Due Aug 12</span>
         </div>
         <div class="card-row">
           <div></div>
           <div class="card-value">$24,800</div>
         </div>
-        <div class="card-notified">📨 Client notified Jul 29</div>
+        <div class="card-notified">Client notified Jul 29</div>
         <div class="vendor-wait-row">
-          <span class="vendor-wait-label">🔗 At vendor — 5 days waiting</span>
+          <span class="vendor-wait-label">At vendor — 5 days waiting</span>
           <span class="vendor-wait-days">~7 days remaining · crew is free</span>
         </div>
         <div class="card-steps">
@@ -1588,14 +1588,14 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         <div class="card-name">Kohl's #0394 — Pylon Reface</div>
         <div class="card-client">Kohl's Corporation</div>
         <div class="card-row">
-          <span class="priority-label urgent">🔴 Urgent</span>
+          <span class="priority-label urgent">Urgent</span>
           <span class="card-due soon">Install Aug 4</span>
         </div>
         <div class="card-row">
           <div></div>
           <div class="card-value">$19,500</div>
         </div>
-        <div class="card-notified">📨 Client notified Aug 2</div>
+        <div class="card-notified">Client notified Aug 2</div>
         <div class="card-steps">
           <label class="step-item"><input type="checkbox" checked> Lift scheduled &amp; staged</label>
           <label class="step-item"><input type="checkbox"> Dispatch crew 6:30 AM Aug 4</label>
@@ -1607,14 +1607,14 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         <div class="card-name">La Paloma Restaurant — Exterior</div>
         <div class="card-client">La Paloma Group</div>
         <div class="card-row">
-          <span class="priority-label high">🟡 High</span>
+          <span class="priority-label high">High</span>
           <span class="card-due soon">Install Aug 5</span>
         </div>
         <div class="card-row">
-          <span class="parallel-badge">⚡ PARALLEL</span>
+          <span class="parallel-badge">PARALLEL</span>
           <div class="card-value">$11,200</div>
         </div>
-        <div class="card-notified">📨 Client notified Aug 1</div>
+        <div class="card-notified">Client notified Aug 1</div>
         <div class="card-steps">
           <label class="step-item"><input type="checkbox" checked> Permit approved</label>
           <label class="step-item"><input type="checkbox"> Confirm crew dispatch Aug 5</label>
@@ -1642,7 +1642,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
           <div class="card-value">$34,100</div>
         </div>
         <div class="qb-synced">✓ Synced to QuickBooks</div>
-        <div class="card-notified">📨 Client notified Jul 30</div>
+        <div class="card-notified">Client notified Jul 30</div>
         <div class="card-steps">
           <label class="step-item done-step"><input type="checkbox" checked> Invoice sent</label>
           <label class="step-item done-step"><input type="checkbox" checked> Final photos delivered</label>
@@ -1656,7 +1656,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   <!-- ── AI PRIORITY QUEUE SIDEBAR ── -->
   <div class="ai-sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-title">⚡ Smart Queue</div>
+      <div class="sidebar-title">Smart Queue</div>
       <div class="sidebar-subtitle">AI-ranked work order for today</div>
     </div>
 
@@ -1680,7 +1680,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
            absent from view, and the pointer keeps the feature discoverable
            instead of just vanishing. -->
       <div id="sf-outreach-moved" style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
-        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:rgba(79,195,247,0.85);margin-bottom:6px;">❄️ Cold quotes &amp; follow-ups</div>
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:rgba(79,195,247,0.85);margin-bottom:6px;">Cold quotes &amp; follow-ups</div>
         <div style="font-size:11px;color:rgba(255,255,255,0.50);line-height:1.55;">
           Outreach moved to <strong style="color:rgba(255,255,255,0.80);">Smart Nudge</strong>
           so this queue stays a work order.
@@ -1721,12 +1721,12 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   <div class="stat-sep"></div>
   <div class="stat">
     <div class="stat-val red">4</div>
-    <div class="stat-label">⚡ Parallel Today</div>
+    <div class="stat-label">Parallel Today</div>
   </div>
   <div class="stat-sep"></div>
   <div class="stat">
     <div class="stat-val amber">2</div>
-    <div class="stat-label">❄️ Cold Quotes</div>
+    <div class="stat-label">Cold Quotes</div>
   </div>
   <div class="stat-sep"></div>
   <div class="stat">
@@ -1752,7 +1752,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     var d = new Date();
     var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    el.textContent = '📅 ' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    el.textContent = '' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
   })();
 
   /* ── Smart Queue Accordion ────────────────────────── */
@@ -1814,7 +1814,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
   function priorityIcon(p) {
-    return p === 'urgent' ? '🔴' : p === 'high' ? '🟡' : '⚪';
+    return p === 'urgent' ? '' : p === 'high' ? '' : '';
   }
   function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
@@ -1878,7 +1878,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
           if (window.SFLog && SFLog.add) {
             SFLog.add(card, 'stage', 'Stage: ' + fromName + ' \u2192 ' + toName);
           }
-          if (window.toast) toast('Moved to ' + toName, '\uD83D\uDCCB');
+          if (window.toast) toast('Moved to ' + toName, '');
         }
       }
     });
@@ -1905,7 +1905,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       }
       if (!card) {
         if (tries > 0) return setTimeout(function(){ attempt(tries - 1); }, 120);
-        if (window.toast) toast('That job is no longer on the board', 'ℹ️');
+        if (window.toast) toast('That job is no longer on the board', '');
         return;
       }
 
@@ -2098,7 +2098,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     '    <div class="sf-field"><label class="sf-lbl">Client / Company</label><input id="nj-client" type="text" placeholder="e.g. ABC Electric LLC"></div>',
     '    <div class="sf-row-2">',
     '      <div class="sf-field"><label class="sf-lbl">Priority</label>',
-    '        <select id="nj-priority"><option value="normal">⚪ Normal</option><option value="high">🟡 High</option><option value="urgent">🔴 Urgent</option><option value="cold">❄️ Cold</option><option value="lost">✕ Lost</option><option value="done">✓ Complete</option></select></div>',
+    '        <select id="nj-priority"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option><option value="cold">Cold</option><option value="lost">✕ Lost</option><option value="done">✓ Complete</option></select></div>',
     '      <div class="sf-field"><label class="sf-lbl">Stage</label>',
     '        <select id="nj-col"><option value="new">New Inquiry</option><option value="quote">Quote</option><option value="approved">Approved</option><option value="production">Production</option><option value="install">Install</option><option value="invoice">Invoice</option></select></div>',
     '    </div>',
@@ -2110,13 +2110,13 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     '      <div class="sf-field"><label class="sf-lbl">Lead Source</label>',
     '        <select id="nj-source">',
     '          <option value="">— Not recorded —</option>',
-    '          <option value="Referral">🤝 Referral</option>',
-    '          <option value="Repeat">🔁 Repeat customer</option>',
-    '          <option value="Web">🌐 Web / search</option>',
-    '          <option value="Walk-in">🚶 Walk-in</option>',
-    '          <option value="Cold call">📞 Cold call</option>',
-    '          <option value="Truck/Sign">🚚 Saw our work</option>',
-    '          <option value="Social">📱 Social media</option>',
+    '          <option value="Referral">Referral</option>',
+    '          <option value="Repeat">Repeat customer</option>',
+    '          <option value="Web">Web / search</option>',
+    '          <option value="Walk-in">Walk-in</option>',
+    '          <option value="Cold call">Cold call</option>',
+    '          <option value="Truck/Sign">Saw our work</option>',
+    '          <option value="Social">Social media</option>',
     '          <option value="Other">• Other</option>',
     '        </select></div>',
     '      <div class="sf-field"><label class="sf-lbl">Referred By / Notes</label>',
@@ -2124,23 +2124,23 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     '    </div>',
     '    <div class="sf-row-2">',
     '      <div class="sf-field"><label class="sf-lbl">Job Type</label>',
-    '        <select id="nj-type"><option value="outdoor">☀️ Outdoor</option><option value="indoor">🏠 Indoor</option></select></div>',
+    '        <select id="nj-type"><option value="outdoor">Outdoor</option><option value="indoor">Indoor</option></select></div>',
     '      <div class="sf-field"><label class="sf-lbl">Vendor / Outsourced</label>',
-    '        <select id="nj-vendor"><option value="">— In-house —</option><option value="logo-vectoring">🔗 Logo Vectoring</option><option value="neon-fabrication">🔗 Neon / Specialty Fab</option></select></div>',
+    '        <select id="nj-vendor"><option value="">— In-house —</option><option value="logo-vectoring">Logo Vectoring</option><option value="neon-fabrication">Neon / Specialty Fab</option></select></div>',
     '    </div>',
     '    <div class="sf-row-2">',
     '      <div class="sf-field"><label class="sf-lbl">Waiting on vendor?</label>',
     '        <select id="nj-vstatus">',
     '          <option value="">No — in-house</option>',
-    '          <option value="out">⏳ Yes — with them now</option>',
+    '          <option value="out">Yes — with them now</option>',
     '          <option value="back">✓ Came back</option>',
     '        </select></div>',
     '      <div class="sf-field"><label class="sf-lbl">Needs on site</label>',
     '        <select id="nj-needs">',
     '          <option value="">— Not sure yet —</option>',
-    '          <option value="crew">👷 Install crew</option>',
-    '          <option value="lift">🏗️ Lift / bucket</option>',
-    '          <option value="office">🗂️ Office only (quote, permit, design)</option>',
+    '          <option value="crew">Install crew</option>',
+    '          <option value="lift">Lift / bucket</option>',
+    '          <option value="office">Office only (quote, permit, design)</option>',
     '        </select></div>',
     '    </div>',
     '    <div class="sf-field"><label class="sf-lbl">Next Step 1</label><input id="nj-step1" type="text" placeholder="e.g. Initial site visit / scope"></div>',
@@ -2525,7 +2525,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     if (!header || !badge) return;
     if (cards.length >= 4) {
       header.classList.add('col-overloaded');
-      badge.innerHTML = '⚠ ' + cards.length;
+      badge.innerHTML = '' + cards.length;
       badge.title = 'Bottleneck: ' + cards.length + ' jobs stuck here';
     }
   });
@@ -2553,7 +2553,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       var col   = hotCard.closest('.col');
       var stage = col ? (col.querySelector('.col-title') || {}).textContent : '';
       banner.innerHTML =
-        '<span>🔥</span> <strong>Focus Now:</strong> '
+        '<span></span> <strong>Focus Now:</strong> '
         + '<span class="hot-name">' + name + '</span>'
         + (val ? ' &nbsp;·&nbsp; ' + val : '')
         + (due ? ' &nbsp;·&nbsp; <em>' + due + '</em>' : '')
@@ -2609,9 +2609,9 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         '<div class="followup-preview">' + tpl + '</div>'
         + '<div class="followup-actions">'
         + '  <button class="btn-followup-send" data-card-id="' + cardId + '" data-type="' + type + '">'
-        +    (isLost ? '🔄 Send Re-engage' : '📬 Send Follow-up') + '</button>'
+        +    (isLost ? 'Send Re-engage' : 'Send Follow-up') + '</button>'
         + '  <button class="btn-followup-schedule" data-card-id="' + cardId + '" data-type="schedule">'
-        +    '🕐 Schedule</button>'
+        +    'Schedule</button>'
         + '</div>';
     }
 
@@ -2676,7 +2676,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
           + '<div class="ss-msg">"' + tpl + '"</div>'
           + '<div class="ss-actions">'
           + '<button class="ss-btn-send' + (isLost ? ' lost-btn' : '') + '" data-card-id="' + cardId + '" data-is-lost="' + isLost + '">'
-          + (isLost ? '🔄 Re-engage' : '📬 Send Now') + '</button>'
+          + (isLost ? 'Re-engage' : 'Send Now') + '</button>'
           + '<button class="ss-btn-snooze" data-snooze="' + cardId + '">7d snooze</button>'
           + '</div>';
       }
@@ -2710,7 +2710,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     if (e.target.closest('.ss-btn-snooze')) {
       var snoozeId = e.target.dataset.snooze;
       var item = e.target.closest('.ss-item');
-      if (item) { item.querySelectorAll('.ss-msg,.ss-actions').forEach(function(el){el.remove();}); var s=document.createElement('div');s.className='ss-sent';s.textContent='⏰ Snoozed 7 days';item.appendChild(s); }
+      if (item) { item.querySelectorAll('.ss-msg,.ss-actions').forEach(function(el){el.remove();}); var s=document.createElement('div');s.className='ss-sent';s.textContent='Snoozed 7 days';item.appendChild(s); }
       return;
     }
     // Sidebar send
@@ -2737,7 +2737,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       btn.replaceWith(Object.assign(document.createElement('div'), {
         className: 'followup-queued',
-        textContent: '📅 Queued for ' + months[tomorrow.getMonth()] + ' ' + tomorrow.getDate()
+        textContent: 'Queued for ' + months[tomorrow.getMonth()] + ' ' + tomorrow.getDate()
       }));
     } else {
       sentFollowups[cardId] = Date.now();
@@ -2749,8 +2749,8 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
   /* ── Outsourced vendor badges ───────────────────────── */
   var OUTSOURCE_LABELS = {
-    'logo-vectoring':  '🔗 Outsourced: Logo Vectoring (~2–3d)',
-    'neon-fabrication':'🔗 Outsourced: Neon/Specialty Fab (~7–14d)'
+    'logo-vectoring':  'Outsourced: Logo Vectoring (~2–3d)',
+    'neon-fabrication':'Outsourced: Neon/Specialty Fab (~7–14d)'
   };
   document.querySelectorAll('.board .card[data-outsourced]').forEach(function(card) {
     var otype = card.getAttribute('data-outsourced');
@@ -2764,7 +2764,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
   /* ── Indoor / Outdoor type badge + turnaround ──────── */
   var TURNAROUND = { indoor: '2–4d', outdoor: '5–10d' };
-  var TYPE_LABEL = { indoor: '🏠 Indoor', outdoor: '☀️ Outdoor' };
+  var TYPE_LABEL = { indoor: 'Indoor', outdoor: 'Outdoor' };
 
   document.querySelectorAll('.board .card[data-job-type]').forEach(function(card) {
     var jtype = card.getAttribute('data-job-type');
@@ -2796,7 +2796,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         card.classList.add('payment-ready');
         var badge = document.createElement('div');
         badge.className = 'payment-badge';
-        badge.innerHTML = '💰 Ready to Invoice';
+        badge.innerHTML = 'Ready to Invoice';
         card.insertBefore(badge, card.firstChild);
       }
     });
@@ -2843,12 +2843,12 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     <div style="font-size:11px;color:rgba(255,255,255,0.5);">Apex Build Co · Chicago, IL</div>
   </div>
   <div class="av-divider"></div>
-  <div class="av-item" data-action="profile">👤 My Profile</div>
-  <div class="av-item" data-action="team">👥 Team</div>
-  <div class="av-item" data-action="billing">💳 Billing</div>
+  <div class="av-item" data-action="profile">My Profile</div>
+  <div class="av-item" data-action="team">Team</div>
+  <div class="av-item" data-action="billing">Billing</div>
   <div class="av-divider"></div>
-  <div class="av-item" data-action="settings" onclick="location.href='settings.html'">⚙️ Settings</div>
-  <div class="av-item av-danger" data-action="logout">↩ Sign Out</div>
+  <div class="av-item" data-action="settings" onclick="location.href='settings.html'">Settings</div>
+  <div class="av-item av-danger" data-action="logout">Sign Out</div>
 </div>
 
 <style>
@@ -3033,10 +3033,10 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     item.addEventListener('click', function(){
       var act = item.dataset.action;
       avMenu.classList.remove('open');
-      if (act==='logout') { toast('Signing out…','↩'); setTimeout(function(){ toast('See you next time, Jordan! 👋',''); },600); }
-      else if (act==='profile') toast('Profile settings coming soon','👤');
-      else if (act==='team') toast('Team management coming soon','👥');
-      else if (act==='billing') toast('Billing portal coming soon','💳');
+      if (act==='logout') { toast('Signing out…',''); setTimeout(function(){ toast('See you next time, Jordan! ',''); },600); }
+      else if (act==='profile') toast('Profile settings coming soon','');
+      else if (act==='team') toast('Team management coming soon','');
+      else if (act==='billing') toast('Billing portal coming soon','');
     });
   });
 
@@ -3045,7 +3045,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     stat.style.cursor = 'pointer';
     stat.addEventListener('click', function(){
       var label = (stat.querySelector('.stat-label')||{}).textContent||'';
-      toast('Filtered: '+label,'📊');
+      toast('Filtered: '+label,'');
     });
   });
 
@@ -3082,15 +3082,15 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     var badges = document.getElementById('dp-badges');
     var typeB  = card.getAttribute('data-job-type');
     var payB   = card.classList.contains('payment-ready');
-    var urgB   = card.classList.contains('urgent') ? '🔴 Urgent'
-               : card.classList.contains('high')   ? '🟡 High'
-               : card.classList.contains('cold')   ? '❄️ Cold'
+    var urgB   = card.classList.contains('urgent') ? 'Urgent'
+               : card.classList.contains('high')   ? 'High'
+               : card.classList.contains('cold')   ? 'Cold'
                : card.classList.contains('lost')   ? '✕ Lost'
                : card.classList.contains('done')   ? '✓ Complete' : '';
     badges.innerHTML =
       (urgB ? '<span class="priority-label '+(card.className.match(/(urgent|high|cold|lost|normal|done)/)||['normal'])[0]+'" style="font-size:10px;">'+urgB+'</span>' : '')
-      +(typeB ? '<span class="job-type-badge '+typeB+'">'+(typeB==='indoor'?'🏠 Indoor':'☀️ Outdoor')+'</span>' : '')
-      +(payB  ? '<span class="payment-badge" style="margin:0;padding:2px 8px;font-size:9px;">💰 Ready to Invoice</span>' : '');
+      +(typeB ? '<span class="job-type-badge '+typeB+'">'+(typeB==='indoor'?'Indoor':'Outdoor')+'</span>' : '')
+      +(payB  ? '<span class="payment-badge" style="margin:0;padding:2px 8px;font-size:9px;">Ready to Invoice</span>' : '');
 
     /* Name + Client */
     document.getElementById('dp-name').textContent   = (card.querySelector('.card-name')||{}).textContent||'Job';
@@ -3134,12 +3134,12 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     var clientName = (card.querySelector('.card-client')||{}).textContent||'client';
     var jobName    = (card.querySelector('.card-name')||{}).textContent||'job';
     var actions = [
-      {icon:'📞', label:'Call Client',   fn:function(){ SFLog.add(card,'action','Called '+clientName); SFLog.renderFeed(card); toast('Calling '+clientName+'… · logged','📞'); }},
-      {icon:'💬', label:'Send Message',  fn:function(){ SFLog.add(card,'action','Message sent to '+clientName); SFLog.renderFeed(card); toast('Message sent · logged','💬'); }},
-      {icon:'📄', label:'Send Invoice',  fn:function(){ SFLog.add(card,'action','Invoice sent to '+clientName); SFLog.renderFeed(card); toast('Invoice sent ✓ · logged','📄'); }},
-      {icon:'📋', label:'Copy Link',     fn:function(){ toast('Job link copied','📋'); }},
-      {icon:'📸', label:'Add Photo',     fn:function(){ SFLog.add(card,'action','Photo attached'); SFLog.renderFeed(card); toast('Photo attached · logged','📸'); }},
-      {icon:'📝', label:'Add Note',      fn:function(){ var i=document.getElementById('dp-note-input'); i&&i.focus(); }},
+      {icon:'', label:'Call Client',   fn:function(){ SFLog.add(card,'action','Called '+clientName); SFLog.renderFeed(card); toast('Calling '+clientName+'… · logged',''); }},
+      {icon:'', label:'Send Message',  fn:function(){ SFLog.add(card,'action','Message sent to '+clientName); SFLog.renderFeed(card); toast('Message sent · logged',''); }},
+      {icon:'', label:'Send Invoice',  fn:function(){ SFLog.add(card,'action','Invoice sent to '+clientName); SFLog.renderFeed(card); toast('Invoice sent ✓ · logged',''); }},
+      {icon:'', label:'Copy Link',     fn:function(){ toast('Job link copied',''); }},
+      {icon:'', label:'Add Photo',     fn:function(){ SFLog.add(card,'action','Photo attached'); SFLog.renderFeed(card); toast('Photo attached · logged',''); }},
+      {icon:'', label:'Add Note',      fn:function(){ var i=document.getElementById('dp-note-input'); i&&i.focus(); }},
     ];
     var dpAct = document.getElementById('dp-actions');
     dpAct.innerHTML = '';
@@ -3191,13 +3191,13 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
         '<div style="font-size:9px;text-transform:uppercase;letter-spacing:0.7px;color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:8px;">Vendor / Outsourced Work</div>'
         +'<div style="background:rgba(206,147,216,0.07);border:1px solid rgba(206,147,216,0.22);border-radius:9px;padding:12px;">'
         +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
-        +'<span style="font-size:13px;">🔗</span>'
+        +'<span style="font-size:13px;"></span>'
         +'<div><div style="font-size:12px;font-weight:700;color:rgba(206,147,216,0.95);">'+ol.label+'</div>'
         +'<div style="font-size:10px;color:rgba(255,255,255,0.45);">'+ol.vendor+' · Lead time: '+ol.eta+'</div></div></div>'
-        +(ol.tip ? '<div style="font-size:10px;color:rgba(206,147,216,0.70);font-style:italic;">⚠ '+ol.tip+'</div>' : '')
+        +(ol.tip ? '<div style="font-size:10px;color:rgba(206,147,216,0.70);font-style:italic;">'+ol.tip+'</div>' : '')
         +'<div style="display:flex;gap:6px;margin-top:9px;">'
-        +'<button class="dp-action-btn" style="flex:1;font-size:10px;" onclick="window.toast&&toast(\'Vendor contacted ✓\',\'🔗\')">Contact Vendor</button>'
-        +'<button class="dp-action-btn" style="font-size:10px;" onclick="window.toast&&toast(\'Vendor status checked\',\'📋\')">Check Status</button>'
+        +'<button class="dp-action-btn" style="flex:1;font-size:10px;" onclick="window.toast&&toast(\'Vendor contacted ✓\',\'\')">Contact Vendor</button>'
+        +'<button class="dp-action-btn" style="font-size:10px;" onclick="window.toast&&toast(\'Vendor status checked\',\'\')">Check Status</button>'
         +'</div></div>';
     } else {
       outsourceSection.innerHTML = '';
@@ -3224,7 +3224,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
           if (typeof updateJobCount === 'function') updateJobCount();
           SFLog.add(activeCard,'stage','Stage: '+fromStage+' \u2192 '+nextStage.name);
           if (activeCard.classList.contains('urgent')) {
-            SFLog.add(activeCard,'impact','\u23F1\uFE0F Started ahead of schedule');
+            SFLog.add(activeCard,'impact','Started ahead of schedule');
             activeCard.setAttribute('data-early','1');
           }
           if (typeof SFImpact !== 'undefined') SFImpact.refresh();
@@ -3246,10 +3246,10 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       function submitNote(){
         var v = (noteInput.value||'').trim();
         if(!v) return;
-        SFLog.add(card,'note','\u{1F4DD} '+v);
+        SFLog.add(card,'note',''+v);
         noteInput.value='';
         SFLog.renderFeed(card);
-        toast('Note saved \u2713','\u{1F4DD}');
+        toast('Note saved \u2713','');
       }
       if (noteAdd)   noteAdd.onclick = submitNote;
       if (noteInput) noteInput.onkeydown = function(e){ if(e.key==='Enter') submitNote(); };
@@ -3430,14 +3430,15 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   /* calmer parallel grouping: soften the indented connector items */
   .ai-sidebar .queue-item[style*="border-left"]{ background:rgba(217,164,65,0.05); border-radius:0 10px 10px 0; }
 </style>
-<link rel="stylesheet" href="signflow-calm.css?v=202608221301">
-<script src="signflow-queue.js?v=202608221301"></script>
-<script src="signflow-analytics-config.js?v=202608221301"></script>
-<script src="signflow-analytics.js?v=202608221301"></script>
-<script src="signflow-engine.js?v=202608221301"></script>
+<link rel="stylesheet" href="signflow-calm.css?v=202608221332">
+<script src="signflow-queue.js?v=202608221332"></script>
+<script src="signflow-analytics-config.js?v=202608221332"></script>
+<script src="signflow-analytics.js?v=202608221332"></script>
+<script src="signflow-engine.js?v=202608221332"></script>
 
-  <script src="signflow-demo.js?v=202608221301"></script>
-  <script src="signflow-hint.js?v=202608221301"></script>
+  <script src="signflow-demo.js?v=202608221332"></script>
+  <script src="signflow-hint.js?v=202608221332"></script>
+<link rel="stylesheet" href="signflow-design.css?v=202608221332">
 </body>
 </html>
 <!-- v3 signflow-engine -->

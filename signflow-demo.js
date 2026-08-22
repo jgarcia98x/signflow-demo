@@ -1002,14 +1002,14 @@
      one tab is an introduction rather than a nag. Every claim verified:
        - Drag      : SFDnD.init({item:'.card', container:'.col'})
        - Tap       : opens #detail-panel (class 'open' confirmed)
-       - Queue     : index.html:1654 .sidebar-title "⚡ Smart Queue"
-       - Nudge     : customers.html:920 .sidebar-title "🎯 Smart Nudge"
-       - Conversions: jobs.html:456 .vs-tab[data-view="wins"] "⚡ Smart
+       - Queue     : index.html:1654 .sidebar-title "Smart Queue"
+       - Nudge     : customers.html:920 .sidebar-title "Smart Nudge"
+       - Conversions: jobs.html:456 .vs-tab[data-view="wins"] "Smart
                       Conversions" — a sub-tab of Jobs & Reports, which is
                       exactly why it needs directions.
      Tone is invitational, not instructional: "Try it" beats "You must". */
   var HINT_ROWS = [
-    ['\u270B', 'Drag a job anywhere',
+    ['', 'Drag a job anywhere',
       'Move a card between stages and everything downstream updates \u2014 '
       + 'schedule, capacity, forecast.'],
     ['\u261D', 'Tap a job for the full story',
@@ -1017,7 +1017,7 @@
   ];
   var HINT_TOOLS = [
     ['\u26A1', 'Smart Queue', 'right here on Pipeline \u2014 what to do today, and why'],
-    ['\u{1F3AF}', 'Smart Nudge', 'Customers tab \u2014 quotes going cold, worth a call'],
+    ['', 'Smart Nudge', 'Customers tab \u2014 quotes going cold, worth a call'],
     ['\u26A1', 'Smart Conversions', 'Jobs &amp; Reports \u2192 Smart Conversions \u2014 what wins you work']
   ];
 

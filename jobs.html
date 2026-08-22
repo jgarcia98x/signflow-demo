@@ -251,9 +251,9 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
       table { min-width: 760px; }
     }
   </style>
-<link rel="stylesheet" href="signflow-calm.css?v=202608221301">
-<script src="signflow-store.js?v=202608221301"></script>
-<script src="signflow-conversions.js?v=202608221301"></script>
+<link rel="stylesheet" href="signflow-calm.css?v=202608221332">
+<script src="signflow-store.js?v=202608221332"></script>
+<script src="signflow-conversions.js?v=202608221332"></script>
 <style>
   /* ── View switcher ─────────────────────────────────────────── */
   /* The page is a fixed-height flex column with overflow hidden on
@@ -443,7 +443,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     <a href="settings.html">Settings</a>
   </nav>
   <div class="header-right">
-    <div class="date-chip" id="date-chip">📅 Sun, Aug 2, 2026</div>
+    <div class="date-chip" id="date-chip">Sun, Aug 2, 2026</div>
     <button class="btn-new">＋ New Job</button>
     <div class="avatar">JG</div>
   </div>
@@ -451,9 +451,9 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
 <!-- ══ VIEW SWITCHER (Jobs / Reports / Smart Conversions) ═══════════ -->
 <div class="view-switch">
-  <div class="vs-tab active" data-view="jobs">📋 All Jobs</div>
-  <div class="vs-tab" data-view="reports">📊 Reports</div>
-  <div class="vs-tab" data-view="wins">⚡ Smart Conversions</div>
+  <div class="vs-tab active" data-view="jobs">All Jobs</div>
+  <div class="vs-tab" data-view="reports">Reports</div>
+  <div class="vs-tab" data-view="wins">Smart Conversions</div>
 </div>
 
 <!-- ══ SUB BAR ═══════════════════════════════════════════════════ -->
@@ -466,11 +466,11 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   <div class="filter-pills">
     <div class="filter-pill active" data-filter="all">All</div>
     <div class="filter-pill" data-filter="active">Active</div>
-    <div class="filter-pill" data-filter="cold">❄️ Cold</div>
+    <div class="filter-pill" data-filter="cold">Cold</div>
     <div class="filter-pill" data-filter="lost">✕ Lost</div>
     <div class="filter-pill" data-filter="complete">✓ Complete</div>
   </div>
-  <input class="search-box" id="search-box" type="text" placeholder="🔍  Search jobs, clients…" />
+  <input class="search-box" id="search-box" type="text" placeholder=" Search jobs, clients…" />
 </div>
 
 <!-- ══ VIEW: JOBS ══════════════════════════════════════════════ -->
@@ -527,7 +527,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     var d = new Date();
     var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    el.textContent = '📅 ' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    el.textContent = '' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
   })();
 
   /* ── Stage config ── */
@@ -596,7 +596,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     var stagePill = '<span class="stage-pill" style="background:'+sc.bg+';border:1px solid '+sc.border+';color:'+sc.text+';">'+job.stage+'</span>';
 
     /* type badge */
-    var typeIcon = job.type === 'indoor' ? '🏠' : '☀️';
+    var typeIcon = job.type === 'indoor' ? '' : '';
     var typeBadge = '<span class="type-badge '+job.type+'">'+typeIcon+' '+job.type.charAt(0).toUpperCase()+job.type.slice(1)+'</span>';
 
     /* value */
@@ -620,14 +620,14 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
 
     /* priority */
     var prioMap = {
-      urgent:{ icon:'🔴', label:'Urgent' },
-      high:  { icon:'🟡', label:'High'   },
-      normal:{ icon:'⚪', label:'Normal' },
-      cold:  { icon:'❄️', label:'Cold'  },
+      urgent:{ icon:'', label:'Urgent' },
+      high:  { icon:'', label:'High'   },
+      normal:{ icon:'', label:'Normal' },
+      cold:  { icon:'', label:'Cold'  },
       lost:  { icon:'✕',  label:'Lost'  },
       done:  { icon:'✓',  label:'Done'  },
     };
-    var p = prioMap[job.priority] || {icon:'⚪',label:job.priority};
+    var p = prioMap[job.priority] || {icon:'',label:job.priority};
     var prioBadge = '<span class="priority-badge '+job.priority+'">'+p.icon+' '+p.label+'</span>';
 
     tr.innerHTML = [
@@ -754,9 +754,9 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   table{max-width:100%;}
 }
 </style>
-<script src="signflow-analytics-config.js?v=202608221301"></script>
-<script src="signflow-analytics.js?v=202608221301"></script>
-<script src="signflow-engine.js?v=202608221301"></script>
+<script src="signflow-analytics-config.js?v=202608221332"></script>
+<script src="signflow-analytics.js?v=202608221332"></script>
+<script src="signflow-engine.js?v=202608221332"></script>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════
@@ -851,7 +851,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
     var a = W.analyse();
     var wrap = document.getElementById('wp-wrap');
 
-    var note = '<div class="wp-note"><span>⚠️</span><span>'
+    var note = '<div class="wp-note"><span></span><span>'
       + '<b>Includes sample history.</b> A new board has no closed jobs, so '
       + 'these figures are seeded with plausible past work to show how the '
       + 'view behaves — treat them as a demonstration, not as measured fact. '
@@ -1027,6 +1027,7 @@ setTimeout(function(){var e=document.getElementById('sf-veil');if(e){e.classList
   if (want === 'reports' || want === 'wins') show(want);
 })();
 </script>
-  <script src="signflow-demo.js?v=202608221301"></script>
+  <script src="signflow-demo.js?v=202608221332"></script>
+<link rel="stylesheet" href="signflow-design.css?v=202608221332">
 </body>
 </html>
